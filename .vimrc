@@ -4,10 +4,24 @@
 set nocompatible
 filetype off
 
+" Proxy
+if $http_proxy == ""
+    let $HTTP_PROXY  = 
+    let $HTTPS_PROXY = $HTTP_PROXY
+endif
+
+" simple note
+let g:SimplenoteUsername = 
+let g:SimplenotePassword = 
+let g:SimplenoteFiletype = "markdown"
+
 " Package management
 if has('vim_starting')
     set runtimepath+=~/.vim/bundle/neobundle.vim/
 endif
+
+" for passing the proxy
+let g:neobundle_default_git_protocol='https'
 
 call neobundle#begin(expand('~/.vim/bundle/'))
     NeoBundleFetch 'Shougo/neobundle.vim'
