@@ -1,26 +1,26 @@
 "-- vimrc
 
-" for vi compatibility
+" VI compatibility
 set nocompatible
 filetype off
 
-" Proxy
+" Proxy, if necessary
 if $http_proxy == ""
-    let $HTTP_PROXY  = 
-    let $HTTPS_PROXY = $HTTP_PROXY
+"    let $HTTP_PROXY  =
+"    let $HTTPS_PROXY = $HTTP_PROXY
 endif
 
-" simple note
-let g:SimplenoteUsername = 
-let g:SimplenotePassword = 
-let g:SimplenoteFiletype = "markdown"
+" Simple note (load from other file)
+"let g:SimplenoteUsername =
+"let g:SimplenotePassword =
+"let g:SimplenoteFiletype = "markdown"
 
 " Package management
 if has('vim_starting')
     set runtimepath+=~/.vim/bundle/neobundle.vim/
 endif
 
-" for passing the proxy
+" Passing the proxy
 let g:neobundle_default_git_protocol='https'
 
 call neobundle#begin(expand('~/.vim/bundle/'))
@@ -38,10 +38,9 @@ call neobundle#begin(expand('~/.vim/bundle/'))
 	"NeoBundle 'nathanaelkane/vim-indent-guides'
 	"NeoBundle 'Shougo/unite-outline'
 
-	"if has('lua')
-	" requires lua extention
-	NeoBundle 'Shougo/neocomplete.vim'
-	"endif
+	if has('lua')
+		NeoBundle 'Shougo/neocomplete.vim'
+	endif
 
 	" requires clang ... clang include path problem must be solved in default settings
 	NeoBundle 'justmao945/vim-clang'
@@ -113,7 +112,6 @@ call neobundle#end()
 "-- basic settings
 filetype plugin on
 filetype indent on
-
 
 "-- encodings
 set encoding=utf-8

@@ -230,7 +230,6 @@ augroup cch
 "  autocmd WinEnter,BufRead * set cursorcolumn
 augroup END
 
-
 "------------------------------------------------
 " highlighting status line on insert mode
 " https://github.com/fuenor/vim-statusline/blob/master/insert-statusline.vim
