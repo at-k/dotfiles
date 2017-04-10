@@ -10,29 +10,29 @@ if has('vim_starting')
 endif
 
 call neobundle#begin(expand('~/.vim/bundle/'))
-    NeoBundleFetch 'Shougo/neobundle.vim'
+	NeoBundleFetch 'Shougo/neobundle.vim'
 
-    NeoBundle 'Shougo/neobundle.vim'
-    NeoBundle 'scrooloose/nerdtree'
-    "NeoBundle 'Townk/vim-autoclose'
-    NeoBundle 'mrtazz/simplenote.vim'
+	NeoBundle 'Shougo/neobundle.vim'
+	NeoBundle 'scrooloose/nerdtree'
+	"NeoBundle 'Townk/vim-autoclose'
+	NeoBundle 'mrtazz/simplenote.vim'
 
-    " requires python extention
-    NeoBundle 'Shougo/unite.vim'
+	" requires python extention
+	NeoBundle 'Shougo/unite.vim'
 
-    NeoBundle 'ujihisa/unite-colorscheme'
-    "NeoBundle 'nathanaelkane/vim-indent-guides'
-    "NeoBundle 'Shougo/unite-outline'
+	NeoBundle 'ujihisa/unite-colorscheme'
+	"NeoBundle 'nathanaelkane/vim-indent-guides'
+	"NeoBundle 'Shougo/unite-outline'
 
 	"if has('lua')
 	" requires lua extention
 	NeoBundle 'Shougo/neocomplete.vim'
 	"endif
 
-    " requires clang ... clang include path problem must be solved in default settings
-    NeoBundle 'justmao945/vim-clang'
-    "NeoBundle 'Shougo/neocomplcache-clang_complete'
-    "NeoBundle 'Rip-Rip/clang_complete'
+	" requires clang ... clang include path problem must be solved in default settings
+	NeoBundle 'justmao945/vim-clang'
+	"NeoBundle 'Shougo/neocomplcache-clang_complete'
+	"NeoBundle 'Rip-Rip/clang_complete'
 
     NeoBundle 'Shougo/vimproc.vim', {
                 \ 'build' : {

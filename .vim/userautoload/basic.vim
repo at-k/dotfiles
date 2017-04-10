@@ -491,6 +491,9 @@ let g:neocomplete#force_omni_input_patterns.c =
 let g:neocomplete#force_omni_input_patterns.cpp =
       \ '[^.[:digit:] *\t]\%(\.\|->\)\w*\|\h\w*::\w*'
 
+" <TAB>: completion.
+inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
+
 "-- for neco look
 if !exists('g:neocomplete#text_mode_filetypes')
 	let g:neocomplete#text_mode_filetypes = {}
