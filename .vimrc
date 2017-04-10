@@ -77,9 +77,10 @@ call neobundle#begin(expand('~/.vim/bundle/'))
     "-- coding
     NeoBundle 'majutsushi/tagbar'
     NeoBundle 'airblade/vim-rooter'
-	NeoBundle 'kana/vim-operator-user'
-	NeoBundle 'rhysd/vim-operator-surround'
+    NeoBundle 'kana/vim-operator-user'
+    NeoBundle 'rhysd/vim-operator-surround'
     NeoBundle 'tpope/vim-fugitive'
+    " NeoBundle 'wesleyche/SrcExpl'
 
     "-- color scheme, visual
     NeoBundle 'miyakogi/seiya.vim'
@@ -136,6 +137,13 @@ let g:seiya_auto_enable=1
 "let g:indent_guides_enable_on_vim_startup=1
 "let g:indent_guides_guide_size=1
 
+" --- setting for teraterm
+" ime control over teraterm
+" caution: it doesnt work though tmux/screen
+let &t_SI .= "\e[<r"
+let &t_EI .= "\e[<s\e[<0t"
+let &t_te .= "\e[<0t\e[<s"
+set timeoutlen=100
 
 " --- settings for linux
 if has("unix")
@@ -170,9 +178,30 @@ if has("unix")
     let QFixHowm_FileType = 'markdown'
     " html converter
     let HowmHtml_ConvertFunc = '<SID>MarkdownStr2HTML'
-    "let HowmHtml_ConvertCmd = 'C:/Apps/qfixapp/Markdown_1.0.1/markdown.pl'
-"    let HowmHtml_ConvertCmd = '"C:/Users/at/AppData/Local/Pandoc/pandoc" -f markdown'
-    "
     let QFixHowm_OpenURIcmd = '!start firefox %s'
 
 endif
+
+"---- settings for windows
+if has('win32') || has('win64')
+    " qfixhowm
+    set runtimepath+=c:/apps/qfixapp
+    " keymap reader
+    let QFixHowm_Key = 'g'
+
+    " howm_dir is a directory to save log
+    let howm_dir             = 'c:/work/howm'
+    let howm_filename        = '%Y/%m/%Y-%m-%d-%H%M%S.txt'
+    let howm_fileencoding    = 'cp932'
+    let howm_fileformat      = 'dos'
+
+    " file type
+    let QFixHowm_FileType = 'markdown'
+    " html converter
+    let HowmHtml_ConvertFunc = '<SID>MarkdownStr2HTML'
+    "let HowmHtml_ConvertCmd = 'C:/Apps/qfixapp/Markdown_1.0.1/markdown.pl'
+    let HowmHtml_ConvertCmd = '"C:/Users/at/AppData/Local/Pandoc/pandoc" -f markdown'
+    " outer browser setting
+    let QFixHowm_OpenURIcmd = '!start "C:\Program Files (x86)\Mozilla Firefox\firefox.exe" %s'
+endif
+
