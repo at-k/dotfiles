@@ -13,7 +13,7 @@ endif
 " Simple note (load from other file)
 "let g:SimplenoteUsername =
 "let g:SimplenotePassword =
-"let g:SimplenoteFiletype = "markdown"
+"let g:SimplenoteFiletype = 'markdown'
 
 " Package management
 if has('vim_starting')

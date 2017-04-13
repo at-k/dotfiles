@@ -1,0 +1,19 @@
+[user]
+	email = atushi.k@gmail.com
+	name = at-k
+[color]
+	ui = true
+[color "status"]
+	added = yellow
+	changed = green
+	untracked = cyan
+
+[alias]
+	wdiff = diff --color-words --ignore-all-space
+	ldiff = difftool -y -t latex
+
+[difftool.latex]
+	cmd = latexdiff -e ISO-2022-JP "$LOCAL" "$REMOTE"
+
+[push]
+	default = matching
