@@ -1,3 +1,156 @@
+#--from
+# Variables
+export LANG=ja_JP.UTF-8
+export PAGER='less -is'
+export EDITOR='vi'
+
+if [ $SHELL != "/bin/zsh" ]; then
+    export SHELL=/bin/zsh
+fi
+
+# Prompt
+case ${UID} in
+0)
+	RPROMPT="%B%{[00m%}%/#%{[m%}%b "
+	RPROMPT2="%B%{[00m%}%_#%{[m%}%b "
+	SPROMPT="%B%{[00m%}%r is correct? [n,y,a,e]:%{[m%}%b "
+	[ -n "${REMOTEHOST}${SSH_CONNECTION}" ] &&
+		PROMPT="%{[37m%}${HOST%%.*} ${PROMPT}"
+	;;
+*)
+	PROMPT="@%m%{[1;34m%}%#%{[m%} "
+	RPROMPT="%{[1;35m%}%/%{[m%} "
+	RPROMPT2="%/%{[1;34m%}%%%{[m%} "
+	SPROMPT="%{[00m%}%r is correct? [n,y,a,e]:%{[m%} "
+#	[ -n "${REMOTEHOST}${SSH_CONNECTION}" ] &&
+#		RPROMPT="%{[37m%}${HOST%%.*} ${PROMPT}"
+#	;;
+esac
+
+# --- zsh option
+# Opt
+autoload -U compinit
+compinit
+setopt COMPLETE_IN_WORD
+
+
+autoload -U colors
+colors
+
+zstyle ':completion:*' list-colors ''
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z} r:|[-_.]=**'
+
+# Color
+case "${TERM}" in
+kterm*|xterm*)
+    export LSCOLORS=exfxcxdxbxegedabagacad
+    export LS_COLORS='di=34;01:ln=35:so=32:pi=33:ex=31;01:bd=46;34:cd=43;34:su=41;30:sg=46;30:tw=42;30:ow=43;30'
+    zstyle ':completion:*' list-colors 'di=34' 'ln=35' 'so=32' 'ex=31' 'bd=46;34' 'cd=43;34'
+    ;;
+cons25)
+   unset LANG
+   export LSCOLORS=ExFxCxdxBxegedabagacad
+   export LS_COLORS='di=01;34:ln=01;35:so=01;32:ex=01;31:bd=46;34:cd=43;34:su=41;30:sg=46;30:tw=42;30:ow=43;30'
+   zstyle ':completion:*' list-colors 'di=;34;1' 'ln=;35;1' 'so=;32;1' 'ex=31;1' 'bd=46;34' 'cd=43;34'
+   ;;
+esac
+
+# Less Colors for Man Pages <ref http://linuxtidbits.wordpress.com/2009/03/23/less-colors-for-man-pages/
+export LESS_TERMCAP_mb=$'\E[01;31m'       # begin blinking
+export LESS_TERMCAP_md=$'\E[01;38;5;74m'  # begin bold
+export LESS_TERMCAP_me=$'\E[0m'           # end mode
+export LESS_TERMCAP_se=$'\E[0m'           # end standout-mode
+export LESS_TERMCAP_so=$'\E[38;5;246m'    # begin standout-mode - info box
+export LESS_TERMCAP_ue=$'\E[0m'           # end underline
+export LESS_TERMCAP_us=$'\E[04;38;5;146m' # begin underline
+
+# auto change directory
+setopt auto_cd
+
+# auto directory pushd that you can get dirs list by cd -[tab]
+setopt auto_pushd
+setopt pushd_ignore_dups
+
+# command correct edition before each completion attempt
+setopt correct
+
+# compacked complete list display
+setopt list_packed
+
+# no remove postfix slash of command line
+setopt noautoremoveslash
+
+# no beep sound when complete list displayed
+setopt nolistbeep
+
+# aliased ls needs if file/dir completions work
+setopt complete_aliases
+
+# History
+HISTFILE=~/.histfile
+HISTSIZE=10000
+SAVEHIST=10000
+setopt hist_ignore_dups
+setopt share_history
+setopt appendhistory autocd extendedglob nomatch
+# historical backward/forward search with linehead string binded to ^P/^N
+autoload history-search-end
+zle -N history-beginning-search-backward-end history-search-end
+zle -N history-beginning-search-forward-end history-search-end
+bindkey "^P" history-beginning-search-backward-end
+bindkey "^N" history-beginning-search-forward-end
+
+# Emacs key bind
+bindkey -e
+
+# for screen <ref -> http://ogawa.s18.xrea.com/tdiary/20080331.html
+case "${TERM}" in screen)
+    preexec() {
+            echo -ne "\ek#${1%% *}\e\\"
+        }
+    precmd() {
+         echo -ne "\ek$(basename $(pwd))\e\\"
+       }
+esac
+echo -ne "\ek$(basename $(pwd))\e\\"
+# --- environment
+# export GREP_OPTIONS='--color=auto -n'
+# grep options is obsoleted
+
+# --- Alias
+alias ls='ls --show-control-chars --color=auto -F'
+alias la='ls -la'
+alias ll='ls -l'
+alias lla='ls -la'
+alias reloadsh='source ~/.zshrc'
+
+alias ue='cd ../'
+alias gcc='gcc -Wall'
+alias g++='g++ -Wall'
+alias xy='xyzzycli'
+alias grep='grep --color=auto -n'
+alias sudo='sudo -E'
+
+#alias python='ipython'
+
+# alias with_proxy='export http_proxy="http://10033136:$( read -s "pw?proxy password: "; echo 1>&2 ;echo $pw; unset pw )@133.144.14.243:8080/" '
+# alias with_proxy_s='export http_proxy="http://10033136:$( read -s "pw?proxy password: " ; echo 1>&2 ;echo $pw; )@133.144.14.243:8080/" '
+
+export http_proxy=""
+export https_proxy=$http_proxy
+
+alias scr='screen -r'
+alias scr_cpdir='screen -X register . "$(pwd)"'
+alias scr_paste='screen -X paste .'
+
+alias ls_nfbin='ls /usr/local/bin/nf_bin'
+
+# byobu
+export VTE_CJK_WIDTH=1
+
+
+
+#---here
 # Path
 export PATH="/home/at/bin/Komodo-IDE/bin:$PATH"
 
