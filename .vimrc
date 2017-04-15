@@ -136,12 +136,11 @@ let g:seiya_auto_enable=1
 "let g:indent_guides_guide_size=1
 
 " --- setting for teraterm
-" ime control over teraterm
-" caution: it doesnt work though tmux/screen
-let &t_SI .= "\e[<r"
-let &t_EI .= "\e[<s\e[<0t"
-let &t_te .= "\e[<0t\e[<s"
-set timeoutlen=100
+" ime control over teraterm [caution] it doesnt work though tmux/screen [caution2] this settings prevent multi-key-stroke key map!!
+"let &t_SI .= "\e[<r"
+"let &t_EI .= "\e[<s\e[<0t"
+"let &t_te .= "\e[<0t\e[<s"
+"set timeoutlen=100
 
 " --- settings for linux
 if has("unix")

@@ -20,7 +20,7 @@ set autoread
 " disable swap file
 set noswapfile
 
-" allow open file even when there are no saved file
+" enable to open the other file even when current editing file is not saved
 set hidden
 
 " enable backspace in insert mode
@@ -116,7 +116,7 @@ autocmd ColorScheme * highlight Delimiter ctermfg=180 ctermbg=16 guifg=#C4BE89 g
 
 colorscheme molokai
 
-" enable gui ver only
+" enable gui ver only -- usually given at gvimrc
 "set antialias
 
 "-------------------------------------------------
@@ -145,7 +145,10 @@ autocmd BufWritePre * call <SID>remove_dust()
 " Indent Settings
 "-------------------------------------------------
 
+" put a same amount indent after line feed
 set autoindent
+
+" put a smart indent after line feed
 set smartindent
 
 " <Tab> size
@@ -168,7 +171,10 @@ set smarttab
 " Search Settings
 "-------------------------------------------------
 
+" incremental search
 set incsearch
+
+" hilight search word
 set hlsearch
 
 " ignore capitalization
@@ -231,8 +237,8 @@ augroup cch
 augroup END
 
 "------------------------------------------------
-" highlighting status line on insert mode
-" https://github.com/fuenor/vim-statusline/blob/master/insert-statusline.vim
+" Highlighting status line on insert mode
+"	https://github.com/fuenor/vim-statusline/blob/master/insert-statusline.vim
 "------------------------------------------------
 if !exists('g:hi_insert')
   let g:hi_insert = 'highlight StatusLine guifg=White guibg=DarkCyan gui=none ctermfg=White ctermbg=DarkCyan cterm=none'
@@ -266,9 +272,8 @@ function! s:GetHighlight(hi)
   return hl
 endfunction
 
-
 "------------------------------------------------
-" create directory automatically
+" Create directory automatically
 "------------------------------------------------
 augroup vimrc-auto-mkdir
     autocmd!
@@ -344,44 +349,9 @@ augroup END
 "command! -nargs=0 -complete=command Test2 call <SID>enum_up(<f-args>)
 "nnoremap <C-.> call s:enum_up()
 "nnoremap <C-,> call s:enum_down()
-nnoremap ,, :call <SID>enum_down()<CR>
-nnoremap ,. :call <SID>enum_up()<CR>
-
-
-"------------------------------------------------
-" NERDTree settings
-"------------------------------------------------
-let NERDTreeShowHidden = 1
-"let file_name = expand("%:p")
-"if has('vim_starting') && file_name == ""
-"    autocmd VimEnter * call ExecuteNERDTree()
-"endif
-
-function! ExecuteNERDTree()
-    "b:nerdstatus = 1 : NERDTree 表示中
-    "b:nerdstatus = 2 : NERDTree 非表示中
-
-    if !exists('g:nerdstatus')
-        execute 'NERDTree ./'
-        let g:windowWidth = winwidth(winnr())
-        let g:nerdtreebuf = bufnr('')
-        let g:nerdstatus = 1
-
-        elseif g:nerdstatus == 1
-        execute 'wincmd t'
-        execute 'vertical resize' 0
-        execute 'wincmd p'
-        let g:nerdstatus = 2
-        elseif g:nerdstatus == 2
-        execute 'wincmd t'
-        execute 'vertical resize' g:windowWidth
-        let g:nerdstatus = 1
-
-    endif
-endfunction
 
 "-------------------------------------------------
-" Key Map Settings
+" Key Map
 "-------------------------------------------------
 " disable yank on deleting
 nnoremap x "_x
@@ -429,17 +399,38 @@ inoremap <C-h> <BackSpace>
 "--- fold
 
 
-"--- plugin key map
-" invoke NERDTree
-nnoremap ,ne :<C-u>NERDTree<CR>
-" for mark
-nnoremap ,m :Unite mark<CR>
-" for tag bar
-nnoremap ,t :TagbarToggle<CR>
+"--- prefix settings
+" reserve prefix
+nnoremap <Space>	<Nop>
+nnoremap ,			<Nop>
+nnoremap s			<Nop>
 
-"--- special
+" prefix
+nnoremap [plugin]   <Nop>
+nnoremap [orgfunc]	<Nop>
+nnoremap [unite]    <Nop>
+nnoremap [templ]	<Nop>
+nmap     <Space>p	[plugin]
+nmap     <Space>o	[orgfunc]
+nmap     <Space>u	[unite]
+nmap	 <Space>t	[templ]
+
+"--- plugin
+" invoke NERDTree
+nnoremap [plugin]n :<C-u>NERDTree<CR>
+" invoke tag bar
+nnoremap [plugin]t :TagbarToggle<CR>
+" for unite
+nnoremap <silent> [unite]c   :<C-u>UniteWithCurrentDir -buffer-name=files buffer file_mru bookmark file<CR>
+nnoremap <silent> [unite]b   :<C-u>Unite buffer<CR>
+nnoremap <silent> [unite]m	 :Unite mark<CR>
+
+"--- original command
+nnoremap ,, :call <SID>enum_down()<CR>
+nnoremap ,. :call <SID>enum_up()<CR>
+
 " <F6>  inserting date
-nnoremap <F6> <ESC>i<C-R>=strftime("%Y/%m/%d (%a) %H:%M")<CR><CR>
+nnoremap [templ]t <ESC>i<C-R>=strftime("%Y/%m/%d (%a) %H:%M")<CR>
 
 "-------------------------------------------------
 " Original commmand
@@ -472,6 +463,38 @@ function! s:ChangeCurrentDir(directory, bang)
 endfunction
 
 nnoremap <silent> <Space>cd :<C-u>CD<CR>
+
+"------------------------------------------------
+" NERDTree
+"------------------------------------------------
+let NERDTreeShowHidden = 1
+"let file_name = expand("%:p")
+"if has('vim_starting') && file_name == ""
+"    autocmd VimEnter * call ExecuteNERDTree()
+"endif
+
+function! ExecuteNERDTree()
+    "b:nerdstatus = 1 : NERDTree 表示中
+    "b:nerdstatus = 2 : NERDTree 非表示中
+
+    if !exists('g:nerdstatus')
+        execute 'NERDTree ./'
+        let g:windowWidth = winwidth(winnr())
+        let g:nerdtreebuf = bufnr('')
+        let g:nerdstatus = 1
+
+        elseif g:nerdstatus == 1
+        execute 'wincmd t'
+        execute 'vertical resize' 0
+        execute 'wincmd p'
+        let g:nerdstatus = 2
+        elseif g:nerdstatus == 2
+        execute 'wincmd t'
+        execute 'vertical resize' g:windowWidth
+        let g:nerdstatus = 1
+
+    endif
+endfunction
 
 "-------------------------------------------------
 " NeoComplete
