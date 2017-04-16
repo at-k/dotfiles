@@ -80,7 +80,7 @@ zstyle ':completion:*:descriptions' format '%BCompleting%b %U%d%u'
 
 # auto cd
 setopt auto_cd
-function chpwd() { ls }
+function chpwd() { ls --show-control-chars --color=auto -F}
 
 # -- Completion
 
