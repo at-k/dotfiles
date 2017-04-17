@@ -185,12 +185,16 @@ alias scr_paste='screen -X paste .'
 export GST_TAG_ENCODING=CP932
 
 # for tmux
-show-current-dir-as-window-name() {
-    tmux set-window-option window-status-format " #I ${PWD:t} " > /dev/null
-}
+if [ -x "`which tmux 2> /dev/null`" ]; then
+    show-current-dir-as-window-name() {
+        tmux set-window-option window-status-format " #I ${PWD:t} " > /dev/null
+    }
 
-show-current-dir-as-window-name
-add-zsh-hook chpwd show-current-dir-as-window-name
+    if $(tmux has-session); then
+        show-current-dir-as-window-name
+        add-zsh-hook chpwd show-current-dir-as-window-name
+    fi
+fi
 
 # for screen <ref -> http://ogawa.s18.xrea.com/tdiary/20080331.html
 case "${TERM}" in screen)
@@ -207,10 +211,12 @@ echo -ne "\ek$(basename $(pwd))\e\\"
 export VTE_CJK_WIDTH=1
 
 # for python
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
-export PATH="$PYENV_ROOT/versions/anaconda3-4.2.0/bin/:$PATH"
+if [ -x "`which pyenv 2> /dev/null`" ]; then
+    export PYENV_ROOT="$HOME/.pyenv"
+    export PATH="$PYENV_ROOT/bin:$PATH"
+    eval "$(pyenv init -)"
+    export PATH="$PYENV_ROOT/versions/anaconda3-4.2.0/bin/:$PATH"
+fi
 
 # for proxy
 # alias with_proxy='export http_proxy="http://10033136:$( read -s "pw?proxy password: "; echo 1>&2 ;echo $pw; unset pw )@133.144.14.243:8080/" '
