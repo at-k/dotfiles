@@ -206,7 +206,6 @@ echo -ne "\ek$(basename $(pwd))\e\\"
 # for byobu
 export VTE_CJK_WIDTH=1
 
-
 # for python
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
@@ -217,4 +216,6 @@ export PATH="$PYENV_ROOT/versions/anaconda3-4.2.0/bin/:$PATH"
 # alias with_proxy='export http_proxy="http://10033136:$( read -s "pw?proxy password: "; echo 1>&2 ;echo $pw; unset pw )@133.144.14.243:8080/" '
 # alias with_proxy_s='export http_proxy="http://10033136:$( read -s "pw?proxy password: " ; echo 1>&2 ;echo $pw; )@133.144.14.243:8080/" '
 
-
+if [ -f ~/.zshrc_local ]; then
+    source ~/.zshrc_local
+fi
