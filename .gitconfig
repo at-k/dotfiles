@@ -1,6 +1,6 @@
-[user]
-	email = atushi.k@gmail.com
-	name = at-k
+[include]
+	path = .gitconfig.local
+
 [color]
 	ui = true
 [color "status"]
@@ -19,3 +19,4 @@
 
 [push]
 	default = matching
+

@@ -4,6 +4,10 @@
 set nocompatible
 filetype off
 
+if filereadable(expand('~/.vimrc.local'))
+	source ~/.vimrc.local
+endif
+
 " for debug
 " set verbose=1
 
@@ -124,7 +128,6 @@ set fileencodings=iso-2022-jp,euc-jp,sjis,utf-8
 set runtimepath+=~/.vim/
 runtime! userautoload/*.vim
 runtime! plugin_enable/*.vim
-runtime! local/*.vim
 
 "-- for Seiya
 let g:seiya_auto_enable=1
