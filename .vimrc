@@ -4,6 +4,9 @@
 set nocompatible
 filetype off
 
+" for debug
+" set verbose=1
+
 " Proxy, if necessary
 if $http_proxy == ""
 "    let $HTTP_PROXY  =
@@ -121,6 +124,7 @@ set fileencodings=iso-2022-jp,euc-jp,sjis,utf-8
 set runtimepath+=~/.vim/
 runtime! userautoload/*.vim
 runtime! plugin_enable/*.vim
+runtime! local/*.vim
 
 "-- for Seiya
 let g:seiya_auto_enable=1
