@@ -3,10 +3,6 @@ export LANG=ja_JP.UTF-8
 export PAGER='less -is'
 export EDITOR='vi'
 
-if [ $SHELL != "/bin/zsh" ]; then
-    export SHELL=/bin/zsh
-fi
-
 # -- Path
 export PATH="/home/at/bin/Komodo-IDE/bin:$PATH"
 

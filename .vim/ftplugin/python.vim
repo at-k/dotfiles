@@ -54,6 +54,7 @@ let b:current_after_syntax = 'python'
 let &cpo = s:cpo_save
 unlet s:cpo_save
 
+if has('python3')
 python3 << EOF
 import os
 import sys
@@ -62,4 +63,4 @@ path = os.path.expanduser("~/.pyenv/versions/anaconda3-4.2.0/lib/python3.5/site-
 if not path in sys.path:
 	sys.path.append(path)
 EOF
-
+endif
