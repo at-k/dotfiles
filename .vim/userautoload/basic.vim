@@ -75,13 +75,21 @@ set mouse=a
 
 " reload update file on moving from window
 augroup vimrc-checktime
-	autocmd!
-	autocmd WinEnter * checktime
+autocmd!
+autocmd WinEnter * checktime
 augroup END
 
-" enable clipboard
-"set clipboard=unnamed,autoselect
-set clipboard=unnamedplus
+" -- clipboard settings : they require vim supporting +clipboard option
+" load default value
+set clipboard&
+
+" share clipbpard and *register
+set clipboard+=unnamed
+
+" [caution] this option might have an effect upon yank function
+" save text selected on visual mode into clipboard
+set clipboard+=autoselect
+"set clipboard=unnamedplus
 
 "-------------------------------------------------
 " Color Settings
@@ -345,11 +353,6 @@ augroup enum-down-up
 	endfunction
 augroup END
 
-"command! -nargs=0 -complete=command Test call <SID>enum_down(<f-args>)
-"command! -nargs=0 -complete=command Test2 call <SID>enum_up(<f-args>)
-"nnoremap <C-.> call s:enum_up()
-"nnoremap <C-,> call s:enum_down()
-
 "-------------------------------------------------
 " Key Map
 "-------------------------------------------------
@@ -430,7 +433,8 @@ nnoremap ,, :call <SID>enum_down()<CR>
 nnoremap ,. :call <SID>enum_up()<CR>
 
 " <F6>  inserting date
-nnoremap [templ]t <ESC>i<C-R>=strftime("%Y/%m/%d (%a) %H:%M")<CR>
+nnoremap ,tl <ESC>i<C-R>=strftime("%Y/%m/%d (%a) %H:%M")<CR>
+nnoremap ,ts <ESC>i<C-R>=strftime("%y%m%d")<CR>
 
 "-------------------------------------------------
 " Original commmand
