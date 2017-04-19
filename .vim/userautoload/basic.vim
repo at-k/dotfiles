@@ -83,13 +83,18 @@ augroup END
 " load default value
 set clipboard&
 
-" share clipbpard and *register
-set clipboard+=unnamed
-
-" [caution] this option might have an effect upon yank function
 " save text selected on visual mode into clipboard
 set clipboard+=autoselect
-"set clipboard=unnamedplus
+
+" [caution] this option might have an effect upon yank function
+if has('unix')
+	" add yank data to "+ register
+	set clipboard^=unnamedplus
+elseif has('win32') || has('win64')
+	" share clipbpard and "* register
+	set clipboard+=unnamed
+endif
+
 
 "-------------------------------------------------
 " Color Settings
