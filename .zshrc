@@ -74,8 +74,10 @@ setopt pushd_ignore_dups
 zstyle ':completion:*:cd:*' ignore-parents parent pwd
 zstyle ':completion:*:descriptions' format '%BCompleting%b %U%d%u'
 
-# auto cd
+# auto cd (change directory without cd command)
 setopt auto_cd
+
+# hook ls on cd
 function chpwd() { ls --show-control-chars --color=auto -F}
 
 # -- Completion
@@ -218,6 +220,18 @@ fi
 # alias with_proxy='export http_proxy="http://10033136:$( read -s "pw?proxy password: "; echo 1>&2 ;echo $pw; unset pw )@133.144.14.243:8080/" '
 # alias with_proxy_s='export http_proxy="http://10033136:$( read -s "pw?proxy password: " ; echo 1>&2 ;echo $pw; )@133.144.14.243:8080/" '
 
+# for specific OS
+if [ "$OSTYPE" = "cygwin" ]; then
+	alias op='explorer'
+	alias doc=''
+	alias ecl=''
+	alias pow=''
+elif ["$OSTYPE" = "linux" ]; then
+	alias op='gnome-open'
+fi
+
+# local limited
 if [ -f ~/.zshrc.local ]; then
     source ~/.zshrc.local
 fi
+
