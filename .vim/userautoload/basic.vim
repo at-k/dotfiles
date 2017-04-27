@@ -67,8 +67,8 @@ set cmdheight=2
 " show which mode now
 set showmode
 
-" disable mode line
-set nomodeline
+" enable mode line
+set modeline
 
 " enable mouse operation
 set mouse=a
@@ -300,7 +300,7 @@ augroup vimrc-auto-mkdir
 augroup END
 
 "------------------------------------------------
-" Enumeration Down/Up
+" Enumeration Down/Up ... to do: space-indent case
 "------------------------------------------------
 augroup enum-down-up
 	autocmd!

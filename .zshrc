@@ -226,7 +226,7 @@ if [ "$OSTYPE" = "cygwin" ]; then
 	alias doc=''
 	alias ecl=''
 	alias pow=''
-elif ["$OSTYPE" = "linux" ]; then
+elif ["$OSTYPE" = "linux-gnu" ]; then
 	alias op='gnome-open'
 fi
 
