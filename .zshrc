@@ -183,7 +183,8 @@ alias scr_paste='screen -X paste .'
 export GST_TAG_ENCODING=CP932
 
 # for tmux
-if [ -x "`which tmux 2> /dev/null`" ]; then
+# if [ -x "`which tmux 2> /dev/null`" ]; then
+if type tmux > /dev/null 2>&1; then
     show-current-dir-as-window-name() {
         tmux set-window-option window-status-format " #I ${PWD:t} " > /dev/null
     }
@@ -209,7 +210,7 @@ echo -ne "\ek$(basename $(pwd))\e\\"
 export VTE_CJK_WIDTH=1
 
 # for python
-if [ -x "`which pyenv 2> /dev/null`" ]; then
+if [ -f ~/.pyenv/bin/pyenv ]; then
     export PYENV_ROOT="$HOME/.pyenv"
     export PATH="$PYENV_ROOT/bin:$PATH"
     eval "$(pyenv init -)"
@@ -226,7 +227,7 @@ if [ "$OSTYPE" = "cygwin" ]; then
 	alias doc=''
 	alias ecl=''
 	alias pow=''
-elif ["$OSTYPE" = "linux-gnu" ]; then
+elif [ "$OSTYPE" = "linux-gnu" ]; then
 	alias op='gnome-open'
 fi
 
