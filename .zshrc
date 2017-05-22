@@ -4,7 +4,7 @@ export PAGER='less -is'
 export EDITOR='vi'
 
 # -- Path
-export PATH="/home/at/bin/Komodo-IDE/bin:$PATH"
+# export PATH="/home/at/bin/Komodo-IDE/bin:$PATH"
 
 # -- Prompt
 autoload -Uz promptinit
@@ -214,7 +214,10 @@ if [ -f ~/.pyenv/bin/pyenv ]; then
     export PYENV_ROOT="$HOME/.pyenv"
     export PATH="$PYENV_ROOT/bin:$PATH"
     eval "$(pyenv init -)"
-    export PATH="$PYENV_ROOT/versions/anaconda3-4.2.0/bin/:$PATH"
+
+	if [ -d $PYENV_ROOT/versions/anaconda3-4.2.0/bin/ ]; then
+		export PATH="$PYENV_ROOT/versions/anaconda3-4.2.0/bin/:$PATH"
+	fi
 fi
 
 # for proxy
