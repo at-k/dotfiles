@@ -404,6 +404,10 @@ inoremap <C-h> <BackSpace>
 "inoremap <C-u> <C-o>d0
 "inoremap <C-y> <C-o>P
 
+"--- qfix
+nnoremap ]q :cnext<CR>
+nnoremap [q :cprevious<CR>
+
 "--- fold
 
 

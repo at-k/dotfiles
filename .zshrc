@@ -160,6 +160,8 @@ alias reloadsh='source ~/.zshrc'
 
 alias hex2dec="printf '%d\n'"
 alias dec2hex="printf '%x\n'"
+alias dec2bin='(){ echo "obase=2; ibase=10; ${1}" | bc }'
+alias tox='(){ echo "obase=${2}; ibase=${1}; ${3}" | bc }'
 
 alias bc="bc -l"
 
