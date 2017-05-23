@@ -150,9 +150,9 @@ export LESS_TERMCAP_us=$'\E[04;38;5;146m' # begin underline
 alias ls='ls --show-control-chars --color=auto -F'
 alias la='ls -la'
 alias ll='ls -l'
-alias ue='cd ../'
 alias cp='cp -i'
 alias mv='mv -i'
+alias bc="bc -l"
 alias pbcopy='xsel --clipboard --input'
 alias pbpaste='xsel --clipboard --output'
 
@@ -162,8 +162,6 @@ alias hex2dec="printf '%d\n'"
 alias dec2hex="printf '%x\n'"
 alias dec2bin='(){ echo "obase=2; ibase=10; ${1}" | bc }'
 alias tox='(){ echo "obase=${2}; ibase=${1}; ${3}" | bc }'
-
-alias bc="bc -l"
 
 alias gcc='gcc -Wall'
 alias g++='g++ -Wall'
@@ -178,6 +176,9 @@ alias sudo='sudo -E'
 alias scr='screen -r'
 alias scr_cpdir='screen -X register . "$(pwd)"'
 alias scr_paste='screen -X paste .'
+
+# alias ue='cd ../'
+alias ue='(){ cd $(seq -s"../" $(expr 1 + ${1}) | tr -d "[:digit:]")}'
 
 #alias python='ipython'
 
