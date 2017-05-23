@@ -178,7 +178,7 @@ alias scr_cpdir='screen -X register . "$(pwd)"'
 alias scr_paste='screen -X paste .'
 
 # alias ue='cd ../'
-alias ue='(){ cd $(seq -s"../" $(expr 1 + ${1}) | tr -d "[:digit:]")}'
+alias ue='(){ cd $(seq -s"../" $((1 + ${1:-1})) | tr -d "[:digit:]")}'
 
 #alias python='ipython'
 
