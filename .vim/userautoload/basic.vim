@@ -40,7 +40,7 @@ set browsedir=buffer
 set diffopt+=vertical
 
 " disable spell check for Japanese it works only in vim 7.4.0.88+
-set spelllang+=cjk
+set spelllang=en,cjk
 
 " enable cursor wrap when below key down
 "  b - [Backspace] normal and visual
@@ -122,11 +122,16 @@ set background=light
 "colorscheme mustang
 
 autocmd ColorScheme * highlight Comment ctermfg=2 guifg=#008800
-"autocmd ColorScheme * highlight Visual  term=reverse ctermfg=255 guifg=#008800
+" autocmd ColorScheme * highlight Visual  term=reverse ctermfg=255 guifg=#008800
 autocmd ColorScheme * highlight Visual term=reverse cterm=reverse ctermfg=193 ctermbg=16 gui=reverse guifg=#C4BE89 guibg=#000000
 autocmd ColorScheme * highlight MatchParen ctermfg=193 ctermbg=16 guifg=#C4BE89 guibg=#000000
 autocmd ColorScheme * highlight Delimiter ctermfg=180 ctermbg=16 guifg=#C4BE89 guibg=#000000
+autocmd ColorScheme * highlight IncSearch guifg=black guibg=#C6C5FE gui=BOLD ctermfg=black ctermbg=cyan cterm=BOLD
 
+highlight clear SpellBad
+autocmd ColorScheme * highlight SpellBad cterm=underline
+
+" load main color scheme
 colorscheme molokai
 
 " enable gui ver only -- usually given at gvimrc
@@ -139,7 +144,7 @@ colorscheme molokai
 " show number
 set number
 
-" show match branket
+" show match blanket
 set showmatch
 
 " clean up on saving
