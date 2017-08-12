@@ -59,6 +59,9 @@ zle -N history-beginning-search-forward-end history-search-end
 bindkey "^P" history-beginning-search-backward-end
 bindkey "^N" history-beginning-search-forward-end
 
+# disable flow control to use C-s key stroke for fwd-i-search
+setopt no_flow_control
+
 # -- Glob (pattern matching for file name. wild card is a kind of glob)
 
 # enable extended file pattern mattching
