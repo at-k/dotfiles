@@ -131,6 +131,11 @@ autocmd ColorScheme * highlight IncSearch guifg=black guibg=#C6C5FE gui=BOLD cte
 highlight clear SpellBad
 autocmd ColorScheme * highlight SpellBad cterm=underline
 
+autocmd ColorScheme * hi DiffAdd    ctermfg=black ctermbg=2
+autocmd ColorScheme * hi DiffChange ctermfg=black ctermbg=3
+autocmd ColorScheme * hi DiffDelete ctermfg=black ctermbg=6
+autocmd ColorScheme * hi DiffText   ctermfg=black ctermbg=7
+
 " load main color scheme
 colorscheme molokai
 
