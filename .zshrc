@@ -3,6 +3,8 @@ export LANG=ja_JP.UTF-8
 export PAGER='less -is'
 export EDITOR='vi'
 
+export LESS='-i -M -R'
+
 # -- Path
 # export PATH="/home/at/bin/Komodo-IDE/bin:$PATH"
 
@@ -141,13 +143,28 @@ zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
 zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
 
 # Less Colors for Man Pages <ref http://linuxtidbits.wordpress.com/2009/03/23/less-colors-for-man-pages/
-export LESS_TERMCAP_mb=$'\E[01;31m'       # begin blinking
-export LESS_TERMCAP_md=$'\E[01;38;5;74m'  # begin bold
-export LESS_TERMCAP_me=$'\E[0m'           # end mode
-export LESS_TERMCAP_se=$'\E[0m'           # end standout-mode
-export LESS_TERMCAP_so=$'\E[38;5;246m'    # begin standout-mode - info box
-export LESS_TERMCAP_ue=$'\E[0m'           # end underline
-export LESS_TERMCAP_us=$'\E[04;38;5;146m' # begin underline
+# export LESS_TERMCAP_mb=$'\E[01;31m'       # begin blinking
+# export LESS_TERMCAP_md=$'\E[01;38;5;74m'  # begin bold
+# export LESS_TERMCAP_me=$'\E[0m'           # end mode
+# export LESS_TERMCAP_se=$'\E[0m'           # end standout-mode
+# export LESS_TERMCAP_so=$'\E[38;5;246m'    # begin standout-mode - info box
+# export LESS_TERMCAP_ue=$'\E[0m'           # end underline
+# export LESS_TERMCAP_us=$'\E[04;38;5;146m' # begin underline
+export LESS_TERMCAP_mb=$(tput bold; tput setaf 2)
+export LESS_TERMCAP_md=$(tput bold; tput setaf 74)
+export LESS_TERMCAP_me=$(tput sgr0)
+export LESS_TERMCAP_so=$(tput bold; tput setaf 7; tput setab 60)
+export LESS_TERMCAP_se=$(tput rmso; tput sgr0)
+export LESS_TERMCAP_us=$(tput smul; tput bold; tput setaf 146)
+export LESS_TERMCAP_ue=$(tput rmul; tput sgr0)
+export LESS_TERMCAP_mr=$(tput rev)
+export LESS_TERMCAP_mh=$(tput dim)
+export LESS_TERMCAP_ZN=$(tput ssubm)
+export LESS_TERMCAP_ZV=$(tput rsubm)
+export LESS_TERMCAP_ZO=$(tput ssupm)
+export LESS_TERMCAP_ZW=$(tput rsupm)
+export GROFF_NO_SGR=1         # For Konsole and Gnome-terminal
+
 
 # -- Alias
 alias ls='ls --show-control-chars --color=auto -F'
@@ -173,8 +190,8 @@ alias -g G='| grep'
 alias -g H='| head'
 alias -g T='| tail'
 
-alias grep='grep --color=auto -n'
-alias sudo='sudo -E'
+alias grep='grep --color=auto'
+# alias sudo='sudo -E'
 
 alias scr='screen -r'
 alias scr_cpdir='screen -X register . "$(pwd)"'
@@ -182,6 +199,9 @@ alias scr_paste='screen -X paste .'
 
 # alias ue='cd ../'
 alias ue='(){ cd $(seq -s"../" $((1 + ${1:-1})) | tr -d "[:digit:]")}'
+
+# alias iro='for i in {0..255} ; do; printf "\x1b[38;5;${i}m${i} "; done'
+alias iro='for i in {0..255} ; do; printf "\x1b[38;5;${i}m%03d " ${i}; done'
 
 #alias python='ipython'
 
@@ -210,7 +230,6 @@ case "${TERM}" in screen)
          echo -ne "\ek$(basename $(pwd))\e\\"
        }
 esac
-echo -ne "\ek$(basename $(pwd))\e\\"
 
 # for byobu
 export VTE_CJK_WIDTH=1
