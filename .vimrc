@@ -89,12 +89,14 @@ call neobundle#begin(expand('~/.vim/bundle/'))
     " NeoBundle 'wesleyche/SrcExpl'
 
     "-- color scheme, visual
-    NeoBundle 'miyakogi/seiya.vim'
+	NeoBundle 'miyakogi/seiya.vim'
     NeoBundle 'altercation/vim-colors-solarized'
     NeoBundle 'tomasr/molokai'
     "NeoBundle 'sjl/badwolf'
     NeoBundle 'croaker/mustang-vim'
     NeoBundle 'nanotech/jellybeans.vim'
+"	NeoBundle 'vim-scripts/Wombat'
+	NeoBundle 'sheerun/vim-wombat-scheme'
 
 	"-- status line
     NeoBundle 'itchyny/lightline.vim'
@@ -130,7 +132,7 @@ runtime! userautoload/*.vim
 runtime! plugin_enable/*.vim
 
 "-- for Seiya
-let g:seiya_auto_enable=1
+"let g:seiya_auto_enable=1
 
 "-- for indent-guides
 "augroup indent_guides

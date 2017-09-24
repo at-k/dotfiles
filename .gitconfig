@@ -25,3 +25,4 @@
 
 [diff]
 	tool = vimdiff
+	compactionHeuristic = true

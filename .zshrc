@@ -1,12 +1,16 @@
 # -- Environment Variables
 export LANG=ja_JP.UTF-8
+export MANPAGER="less -is"
 export PAGER='less -is'
 export EDITOR='vi'
 
+export LV="-c -Sh1;36 -Su1;4;32 -Ss7;37;1;33"
 export LESS='-i -M -R'
 
-# -- Path
-# export PATH="/home/at/bin/Komodo-IDE/bin:$PATH"
+case ${TERM} in
+	xterm*)
+		export TERM=xterm-256color;;
+esac
 
 # -- Prompt
 autoload -Uz promptinit
@@ -113,22 +117,8 @@ zstyle ':completion:*' group-name ''
 zstyle ':completion:*:default' menu select=1
 # zstyle ':completion:*' menu select=2
 
-#autoload -U colors
-#colors
-#case "${TERM}" in
-#kterm*|xterm*)
-#    export LSCOLORS=exfxcxdxbxegedabagacad
-#    export LS_COLORS='di=34;01:ln=35:so=32:pi=33:ex=31;01:bd=46;34:cd=43;34:su=41;30:sg=46;30:tw=42;30:ow=43;30'
-#    zstyle ':completion:*' list-colors 'di=34' 'ln=35' 'so=32' 'ex=31' 'bd=46;34' 'cd=43;34'
-#    ;;
-#cons25)
-#   unset LANG
-#   export LSCOLORS=ExFxCxdxBxegedabagacad
-#   export LS_COLORS='di=01;34:ln=01;35:so=01;32:ex=01;31:bd=46;34:cd=43;34:su=41;30:sg=46;30:tw=42;30:ow=43;30'
-#   zstyle ':completion:*' list-colors 'di=;34;1' 'ln=;35;1' 'so=;32;1' 'ex=31;1' 'bd=46;34' 'cd=43;34'
-#   ;;
-#esac
 
+# --- Color
 eval "$(dircolors -b)"
 zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
 zstyle ':completion:*' list-colors ''
@@ -143,20 +133,14 @@ zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
 zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
 
 # Less Colors for Man Pages <ref http://linuxtidbits.wordpress.com/2009/03/23/less-colors-for-man-pages/
-# export LESS_TERMCAP_mb=$'\E[01;31m'       # begin blinking
-# export LESS_TERMCAP_md=$'\E[01;38;5;74m'  # begin bold
-# export LESS_TERMCAP_me=$'\E[0m'           # end mode
-# export LESS_TERMCAP_se=$'\E[0m'           # end standout-mode
-# export LESS_TERMCAP_so=$'\E[38;5;246m'    # begin standout-mode - info box
-# export LESS_TERMCAP_ue=$'\E[0m'           # end underline
-# export LESS_TERMCAP_us=$'\E[04;38;5;146m' # begin underline
-export LESS_TERMCAP_mb=$(tput bold; tput setaf 2)
-export LESS_TERMCAP_md=$(tput bold; tput setaf 74)
-export LESS_TERMCAP_me=$(tput sgr0)
-export LESS_TERMCAP_so=$(tput bold; tput setaf 7; tput setab 60)
-export LESS_TERMCAP_se=$(tput rmso; tput sgr0)
-export LESS_TERMCAP_us=$(tput smul; tput bold; tput setaf 146)
-export LESS_TERMCAP_ue=$(tput rmul; tput sgr0)
+# this configuration is available only in 256color environment (e.g. TERM=xterm-256color)
+export LESS_TERMCAP_mb=$(tput bold; tput setaf 2)					# begin blinking
+export LESS_TERMCAP_md=$(tput bold; tput setaf 74)  				# begin bold
+export LESS_TERMCAP_me=$(tput sgr0)									# end mode
+export LESS_TERMCAP_so=$(tput bold; tput setaf 7; tput setab 60)	# begin standout-mode - info box
+export LESS_TERMCAP_se=$(tput rmso; tput sgr0)						# end standout-mode
+export LESS_TERMCAP_us=$(tput smul; tput bold; tput setaf 146)		# begin underline
+export LESS_TERMCAP_ue=$(tput rmul; tput sgr0)						# end underline
 export LESS_TERMCAP_mr=$(tput rev)
 export LESS_TERMCAP_mh=$(tput dim)
 export LESS_TERMCAP_ZN=$(tput ssubm)
