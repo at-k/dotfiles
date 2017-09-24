@@ -32,7 +32,7 @@ prompt adam1
 #	SPROMPT="%{[00m%}%r is correct? [n,y,a,e]:%{[m%} "
 ##	[ -n "${REMOTEHOST}${SSH_CONNECTION}" ] &&
 ##		RPROMPT="%{[37m%}${HOST%%.*} ${PROMPT}"
-##	;;
+#	;;
 #esac
 
 # -- Key Bind
@@ -199,20 +199,20 @@ if type tmux > /dev/null 2>&1; then
         tmux set-window-option window-status-format " #I ${PWD:t} " > /dev/null
     }
 
-    if $(tmux has-session); then
-        show-current-dir-as-window-name
-        add-zsh-hook chpwd show-current-dir-as-window-name
-    fi
+	if $(tmux has-session); then
+		show-current-dir-as-window-name
+		add-zsh-hook chpwd show-current-dir-as-window-name
+	fi
 fi
 
 # for screen <ref -> http://ogawa.s18.xrea.com/tdiary/20080331.html
 case "${TERM}" in screen)
-    preexec() {
-            echo -ne "\ek#${1%% *}\e\\"
-        }
-    precmd() {
-         echo -ne "\ek$(basename $(pwd))\e\\"
-       }
+	preexec() {
+		echo -ne "\ek#${1%% *}\e\\"
+	}
+	precmd() {
+		echo -ne "\ek$(basename $(pwd))\e\\"
+	}
 esac
 
 # for byobu
