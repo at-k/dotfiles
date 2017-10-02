@@ -20,3 +20,9 @@
 [push]
 	default = matching
 
+[core]
+	editor = vim
+
+[diff]
+	tool = vimdiff
+	compactionHeuristic = true

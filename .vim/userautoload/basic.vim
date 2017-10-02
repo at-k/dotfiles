@@ -115,24 +115,34 @@ let g:solarized_underline=1
 let g:solarized_italic=1
 let g:solarized_contrast="normal"
 let g:solarized_visibility="normal"
-set background=light
+"set background=light
 "set background=dark
 "colorschem solarized
 "colorscheme elflord
 "colorscheme mustang
 
-autocmd ColorScheme * highlight Comment ctermfg=2 guifg=#008800
-" autocmd ColorScheme * highlight Visual  term=reverse ctermfg=255 guifg=#008800
-autocmd ColorScheme * highlight Visual term=reverse cterm=reverse ctermfg=193 ctermbg=16 gui=reverse guifg=#C4BE89 guibg=#000000
-autocmd ColorScheme * highlight MatchParen ctermfg=193 ctermbg=16 guifg=#C4BE89 guibg=#000000
-autocmd ColorScheme * highlight Delimiter ctermfg=180 ctermbg=16 guifg=#C4BE89 guibg=#000000
-autocmd ColorScheme * highlight IncSearch guifg=black guibg=#C6C5FE gui=BOLD ctermfg=black ctermbg=cyan cterm=BOLD
+"autocmd ColorScheme * highlight Comment ctermfg=2 guifg=#008800
+"" autocmd ColorScheme * highlight Visual  term=reverse ctermfg=255 guifg=#008800
+"autocmd ColorScheme * highlight Visual term=reverse cterm=reverse ctermfg=193 ctermbg=16 gui=reverse guifg=#C4BE89 guibg=#000000
+" autocmd ColorScheme * highlight MatchParen ctermfg=193 ctermbg=16 guifg=#C4BE89 guibg=#000000
+" autocmd ColorScheme * highlight Delimiter ctermfg=180 ctermbg=16 guifg=#C4BE89 guibg=#000000
+"autocmd ColorScheme * highlight IncSearch guifg=black guibg=#C6C5FE gui=BOLD ctermfg=black ctermbg=cyan cterm=BOLD
 
 highlight clear SpellBad
 autocmd ColorScheme * highlight SpellBad cterm=underline
 
+" diff color featured by https://github.com/romainl/Apprentice
+autocmd ColorScheme * hi DiffAdd      ctermbg=235  ctermfg=108  guibg=#262626 guifg=#87af87 cterm=reverse  gui=reverse
+autocmd ColorScheme * hi DiffChange   ctermbg=235  ctermfg=103  guibg=#262626 guifg=#8787af cterm=reverse  gui=reverse
+autocmd ColorScheme * hi DiffDelete   ctermbg=235  ctermfg=131  guibg=#262626 guifg=#af5f5f cterm=reverse  gui=reverse
+autocmd ColorScheme * hi DiffText     ctermbg=235  ctermfg=208  guibg=#262626 guifg=#ff8700 cterm=reverse  gui=reverse
+
 " load main color scheme
-colorscheme molokai
+" colorscheme molokai
+colorscheme wombat
+let g:lightline = {
+      \ 'colorscheme': 'wombat'
+      \ }
 
 " enable gui ver only -- usually given at gvimrc
 "set antialias

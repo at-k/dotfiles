@@ -1,5 +1,5 @@
 BoldAsFont=no
-Transparency=medium
+Transparency=low
 Columns=120
 Rows=86
 Font=Consolas
@@ -9,3 +9,4 @@ Locale=ja_JP
 Charset=UTF-8
 Language=ja
 Term=xterm-256color
+OpaqueWhenFocused=yes

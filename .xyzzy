@@ -1,0 +1,407 @@
+;;-- .xyzzy
+;; 
+
+; インクメンタルサーチを有効に
+(require "isearch")
+(load-library "isearch")
+(load-library "isearch-deco")
+
+; C-xC-cを弱くする（カレントバッファを閉じるだけにする）
+(global-set-key '(#\C-x #\C-c) 'kill-selected-buffer)
+
+; F2 と F3 でバッファ切り替え
+(setq *next-buffer-in-tab-order* t)
+(setq *previous-buffer-in-tab-order* t)
+(global-set-key #\F2 'previous-buffer)
+(global-set-key #\F3 'next-buffer)
+(set-extended-key-translate-table exkey-C-tab #\M-Right)
+(set-extended-key-translate-table exkey-S-C-tab #\M-Left)
+(global-set-key #\M-Right 'next-buffer)
+(global-set-key #\M-Left 'previous-buffer)
+
+; outline-tree
+(require "treeview/setup")
+(require "outline-tree/outline-tree")
+
+; set key
+(global-set-key #\C-/ 'undo)
+(global-set-key #\M-% 'query-replace)
+; クリップボードへ転送
+(global-set-key #\C-] 'copy-region-to-clipboard)
+; 全選択
+(global-set-key '(#\C-x #\h) 'selection-whole-buffer)
+; 現在のバッファクリア
+(defun clear-cur-buffer ()
+  (interactive)
+  (selection-whole-buffer)
+  (kill-selection))
+(global-set-key '(#\C-x #\q) 'clear-cur-buffer)
+
+; mouse copy & paste
+(defun mouse-right-press ()
+  (interactive)
+  (mouse-left-press)
+  (paste-from-clipboard)) 
+(global-set-key #\LBtnUp 'copy-selection-to-clipboard) 
+(global-set-key #\RBtnUp 'mouse-right-press)
+(global-set-key #\MBtnUp 'mouse-menu-popup)
+
+; back up file
+(require "backup")
+(setq *backup-directory* "~/backup-directory/")
+(setq *hierarchic-backup-directory* t)
+
+; 対応する括弧を強調
+; (show-paren-mode t)
+(require "paren")
+(turn-on-global-paren)
+
+; howm
+;(pushnew (merge-pathnames "site-lisp/howm/" (si:system-root))
+;                *load-path* :test #'string-equal)
+;(require "howm-wrap")
+;; `howm-init.l' をコピーしてない場合、以下を有効に。
+;; 日本語メニューを使う。
+;(setq elisp-lib::howm-menu-lang 'elisp-lib::ja)
+
+
+; モード設定
+; bat mode
+(load-library "bat-mode")
+(push '("\\.bat$" . bat-mode) *auto-mode-alist*)
+
+; bash mode
+(load-library "bash-mode")
+(push '("\\.sh$" . bash-mode) *auto-mode-alist*)
+
+; awk mode
+(load-library "awk-mode")
+(push '("\\.awk$" . awk-mode) *auto-mode-alist*)
+
+; ini mode
+(load-library "ini-mode")
+(push '("\\.ini$" . ini-mode) *auto-mode-alist*)
+
+; php mode
+(load-library "php-mode")
+(push '("\\.php$" . php-mode) *auto-mode-alist*)
+
+;; c mode indent
+(setq *c-indent-tabs-mode* nil)
+(setq c-indent-level 4)
+(setq c-continued-statement-offset 4)
+(setq c-argdecl-indent 5)
+(setq c-brace-offset -4)
+(setq c-brace-imaginary-offset 0)
+(setq c-label-offset -4)
+(setq c-comment-indent 0)
+
+;; cpp mode indent
+(setq *c++-indent-tabs-mode* nil)
+(setq c++-indent-level 4)
+(setq c++-continued-statement-offset 4)
+(setq c++-argdecl-indent 5)
+(setq c++-brace-offset -4)
+(setq c++-brace-imaginary-offset 0)
+(setq c++-label-offset -4)
+(setq c++-comment-indent 0)
+
+;; encode converter
+(defun convert-encoding-directory (from to encoding)
+  (setq from (namestring from))
+  (setq to (namestring to))
+  (or (and (path-equal from to)
+           (not (yes-or-no-p "入力と出力が同じっぽいっすけどいいっすか?")))
+      (let (buffer)
+        (unwind-protect
+            (progn
+              (do-events)
+              (setq buffer (create-new-buffer "*foo*"))
+              (set-buffer buffer)
+              (set-buffer-fileio-encoding encoding)
+              (mapc #'(lambda (f)
+                        (message "~a..." f)
+                        (erase-buffer buffer)
+                        (insert-file-contents (merge-pathnames f from))
+                        (write-region (point-min) (point-max)
+                                      (merge-pathnames f to)))
+                    (directory from :file-only t)))
+          (and buffer (delete-buffer buffer)))))
+  (message "done"))
+
+(defun sjis2utf (from to)
+  (interactive "Dsjis2utf: \nDto: ")
+  (convert-encoding-directory from to *encoding-utf8*))
+
+(defun utf2sjis (from to)
+  (interactive "Dutf2sjis: \nDto: ")
+  (convert-encoding-directory from to *encoding-sjis*))
+
+(defun sjis2euc (from to)
+  (interactive "Dsjis2euc: \nDto: ")
+  (convert-encoding-directory from to *encoding-euc-jp*))
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; バッファタブメニュー
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(add-hook '*init-app-menus-hook*
+         #'(lambda ()
+             (let ((menu *buffer-bar-context-menu*))
+               (delete-menu menu 0 t)
+               (add-menu-item menu nil "別のxyzzyで開く" 'my-reopen-other-xyzzy)
+               (add-menu-separator menu nil)
+               (add-menu-item menu nil "すべてコピー" 'my-copy-all)
+               (add-menu-separator menu nil)
+               (add-menu-item menu nil "タブを閉じる" 'my-close-buffer)
+               (add-menu-item menu nil "他のタブをすべて閉じる" 'my-close-other-buffers)
+               )))
+
+;; 別のxyzzyで開く
+(defmacro int2str (int)
+  `(format nil "~A" ,int))
+
+(defun my-reopen-other-xyzzy ()
+  (interactive)
+  (if (and (buffer-modified-p) (yes-no-or-cancel-p "保存しますか？"))
+      (save-buffer))
+  (let ((buffer *buffer-bar-context-menu-buffer*))
+	(setq name (get-buffer-file-name buffer) line (current-line-number))
+	(delete-buffer buffer)
+	(let ((callcmd "xyzzy.exe"))
+	  (if (>= (count-xyzzy-instance) 2)
+		  (progn (setq callcmd "xyzzycli.exe")
+			(next-xyzzy-window)))
+	  (call-process (concat callcmd " \"" name "\" -g " (int2str line))
+					:exec-directory (si:system-root) :wait nil))))
+
+;; すべてコピー
+(defun my-copy-all()
+  (interactive)
+  (copy-region-to-clipboard (point-min) (point-max)))
+
+;; 閉じる
+(defun my-close-buffer()
+  (interactive)
+  (kill-buffer *buffer-bar-context-menu-buffer*))
+
+;; 他のタブをすべて閉じる
+(defun my-close-other-buffers ()
+  (interactive)
+  (let ((buf0 *buffer-bar-context-menu-buffer*))
+    (dolist (buffer (buffer-list))
+      (unless (or (eq buffer buf0)
+		  (string= (buffer-name buffer) "*scratch*"))
+	(kill-buffer buffer)))))
+
+;;------- for grep
+;; 右クリック→送る　からgrep起動
+;; ref http://xyzzy.s53.xrea.com/wiki/index.php?QuickTour%2Fgrep
+(add-hook 'ed::*process-command-line-hook*
+	  #'(lambda (arg) (interactive)
+	      (when (file-directory-p arg)
+		(require "grepd")
+		(let ((ed::*grep-directory-name-hook*
+		       #'(lambda () arg)))
+		  (declare (special ed::*grep-directory-name-hook*))
+		  (setq arg (map-backslash-to-slash arg))
+		  (add-history arg 'ed::*grep-directory-history*)
+		  (ed::grep-dialog)))))
+
+;; 結果のダブルクリックでファイルを開く
+;; ref http://hie.s64.xrea.com/xyzzy/note/search.html#extension-grep-dialog
+(defun grep-mouse-left-press ()
+  (interactive)
+  (let ((click (mod *last-mouse-click-count* 6)))
+    (if (= click 2)
+        (first-error)
+      (mouse-left-press))))
+
+(defvar *grep-map* nil)
+(unless *grep-map*
+  (setq *grep-map* (make-sparse-keymap))
+  (define-key *grep-map* #\LBtnDown 'grep-mouse-left-press))
+(add-hook 'ed::*grep-hook* #'(lambda () (use-keymap *grep-map*)))
+(add-hook 'ed::*grepd-hook* #'(lambda () (use-keymap *grep-map*)))
+
+
+
+;;------------------ for DF micro signature support
+(defun insert-my-sig ()
+  (interactive)
+  (insert "/**a-kawamu************************************************/"))
+(defun insert-my-sig-end ()
+  (interactive)
+  (insert "/************************************************a-kawamu**/"))
+;(global-set-key '(#\C-x #\[) 'insert-my-sig)
+;(global-set-key '(#\C-x #\]) 'insert-my-sig-end)
+
+(defun update-conf ()
+  (interactive)
+  (load-file "~/.xyzzy"))
+(global-set-key '(#\M-RET) 'update-conf)
+
+;;------------------ for NF micro comment support
+;; マイクロのコメント打ち込み支援
+; 開始
+(defun insert-nf-comment-b ()
+  (interactive)
+  (save-excursion
+    (end-of-line)
+    (while (>= 48 ( current-column ) )
+      (insert " ")
+      (end-of-line))
+    (if (<= 48 ( current-column ) )
+	(insert "/* ") )
+    )
+  (end-of-line)
+  )
+
+; 閉じる
+(defun insert-nf-comment-e ()
+  (interactive)
+  (save-excursion
+    (end-of-line)
+    (while (>= 77 ( current-column ) )
+      (insert " ")
+      (end-of-line))
+    (if (<= 77 ( current-column ) )
+	(insert "*/") )
+    )
+  )
+
+; キーバインド
+(global-set-key '(#\C-x #\[) 'insert-nf-comment-b)
+(global-set-key '(#\C-x #\]) 'insert-nf-comment-e)
+
+; 長いコメント
+(defun insert-nf-comment-long ()
+  (interactive)
+  (save-excursion
+    (let ((bot (progn (goto-eol) (point)))
+	  (top (progn (goto-bol) (point))))
+      (end-of-line)
+      (insert "/*")
+      (while (>= 77 ( - bot top ) )
+	(insert "*")
+	(setq bot ( progn ( goto-eol) (point))))
+      (insert "*/")
+    )
+   )
+  (end-of-line)
+  )
+; キーバインド
+(global-set-key '(#\C-x #\:) 'insert-nf-comment-long)
+
+(defun insert-nf-space (x)
+;  (interactive)
+  (save-excursion
+    (let ((cur (point))
+	  (bot (progn (goto-eol) (point)))
+	  (top (progn (goto-bol) (point))))
+      (end-of-line)
+      (goto-char cur)
+      (while (>= x ( - bot top ) )
+	(insert " ")
+	(setq bot ( progn ( goto-eol) (point)))
+	(goto-char cur))
+    )
+   )
+  (end-of-line)
+  )
+
+(defun insert-nf-space-long ()
+  (interactive)
+  (insert-nf-space 47))
+
+(defun insert-nf-space-short ()
+  (interactive)
+  (insert-nf-space 37))
+
+(global-set-key '(#\C-x #\;) 'insert-nf-space-long)
+(global-set-key '(#\C-x #\+) 'insert-nf-space-short)
+
+; -- utility
+(defun count-char ()
+  (interactive)
+  (save-excursion
+    (let ((top (point))
+	  (bot (progn (goto-eol) (point))))
+      (message "~d" (- bot top )))))
+
+(defun count-char-from-point ()
+  (interactive)
+  (save-excursion
+    (let ((p1 (point))
+          (p2 (point-max)))
+      (setq parcnt
+            (- (progn (goto-char p2) (current-line-number))
+               (progn (goto-char p1) (current-line-number))))
+      (message "~d paragraphs, ~d characters."
+               parcnt (- p2 p1 parcnt)))))
+
+;;;;;;;;;;;;;;;;;
+;; ■ *scratch* をメモ代わりに使う。
+
+;; *scratch* を終了時に保存
+(add-hook '*kill-xyzzy-hook*
+          #'(lambda ()
+              (save-excursion
+                (set-buffer (find-buffer "*scratch*"))
+                (write-file "~/scratch")
+; ~/memorandom フォルダに毎回日付と時刻が含まれるファイル名で
+; 保存する場合はフォルダを作ってこの下2行をコメントアウト。(履歴もどき)
+;              (unless (equal (point-min) (point-max))
+;                (write-file (format-date-string "~/memorandom/%Y_%m_%d_%H%M_scratch.txt")))
+                )))
+
+;; *scratch* を起動時にロード
+(add-hook '*post-startup-hook*
+          #'(lambda ()
+              (save-excursion
+                (set-buffer (find-buffer "*scratch*"))
+                (insert-file-contents "~/scratch" t))))
+
+;; *scratch* な場合は nil を返してkillさせない
+(add-hook '*query-kill-buffer-hook*
+          #'(lambda ()
+              (if (and (not *kill-buffer-kills-scratch*)
+                       (equal (buffer-name (selected-buffer))
+                              "*scratch*"))
+                  nil
+                t)))
+
+; エンコード指定ポップアップ
+(defvar *encoding-menu* nil)
+(defun encoding-menu ()
+  (or *encoding-menu*
+      (let ((menu (create-popup-menu)))
+        (mapc #'(lambda (x)
+                  (add-menu-item menu nil (car x)
+                                 #'(lambda ()
+                                     (interactive)
+                                     (revert-buffer (cdr x)))))
+              `(("utf-8n \t(&8)" . ,*encoding-utf8n*)
+                ("utf-16 \t(&6)" . ,*encoding-utf16*)
+                ("sjis   \t(&S)" . ,*encoding-sjis*)
+                ("auto   \t(&A)" . ,*encoding-auto*)
+                ("euc-jp \t(&E)" . ,*encoding-euc-jp*)
+                ("jis    \t(&J)" . ,*encoding-jis*)))
+        (add-menu-item menu :select "詳細指定\t(&_)"
+                       #'(lambda (encoding)
+                           (interactive "zEncoding: ")
+                           (revert-buffer encoding)))
+        (setq *encoding-menu* menu))))
+(defun revert-buffer-encoding-popup2 ()
+  (interactive)
+  (track-popup-menu (encoding-menu)))
+
+(defun encoding-menu-in-file-autoload ()
+  (let ((filemenu (get-menu *app-menu* 'ed::file)))
+    (insert-popup-menu filemenu
+                       (1- (get-menu-position (get-menu *app-menu* 'ed::file) :above-session))
+                       (encoding-menu) "Reopen with Encoding (&G)\tC-c e")))
+(add-hook '*init-app-menus-hook* 'encoding-menu-in-file-autoload)
+(global-set-key '(#\C-c #\e) 'revert-buffer-encoding-popup2)
