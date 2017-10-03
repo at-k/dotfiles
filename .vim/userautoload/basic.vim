@@ -154,6 +154,9 @@ let g:lightline = {
 " show number
 set number
 
+" disable color column
+set cc=
+
 " show match blanket
 set showmatch
 
@@ -376,6 +379,11 @@ augroup END
 "-------------------------------------------------
 " Key Map
 "-------------------------------------------------
+cnoremap <C-a> <Home>
+cnoremap <C-b> <Left>
+cnoremap <C-f> <Right>
+" set cedit=<C-i>
+
 " disable yank on deleting
 nnoremap x "_x
 ""nnoremap d "_d
@@ -436,10 +444,12 @@ nnoremap s			<Nop>
 nnoremap [plugin]   <Nop>
 nnoremap [orgfunc]	<Nop>
 nnoremap [unite]    <Nop>
+"nnoremap [mark]		<Nop>
 nnoremap [templ]	<Nop>
 nmap     <Space>p	[plugin]
 nmap     <Space>o	[orgfunc]
 nmap     <Space>u	[unite]
+"nmap	 <Space>m	[mark]
 nmap	 <Space>t	[templ]
 
 "--- plugin
@@ -451,6 +461,10 @@ nnoremap [plugin]t :TagbarToggle<CR>
 nnoremap <silent> [unite]c   :<C-u>UniteWithCurrentDir -buffer-name=files buffer file_mru bookmark file<CR>
 nnoremap <silent> [unite]b   :<C-u>Unite buffer<CR>
 nnoremap <silent> [unite]m	 :Unite mark<CR>
+nnoremap <silent> [unite]i	 :Unite colorscheme -auto-preview<CR>
+
+" for mark
+"nnoremap <silent> [mark]	`
 
 "--- original command
 nnoremap ,, :call <SID>enum_down()<CR>

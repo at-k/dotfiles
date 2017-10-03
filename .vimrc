@@ -64,6 +64,8 @@ call neobundle#begin(expand('~/.vim/bundle/'))
                 \ }
     NeoBundle 'Shougo/neoinclude.vim'
 
+	NeoBundle 'Shougo/neomru.vim'
+
     "-- binary mode
     NeoBundle 'Shougo/vinarise'
 
@@ -71,6 +73,8 @@ call neobundle#begin(expand('~/.vim/bundle/'))
     "NeoBundle 'vim-scripts/ShowMarks'
     NeoBundle 'tacroe/unite-mark'
     "NeoBundle 'visualmark.vim'
+	"NeoBundle 'vim-scripts/Visual-Mark'
+	NeoBundle 'kshenoy/vim-signature'
 
     " input method(fcitx)
     "NeoBundle 'vim-scripts/fcitx.vim'
@@ -86,6 +90,9 @@ call neobundle#begin(expand('~/.vim/bundle/'))
     NeoBundle 'kana/vim-operator-user'
     NeoBundle 'rhysd/vim-operator-surround'
     NeoBundle 'tpope/vim-fugitive'
+
+	NeoBundle 'mhinz/vim-signify'
+	" NeoBundle 'airblade/vim-gitgutter'
     " NeoBundle 'wesleyche/SrcExpl'
 
     "-- color scheme, visual
