@@ -13,8 +13,8 @@ endif
 
 " Proxy, if necessary
 if $http_proxy == ""
-"    let $HTTP_PROXY  =
-"    let $HTTPS_PROXY = $HTTP_PROXY
+	"    let $HTTP_PROXY  =
+	"    let $HTTPS_PROXY = $HTTP_PROXY
 endif
 
 " Simple note (load from other file)
@@ -24,7 +24,7 @@ endif
 
 " Package management
 if has('vim_starting')
-    set runtimepath+=~/.vim/bundle/neobundle.vim/
+	set runtimepath+=~/.vim/bundle/neobundle.vim/
 endif
 
 " Passing the proxy
@@ -54,59 +54,60 @@ call neobundle#begin(expand('~/.vim/bundle/'))
 	"NeoBundle 'Shougo/neocomplcache-clang_complete'
 	"NeoBundle 'Rip-Rip/clang_complete'
 
-    NeoBundle 'Shougo/vimproc.vim', {
-                \ 'build' : {
-                \ 'windows' : 'make -f make_mingw32.mak',
-                \ 'cygwin' : 'make -f make_cygwin.mak',
-                \ 'mac' : 'make -f make_mac.mak',
-                \ 'unix' : 'make -f make_unix.mak',
-                \ },
-                \ }
-    NeoBundle 'Shougo/neoinclude.vim'
+	NeoBundle 'Shougo/vimproc.vim', {
+				\ 'build' : {
+				\ 'windows' : 'make -f make_mingw32.mak',
+				\ 'cygwin' : 'make -f make_cygwin.mak',
+				\ 'mac' : 'make -f make_mac.mak',
+				\ 'unix' : 'make -f make_unix.mak',
+				\ },
+				\ }
+	NeoBundle 'Shougo/neoinclude.vim'
 
 	NeoBundle 'Shougo/neomru.vim'
 
-    "-- binary mode
-    NeoBundle 'Shougo/vinarise'
+	"-- binary mode
+	NeoBundle 'Shougo/vinarise'
 
-    "-- Mark function
-    "NeoBundle 'vim-scripts/ShowMarks'
-    NeoBundle 'tacroe/unite-mark'
-    "NeoBundle 'visualmark.vim'
+	"-- Mark function
+	"NeoBundle 'vim-scripts/ShowMarks'
+	NeoBundle 'tacroe/unite-mark'
+	"NeoBundle 'visualmark.vim'
 	"NeoBundle 'vim-scripts/Visual-Mark'
 	NeoBundle 'kshenoy/vim-signature'
 
-    " input method(fcitx)
-    "NeoBundle 'vim-scripts/fcitx.vim'
+	" input method(fcitx)
+	"NeoBundle 'vim-scripts/fcitx.vim'
 
-    "-- Markdown
-    NeoBundle 'plasticboy/vim-markdown'
-    NeoBundle 'kannokanno/previm'
-    NeoBundle 'tyru/open-browser.vim'
+	"-- Markdown
+	NeoBundle 'plasticboy/vim-markdown'
+	NeoBundle 'kannokanno/previm'
+	NeoBundle 'tyru/open-browser.vim'
 
-    "-- coding
-    NeoBundle 'majutsushi/tagbar'
-    NeoBundle 'airblade/vim-rooter'
-    NeoBundle 'kana/vim-operator-user'
-    NeoBundle 'rhysd/vim-operator-surround'
-    NeoBundle 'tpope/vim-fugitive'
+	"-- coding
+	NeoBundle 'majutsushi/tagbar'
+	NeoBundle 'airblade/vim-rooter'
+	NeoBundle 'kana/vim-operator-user'
+	NeoBundle 'rhysd/vim-operator-surround'
+	NeoBundle 'tpope/vim-fugitive'
+	NeoBundle 'stephpy/vim-yaml'
 
 	NeoBundle 'mhinz/vim-signify'
 	" NeoBundle 'airblade/vim-gitgutter'
-    " NeoBundle 'wesleyche/SrcExpl'
+	" NeoBundle 'wesleyche/SrcExpl'
 
-    "-- color scheme, visual
+	"-- color scheme, visual
 	NeoBundle 'miyakogi/seiya.vim'
-    NeoBundle 'altercation/vim-colors-solarized'
-    NeoBundle 'tomasr/molokai'
-    "NeoBundle 'sjl/badwolf'
-    NeoBundle 'croaker/mustang-vim'
-    NeoBundle 'nanotech/jellybeans.vim'
-"	NeoBundle 'vim-scripts/Wombat'
+	NeoBundle 'altercation/vim-colors-solarized'
+	NeoBundle 'tomasr/molokai'
+	"NeoBundle 'sjl/badwolf'
+	NeoBundle 'croaker/mustang-vim'
+	NeoBundle 'nanotech/jellybeans.vim'
+	"	NeoBundle 'vim-scripts/Wombat'
 	NeoBundle 'sheerun/vim-wombat-scheme'
 
 	"-- status line
-    NeoBundle 'itchyny/lightline.vim'
+	NeoBundle 'itchyny/lightline.vim'
 
 	"-- english completion
 	NeoBundle 'ujihisa/neco-look'
