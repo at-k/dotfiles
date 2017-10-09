@@ -240,10 +240,25 @@ fi
 
 # for specific OS
 if [ "$OSTYPE" = "cygwin" ]; then
-	alias op='explorer'
-	alias doc=''
-	alias ecl=''
-	alias pow=''
+	alias op='cygstart'
+
+	function cygupdate() {
+		local setup=$(find / -maxdepth 1 -name "setup*.exe" | sed 's/\///')
+		if [ -z ${setup} ]; then
+			echo "error: current setup file not found"
+		else
+			mkdir -p /setup_backup
+			mv /${setup} /setup_backup
+			wget http://www.cygwin.com/${setup} -q
+			if [ ! -f ${setup} ]; then
+				echo "error: fail to download setup file from official"
+			else
+				chmod +x ${setup}
+				mv ${setup} /
+				echo "complete update"
+			fi
+		fi
+	}
 elif [ "$OSTYPE" = "linux-gnu" ]; then
 	alias op='gnome-open'
 fi
