@@ -38,10 +38,11 @@ call neobundle#begin(expand('~/.vim/bundle/'))
 	"NeoBundle 'Townk/vim-autoclose'
 	NeoBundle 'mrtazz/simplenote.vim'
 
-	" requires python extention
+	" unite
 	NeoBundle 'Shougo/unite.vim'
-
+	NeoBundle 'Shougo/neomru.vim'
 	NeoBundle 'ujihisa/unite-colorscheme'
+	NeoBundle 'tacroe/unite-mark'
 	"NeoBundle 'nathanaelkane/vim-indent-guides'
 	"NeoBundle 'Shougo/unite-outline'
 
@@ -64,14 +65,12 @@ call neobundle#begin(expand('~/.vim/bundle/'))
 				\ }
 	NeoBundle 'Shougo/neoinclude.vim'
 
-	NeoBundle 'Shougo/neomru.vim'
 
 	"-- binary mode
 	NeoBundle 'Shougo/vinarise'
 
 	"-- Mark function
 	"NeoBundle 'vim-scripts/ShowMarks'
-	NeoBundle 'tacroe/unite-mark'
 	"NeoBundle 'visualmark.vim'
 	"NeoBundle 'vim-scripts/Visual-Mark'
 	NeoBundle 'kshenoy/vim-signature'
@@ -103,13 +102,12 @@ call neobundle#begin(expand('~/.vim/bundle/'))
 	"NeoBundle 'sjl/badwolf'
 	NeoBundle 'croaker/mustang-vim'
 	NeoBundle 'nanotech/jellybeans.vim'
-	"	NeoBundle 'vim-scripts/Wombat'
 	NeoBundle 'sheerun/vim-wombat-scheme'
 
 	"-- status line
 	NeoBundle 'itchyny/lightline.vim'
 
-	"-- english completion
+	"-- english completion (neocomplete required)
 	NeoBundle 'ujihisa/neco-look'
 
 	"-- fold function expansion
@@ -121,14 +119,26 @@ call neobundle#begin(expand('~/.vim/bundle/'))
 	NeoBundle 'hynek/vim-python-pep8-indent'
 	NeoBundle 'tell-k/vim-autopep8'
 
+	"-- ruby
+	" code completion
+	NeoBundle "osyo-manga/vim-monster"
+	"NeoBundle 'marcus/rsense'
+	"NeoBundle 'supermomonga/neocomplete-rsense.vim'
+
+	" static analysis
+	NeoBundle 'vim-syntastic/syntastic'
+
+	" referring document
+	NeoBundle 'thinca/vim-ref'
+	NeoBundle 'yuku-t/vim-ref-ri'
+
 	"-- migemo
 	NeoBundle 'haya14busa/vim-migemo'
 
 call neobundle#end()
 
 "-- basic settings
-filetype plugin on
-filetype indent on
+filetype plugin indent on
 
 "-- encodings
 set encoding=utf-8
@@ -138,6 +148,7 @@ set fileencodings=iso-2022-jp,euc-jp,sjis,utf-8
 set runtimepath+=~/.vim/
 runtime! userautoload/*.vim
 runtime! plugin_enable/*.vim
+
 
 "-- for Seiya
 "let g:seiya_auto_enable=1

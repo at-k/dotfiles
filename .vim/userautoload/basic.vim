@@ -574,6 +574,12 @@ let g:neocomplete#text_mode_filetypes = {
 			\ 'tex': 1,
 			\ }
 
+"-- ruby
+let g:neocomplete#sources#omni#input_patterns = {
+			\   "ruby" : '[^. *\t]\.\w*\|\h\w*::',
+			\}
+
+
 "-------------------------------------------------
 " vim-clang
 "-------------------------------------------------
