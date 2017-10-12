@@ -107,14 +107,14 @@ syntax enable
 set t_Co=256
 
 " setting for solarized
-let g:solarized_termcolors=256
-let g:solarized_termtrans=0
-let g:solarized_degrade=0
-let g:solarized_bold=1
-let g:solarized_underline=1
-let g:solarized_italic=1
-let g:solarized_contrast="normal"
-let g:solarized_visibility="normal"
+" let g:solarized_termcolors=256
+" let g:solarized_termtrans=0
+" let g:solarized_degrade=0
+" let g:solarized_bold=1
+" let g:solarized_underline=1
+" let g:solarized_italic=1
+" let g:solarized_contrast="normal"
+" let g:solarized_visibility="normal"
 "set background=light
 "set background=dark
 "colorschem solarized
@@ -510,33 +510,33 @@ nnoremap <silent> <Space>cd :<C-u>CD<CR>
 " NERDTree
 "------------------------------------------------
 let NERDTreeShowHidden = 1
-"let file_name = expand("%:p")
-"if has('vim_starting') && file_name == ""
-"    autocmd VimEnter * call ExecuteNERDTree()
-"endif
 
-function! ExecuteNERDTree()
-    "b:nerdstatus = 1 : NERDTree 表示中
-    "b:nerdstatus = 2 : NERDTree 非表示中
+let s:bundle = neobundle#get("nerdtree")
+function! s:bundle.hooks.on_source(bundle)
+	function! ExecuteNERDTree()
+		"b:nerdstatus = 1 : NERDTree 表示中
+		"b:nerdstatus = 2 : NERDTree 非表示中
 
-    if !exists('g:nerdstatus')
-        execute 'NERDTree ./'
-        let g:windowWidth = winwidth(winnr())
-        let g:nerdtreebuf = bufnr('')
-        let g:nerdstatus = 1
+		if !exists('g:nerdstatus')
+			execute 'NERDTree ./'
+			let g:windowWidth = winwidth(winnr())
+			let g:nerdtreebuf = bufnr('')
+			let g:nerdstatus = 1
 
-        elseif g:nerdstatus == 1
-        execute 'wincmd t'
-        execute 'vertical resize' 0
-        execute 'wincmd p'
-        let g:nerdstatus = 2
-        elseif g:nerdstatus == 2
-        execute 'wincmd t'
-        execute 'vertical resize' g:windowWidth
-        let g:nerdstatus = 1
+		elseif g:nerdstatus == 1
+			execute 'wincmd t'
+			execute 'vertical resize' 0
+			execute 'wincmd p'
+			let g:nerdstatus = 2
+		elseif g:nerdstatus == 2
+			execute 'wincmd t'
+			execute 'vertical resize' g:windowWidth
+			let g:nerdstatus = 1
 
-    endif
+		endif
+	endfunction
 endfunction
+unlet s:bundle
 
 "-------------------------------------------------
 " NeoComplete
@@ -583,44 +583,47 @@ let g:neocomplete#sources#omni#input_patterns = {
 "-------------------------------------------------
 " vim-clang
 "-------------------------------------------------
-" disable auto completion for vim-clang
-let g:clang_auto = 0
+let s:bundle = neobundle#get("vim-clang")
+function! s:bundle.hooks.on_source(bundle)
+	" disable auto completion for vim-clang
+	let g:clang_auto = 0
 
-" default 'longest' can not work with neocomplete
-let g:clang_c_completeopt   = 'menuone'
-let g:clang_cpp_completeopt = 'menuone'
+	" default 'longest' can not work with neocomplete
+	let g:clang_c_completeopt   = 'menuone'
+	let g:clang_cpp_completeopt = 'menuone'
 
-if executable('clang-3.6')
-    let g:clang_exec = 'clang-3.6'
-elseif executable('clang-3.5')
-    let g:clang_exec = 'clang-3.5'
-elseif executable('clang-3.4')
-    let g:clang_exec = 'clang-3.4'
-else
-    let g:clang_exec = 'clang'
-endif
+	if executable('clang-3.6')
+		let g:clang_exec = 'clang-3.6'
+	elseif executable('clang-3.5')
+		let g:clang_exec = 'clang-3.5'
+	elseif executable('clang-3.4')
+		let g:clang_exec = 'clang-3.4'
+	else
+		let g:clang_exec = 'clang'
+	endif
 
-if executable('clang-format-3.6')
-    let g:clang_format_exec = 'clang-format-3.6'
-elseif executable('clang-format-3.5')
-    let g:clang_format_exec = 'clang-format-3.5'
-elseif executable('clang-format-3.4')
-    let g:clang_format_exec = 'clang-format-3.4'
-else
-    let g:clang_exec = 'clang'
-    "let g:clang_exec = 'clang-format'
-endif
+	if executable('clang-format-3.6')
+		let g:clang_format_exec = 'clang-format-3.6'
+	elseif executable('clang-format-3.5')
+		let g:clang_format_exec = 'clang-format-3.5'
+	elseif executable('clang-format-3.4')
+		let g:clang_format_exec = 'clang-format-3.4'
+	else
+		let g:clang_exec = 'clang'
+		"let g:clang_exec = 'clang-format'
+	endif
 
-let g:clang_cpp_options = '-std=c++11 -stdlib=libc++ -I /usr/include/ -I /usr/include/c++/5/ -I /usr/include/x86_64-linux-gnu/c++/5'
-"let g:clang_cpp_options = '-std=c++11 -stdlib=libc++'
+	let g:clang_cpp_options = '-std=c++11 -stdlib=libc++ -I /usr/include/ -I /usr/include/c++/5/ -I /usr/include/x86_64-linux-gnu/c++/5'
+	"let g:clang_cpp_options = '-std=c++11 -stdlib=libc++'
+endfunction
+unlet s:bundle
 
 "-------------------------------------------------
 " jedi-vim
 "-------------------------------------------------
-"NeoBundleLazy "davidhalter/jedi-vim", {
-"    \ "autoload": { "filetypes": [ "python", "python3", "djangohtml"] }}
-
-if ! empty(neobundle#get("jedi-vim"))
+let s:bundle = neobundle#get("jedi-vim")
+"if ! empty(neobundle#get("jedi-vim"))
+function! s:bundle.hooks.on_source(bundle)
 	autocmd FileType python setlocal omnifunc=jedi#completions
 
 	let g:jedi#auto_initialization = 1
@@ -650,4 +653,5 @@ if ! empty(neobundle#get("jedi-vim"))
 "		let g:neocomplete#force_omni_input_patterns.python =
 "					\ '\%([^. \t]\.\|^\s*@\|^\s*from\s.\+import \|^\s*from \|^\s*import \)\w*'
 	endif
-endif
+endfunction
+unlet s:bundle

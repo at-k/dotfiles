@@ -33,16 +33,22 @@ let g:neobundle_default_git_protocol='https'
 call neobundle#begin(expand('~/.vim/bundle/'))
 	NeoBundleFetch 'Shougo/neobundle.vim'
 
-	NeoBundle 'Shougo/neobundle.vim'
-	NeoBundle 'scrooloose/nerdtree'
-	"NeoBundle 'Townk/vim-autoclose'
-	NeoBundle 'mrtazz/simplenote.vim'
+	NeoBundleLazy 'scrooloose/nerdtree', {
+				\	'autoload' : { 'commands' : [ "NERDTree" ] } }
+
+	NeoBundleLazy 'mrtazz/simplenote.vim', {
+				\	'autoload' : { 'commands' : [ "SimplenoteList" ] } }
 
 	" unite
-	NeoBundle 'Shougo/unite.vim'
-	NeoBundle 'Shougo/neomru.vim'
-	NeoBundle 'ujihisa/unite-colorscheme'
-	NeoBundle 'tacroe/unite-mark'
+	NeoBundleLazy 'Shougo/unite.vim', {
+				\	'autoload' : { 'commands' : [ "Unite" ] } }
+
+	NeoBundle 'Shougo/neomru.vim', {
+				\ 'depends' : 'Shougo/unite.vim' }
+	NeoBundle 'ujihisa/unite-colorscheme', {
+				\ 'depends' : 'Shougo/unite.vim' }
+	NeoBundle 'tacroe/unite-mark', {
+				\ 'depends' : 'Shougo/unite.vim' }
 	"NeoBundle 'nathanaelkane/vim-indent-guides'
 	"NeoBundle 'Shougo/unite-outline'
 
@@ -51,7 +57,9 @@ call neobundle#begin(expand('~/.vim/bundle/'))
 	endif
 
 	" requires clang ... clang include path problem must be solved in default settings
-	NeoBundle 'justmao945/vim-clang'
+	NeoBundleLazy 'justmao945/vim-clang', {
+				\	'autoload' : { 'filetypes' : [ "cpp", "c" ] } }
+
 	"NeoBundle 'Shougo/neocomplcache-clang_complete'
 	"NeoBundle 'Rip-Rip/clang_complete'
 
@@ -80,28 +88,31 @@ call neobundle#begin(expand('~/.vim/bundle/'))
 
 	"-- Markdown
 	NeoBundle 'plasticboy/vim-markdown'
-	NeoBundle 'kannokanno/previm'
-	NeoBundle 'tyru/open-browser.vim'
+	NeoBundleLazy 'kannokanno/previm', {
+				\	'autoload' : { 'commands' : [ "PrevimOpen" ] } }
+	"NeoBundleLazy 'tyru/open-browser.vim', {
+	"			\	'autoload' : { 'filetypes' : [ "markdown" ] } }
 
 	"-- coding
 	NeoBundle 'majutsushi/tagbar'
-	NeoBundle 'airblade/vim-rooter'
+	" NeoBundle 'airblade/vim-rooter'
 	NeoBundle 'kana/vim-operator-user'
 	NeoBundle 'rhysd/vim-operator-surround'
 	NeoBundle 'tpope/vim-fugitive'
 	NeoBundle 'stephpy/vim-yaml'
+	"NeoBundle 'Townk/vim-autoclose'
 
 	NeoBundle 'mhinz/vim-signify'
 	" NeoBundle 'airblade/vim-gitgutter'
 	" NeoBundle 'wesleyche/SrcExpl'
 
 	"-- color scheme, visual
-	NeoBundle 'miyakogi/seiya.vim'
-	NeoBundle 'altercation/vim-colors-solarized'
-	NeoBundle 'tomasr/molokai'
-	"NeoBundle 'sjl/badwolf'
-	NeoBundle 'croaker/mustang-vim'
-	NeoBundle 'nanotech/jellybeans.vim'
+	" NeoBundle 'miyakogi/seiya.vim'
+	" NeoBundle 'altercation/vim-colors-solarized'
+	" NeoBundle 'tomasr/molokai'
+	" NeoBundle 'sjl/badwolf'
+	" NeoBundle 'croaker/mustang-vim'
+	" NeoBundle 'nanotech/jellybeans.vim'
 	NeoBundle 'sheerun/vim-wombat-scheme'
 
 	"-- status line
@@ -114,14 +125,19 @@ call neobundle#begin(expand('~/.vim/bundle/'))
 	NeoBundle 'Konfekt/FastFold'
 
 	"-- python
-	NeoBundle 'davidhalter/jedi-vim'
-	NeoBundle 'andviro/flake8-vim'
-	NeoBundle 'hynek/vim-python-pep8-indent'
-	NeoBundle 'tell-k/vim-autopep8'
+	NeoBundleLazy 'davidhalter/jedi-vim', {
+				\	'autoload' : { 'filetypes' : [ "python", "python3", "djangohtml" ] } }
+	NeoBundleLazy 'andviro/flake8-vim', {
+				\	'autoload' : { 'filetypes' : [ "python" ] } }
+	NeoBundleLazy 'hynek/vim-python-pep8-indent', {
+				\	'autoload' : { 'filetypes' : [ "python" ] } }
+	NeoBundleLazy 'tell-k/vim-autopep8', {
+				\	'autoload' : { 'filetypes' : [ "python" ] } }
 
 	"-- ruby
 	" code completion
-	NeoBundle "osyo-manga/vim-monster"
+	NeoBundleLazy "osyo-manga/vim-monster", {
+				\	'autoload' : { 'filetypes' : [ "ruby" ] } }
 	"NeoBundle 'marcus/rsense'
 	"NeoBundle 'supermomonga/neocomplete-rsense.vim'
 
