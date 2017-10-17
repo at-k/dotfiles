@@ -141,6 +141,11 @@ call neobundle#begin(expand('~/.vim/bundle/'))
 	"NeoBundle 'marcus/rsense'
 	"NeoBundle 'supermomonga/neocomplete-rsense.vim'
 
+	"-- go
+	NeoBundleLazy 'fatih/vim-go', {
+				\ 'autoload' : { 'filetypes' : 'go'  }
+				\ }
+
 	" static analysis
 	NeoBundle 'vim-syntastic/syntastic'
 

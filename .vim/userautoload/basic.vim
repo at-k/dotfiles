@@ -507,6 +507,17 @@ endfunction
 nnoremap <silent> <Space>cd :<C-u>CD<CR>
 
 "------------------------------------------------
+" go-vim
+"------------------------------------------------
+let s:bundle = neobundle#get("vim-go")
+function! s:bundle.hooks.on_source(bundle)
+	let g:go_highlight_functions = 1
+	let g:go_highlight_methods = 1
+	let g:go_highlight_structs = 1
+endfunction
+unlet s:bundle
+
+"------------------------------------------------
 " NERDTree
 "------------------------------------------------
 let NERDTreeShowHidden = 1
