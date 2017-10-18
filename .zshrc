@@ -234,6 +234,12 @@ if [ -d ~/.rbenv ]; then
 	eval "$(rbenv init - zsh)"
 fi
 
+# for go
+if [ -d ~/.go ]; then
+	export GOPATH=$HOME/.go
+	export PATH=$PATH:$GOPATH/bin
+fi
+
 # for proxy
 # alias with_proxy='export http_proxy="http://10033136:$( read -s "pw?proxy password: "; echo 1>&2 ;echo $pw; unset pw )@133.144.14.243:8080/" '
 # alias with_proxy_s='export http_proxy="http://10033136:$( read -s "pw?proxy password: " ; echo 1>&2 ;echo $pw; )@133.144.14.243:8080/" '
