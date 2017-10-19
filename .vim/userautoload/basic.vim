@@ -141,7 +141,14 @@ autocmd ColorScheme * hi DiffText     ctermbg=235  ctermfg=140  guibg=#262626 gu
 " colorscheme molokai
 colorscheme wombat
 let g:lightline = {
-      \ 'colorscheme': 'wombat'
+      \ 'colorscheme': 'wombat',
+      \ 'active': {
+      \   'left': [ [ 'mode', 'paste' ],
+      \             [ 'gitbranch', 'readonly', 'filename', 'modified' ] ]
+      \ },
+      \ 'component_function': {
+      \   'gitbranch': 'fugitive#head'
+      \ },
       \ }
 
 " enable gui ver only -- usually given at gvimrc

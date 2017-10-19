@@ -117,6 +117,7 @@ call neobundle#begin(expand('~/.vim/bundle/'))
 
 	"-- status line
 	NeoBundle 'itchyny/lightline.vim'
+	NeoBundle 'itchyny/vim-gitbranch'
 
 	"-- english completion (neocomplete required)
 	NeoBundle 'ujihisa/neco-look'
