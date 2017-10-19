@@ -10,3 +10,4 @@ Charset=UTF-8
 Language=ja
 Term=xterm-256color
 OpaqueWhenFocused=yes
+FontWeight=400
