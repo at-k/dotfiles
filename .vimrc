@@ -170,6 +170,10 @@ set runtimepath+=~/.vim/
 runtime! userautoload/*.vim
 runtime! plugin_enable/*.vim
 
+"-- lint settings for go // temporary
+let g:syntastic_mode_map = { 'mode': 'passive',
+    \ 'active_filetypes': ['go'] }
+let g:syntastic_go_checkers = ['go', 'golint']
 
 "-- for Seiya
 "let g:seiya_auto_enable=1
