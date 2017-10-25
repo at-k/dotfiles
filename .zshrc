@@ -16,7 +16,8 @@ esac
 if [ -d ~/.zplug ]; then
 	source ~/.zplug/init.zsh
 
-	zplug "zsh-users/zsh-completions" # completion for other command, e.g. git
+	zplug "zsh-users/zsh-completions"				   # completion for other command, e.g. git
+	zplug "zsh-users/zsh-syntax-highlighting", defer:3 # enable color cli
 
 	zplug load --verbose
 fi
@@ -140,8 +141,15 @@ alias scr='screen -r'
 alias scr_cpdir='screen -X register . "$(pwd)"'
 alias scr_paste='screen -X paste .'
 
-alias ue='(){ cd $(seq -s"../" $((1 + ${1:-1})) | tr -d "[:digit:]")}'
 alias iro='for i in {0..255} ; do; printf "\x1b[38;5;${i}m%03d " ${i}; done'
+
+alias gs='git status -uno'
+alias gl='git log'
+
+alias ue='(){ cd $(seq -s"../" $((1 + ${1:-1})) | tr -d "[:digit:]")}'
+alias bk='cd $OLDPWD'
+s() { pwd > ~/.save_dir ; }
+i() { cd "$(cat ~/.save_dir)" ; }
 
 # for rythmbox
 export GST_TAG_ENCODING=CP932
