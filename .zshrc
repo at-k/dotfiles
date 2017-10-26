@@ -1,3 +1,9 @@
+# -- Compile zshrc
+if [ ! -f ~/.zshrc.zwc -o ~/.zshrc -nt ~/.zshrc.zwc ]; then
+	echo "zshrc is updated. generating zshrc.zwc..."
+	zcompile ~/.zshrc
+fi
+
 # -- Environment Variables
 export LANG=ja_JP.UTF-8
 export MANPAGER="less -is"
@@ -19,15 +25,32 @@ if [ -d ~/.zplug ]; then
 	zplug "zsh-users/zsh-completions"				   # completion for other command, e.g. git
 	zplug "zsh-users/zsh-syntax-highlighting", defer:3 # enable color cli
 
-	zplug load --verbose
+	zplug "mafredri/zsh-async", from:github
+	zplug "sindresorhus/pure", use:pure.zsh, from:github, as:theme
+
+	#zplug load --verbose
+	zplug load
 fi
 
-# -- Prompt
-autoload -Uz promptinit; promptinit
-prompt adam1 # `prompt -p` shows other style
+compdef vboxmanage=VBoxManage  # completion for vboxmanage command
+
+# -- Prompt ... now using the one served by plugin
+#autoload -Uz promptinit; promptinit
+#prompt adam1 # `prompt -p` shows other style
 
 # --- Color
-eval "$(dircolors -b)"  # setup LS_COLORS
+if [ -f ~/.zsh/dircolors-solarized/dircolors.ansi-dark ]; then
+	if type dircolors > /dev/null 2>&1; then
+		eval $(dircolors ~/.zsh/dircolors-solarized/dircolors.ansi-dark)
+	elif type gdircolors > /dev/null 2>&1; then
+		eval $(gdircolors ~/.zsh/dircolors-solarized/dircolors.ansi-dark )
+	fi
+else
+	if type dircolors > /dev/null 2>&1; then
+		eval $(dircolors -b)  # setup LS_COLORS
+	fi
+fi
+
 # Less colors, available only in 256 color terminal(e.g. TERM=xterm-256color)
 #      see also http://linuxtidbits.wordpress.com/2009/03/23/less-colors-for-man-pages/
 export LESS_TERMCAP_mb=$(tput bold; tput setaf 2)					# begin blinking
@@ -73,10 +96,14 @@ setopt nomatch      # stop to make `not-found` warning on judging a character as
 setopt auto_pushd
 setopt pushd_ignore_dups
 setopt auto_cd
-function chpwd() { ls --show-control-chars --color=auto -F}  # hook `ls` on `cd` ... it might interrupt shell script. be careful.
+function chpwd() { # hook `ls` on `cd` ... it might interrupt shell script. be careful.
+	if [ 50 -gt `ls -1 | wc -l` ]; then
+		ls --show-control-chars --color=auto -F
+	fi
+}
 
 # -- Completion
-autoload -Uz compinit; compinit
+#autoload -Uz compinit; compinit # zplug call it earlier
 
 setopt complete_in_word     # run completion at cursor position
 setopt correct              # command correct before each completion attempt
@@ -96,7 +123,9 @@ zstyle ':completion::complete:*' use-cache true
 zstyle ':completion:*:default' menu select=1
 zstyle ':completion:*:manuals' separate-sections true
 
-zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS} #
+if [ -n "$LS_COLORS" ]; then
+	zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+fi
 zstyle ':completion:*' list-prompt %SAt %p: Hit TAB for more, or the character to insert%s
 zstyle ':completion:*' matcher-list '' 'm:{a-z}={A-Z}' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=* l:|=*'
 zstyle ':completion:*' select-prompt %SScrolling active: current selection at %p%s
@@ -151,6 +180,23 @@ alias bk='cd $OLDPWD'
 s() { pwd > ~/.save_dir ; }
 i() { cd "$(cat ~/.save_dir)" ; }
 
+function extract() {
+	case $1 in
+		*.tar.gz|*.tgz) tar xzvf $1;;
+		*.tar.xz) tar Jxvf $1;;
+		*.zip) unzip $1;;
+		*.lzh) lha e $1;;
+		*.tar.bz2|*.tbz) tar xjvf $1;;
+		*.tar.Z) tar zxvf $1;;
+		*.gz) gzip -d $1;;
+		*.bz2) bzip2 -dc $1;;
+		*.Z) uncompress $1;;
+		*.tar) tar xvf $1;;
+		*.arj) unarj $1;;
+	esac
+}
+alias -s {gz,tgz,zip,lzh,bz2,tbz,Z,tar,arj,xz}=extract
+
 # for rythmbox
 export GST_TAG_ENCODING=CP932
 
@@ -186,7 +232,7 @@ fi
 if [ -d ~/.pyenv ]; then
     export PYENV_ROOT="$HOME/.pyenv"
     export PATH="$PYENV_ROOT/bin:$PATH"
-    eval "$(pyenv init -)"
+    eval "$(pyenv init - --no-rehash)"
 
 	if [ -d $PYENV_ROOT/versions/anaconda3-4.2.0/bin/ ]; then
 		export PATH="$PYENV_ROOT/versions/anaconda3-4.2.0/bin/:$PATH"
@@ -195,7 +241,7 @@ fi
 
 # for ruby
 if [ -d ~/.rbenv ]; then
-	eval "$(rbenv init - zsh)"
+	eval "$(rbenv init - --no-rehash)"
 fi
 
 # for golang
