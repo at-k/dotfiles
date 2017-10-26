@@ -154,18 +154,18 @@ i() { cd "$(cat ~/.save_dir)" ; }
 # for rythmbox
 export GST_TAG_ENCODING=CP932
 
-# for tmux
-# if [ -x "`which tmux 2> /dev/null`" ]; then
-if type tmux > /dev/null 2>&1; then
-    show-current-dir-as-window-name() {
-        tmux set-window-option window-status-format " #I ${PWD:t} " > /dev/null
-    }
-
-	if $(tmux has-session); then
-		show-current-dir-as-window-name
-		add-zsh-hook chpwd show-current-dir-as-window-name
-	fi
-fi
+## for tmux
+## if [ -x "`which tmux 2> /dev/null`" ]; then
+#if type tmux > /dev/null 2>&1; then
+#    show-current-dir-as-window-name() {
+#        tmux set-window-option window-status-format " #I ${PWD:t} " > /dev/null
+#    }
+#
+#	if $(tmux has-session); then
+#		show-current-dir-as-window-name
+#		add-zsh-hook chpwd show-current-dir-as-window-name
+#	fi
+#fi
 
 # for screen (http://ogawa.s18.xrea.com/tdiary/20080331.html)
 case "${TERM}" in screen)
