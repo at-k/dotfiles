@@ -26,7 +26,9 @@ if [ -d ~/.zplug ]; then
 	zplug "zsh-users/zsh-syntax-highlighting", defer:3 # enable color cli
 
 	zplug "mafredri/zsh-async", from:github
-	zplug "sindresorhus/pure", use:pure.zsh, from:github, as:theme
+	if [ "$OSTYPE" != "cygwin" ]; then
+		zplug "sindresorhus/pure", use:pure.zsh, from:github, as:theme
+	fi
 
 	#zplug load --verbose
 	zplug load
@@ -35,11 +37,13 @@ fi
 compdef vboxmanage=VBoxManage  # completion for vboxmanage command
 
 # -- Prompt ... now using the one served by plugin
-#autoload -Uz promptinit; promptinit
-#prompt adam1 # `prompt -p` shows other style
+if [ "$OSTYPE" = "cygwin" ]; then
+	autoload -Uz promptinit; promptinit
+	prompt adam1 # `prompt -p` shows other style
+fi
 
 # --- Color
-if [ -f ~/.zsh/dircolors-solarized/dircolors.ansi-dark ]; then
+if [ "$OSTYPE" != "cygwin" -a -f ~/.zsh/dircolors-solarized/dircolors.ansi-dark ]; then
 	if type dircolors > /dev/null 2>&1; then
 		eval $(dircolors ~/.zsh/dircolors-solarized/dircolors.ansi-dark)
 	elif type gdircolors > /dev/null 2>&1; then
@@ -53,20 +57,22 @@ fi
 
 # Less colors, available only in 256 color terminal(e.g. TERM=xterm-256color)
 #      see also http://linuxtidbits.wordpress.com/2009/03/23/less-colors-for-man-pages/
-export LESS_TERMCAP_mb=$(tput bold; tput setaf 2)					# begin blinking
-export LESS_TERMCAP_md=$(tput bold; tput setaf 74)  				# begin bold
-export LESS_TERMCAP_me=$(tput sgr0)									# end mode
-export LESS_TERMCAP_so=$(tput bold; tput setaf 7; tput setab 60)	# begin standout-mode - info box
-export LESS_TERMCAP_se=$(tput rmso; tput sgr0)						# end standout-mode
-export LESS_TERMCAP_us=$(tput smul; tput bold; tput setaf 146)		# begin underline
-export LESS_TERMCAP_ue=$(tput rmul; tput sgr0)						# end underline
-export LESS_TERMCAP_mr=$(tput rev)
-export LESS_TERMCAP_mh=$(tput dim)
-export LESS_TERMCAP_ZN=$(tput ssubm)
-export LESS_TERMCAP_ZV=$(tput rsubm)
-export LESS_TERMCAP_ZO=$(tput ssupm)
-export LESS_TERMCAP_ZW=$(tput rsupm)
-export GROFF_NO_SGR=1         # For Konsole and Gnome-terminal
+if [ "$OSTYPE" != "cygwin" ]; then
+	export LESS_TERMCAP_mb=$(tput bold; tput setaf 2)					# begin blinking
+	export LESS_TERMCAP_md=$(tput bold; tput setaf 74)  				# begin bold
+	export LESS_TERMCAP_me=$(tput sgr0)									# end mode
+	export LESS_TERMCAP_so=$(tput bold; tput setaf 7; tput setab 60)	# begin standout-mode - info box
+	export LESS_TERMCAP_se=$(tput rmso; tput sgr0)						# end standout-mode
+	export LESS_TERMCAP_us=$(tput smul; tput bold; tput setaf 146)		# begin underline
+	export LESS_TERMCAP_ue=$(tput rmul; tput sgr0)						# end underline
+	export LESS_TERMCAP_mr=$(tput rev)
+	export LESS_TERMCAP_mh=$(tput dim)
+	export LESS_TERMCAP_ZN=$(tput ssubm)
+	export LESS_TERMCAP_ZV=$(tput rsubm)
+	export LESS_TERMCAP_ZO=$(tput ssupm)
+	export LESS_TERMCAP_ZW=$(tput rsupm)
+	export GROFF_NO_SGR=1         # For Konsole and Gnome-terminal
+fi
 
 # -- Key Bind
 bindkey -e  # -e for Emacs style or -v for vim style
