@@ -22,7 +22,7 @@ esac
 if [ -d ~/.zplug ]; then
 	source ~/.zplug/init.zsh
 
-	zplug "zsh-users/zsh-completions"				   # completion for other command, e.g. git
+	zplug "zsh-users/zsh-completions", lazy:true   # completion for other command, e.g. git
 	zplug "zsh-users/zsh-syntax-highlighting", defer:3 # enable color cli
 
 	zplug "mafredri/zsh-async", from:github
@@ -202,6 +202,8 @@ function extract() {
 	esac
 }
 alias -s {gz,tgz,zip,lzh,bz2,tbz,Z,tar,arj,xz}=extract
+
+alias zbench='time ( zsh -i -c exit)'
 
 # for rythmbox
 export GST_TAG_ENCODING=CP932
