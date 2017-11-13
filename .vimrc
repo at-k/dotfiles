@@ -45,6 +45,6 @@ set encoding=utf-8
 set fileencodings=iso-2022-jp,euc-jp,sjis,utf-8
 
 "- path setting
-" set runtimepath+=~/.vim/
-" runtime! rc/*.vim
+set runtimepath+=~/.vim/
+runtime! rc/*.vim
 
