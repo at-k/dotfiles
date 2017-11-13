@@ -1,3 +1,9 @@
+[[plugins]]
+repo = 'Shougo/vimproc.vim'
+build = 'make'
+on_source = ['unite.vim', 'vimshell.vim']
+
+
 # 特定のファイルタイプで読み込む
 [[plugins]]
 repo  = 'Quramy/tsuquyomi'
@@ -81,13 +87,13 @@ hook_source = '''
 	autocmd FileType python setlocal completeopt-=preview
 
 	" for w/ neocomplete
-	if ! empty(neobundle#get("neocomplete.vim"))
+	" if ! empty(neobundle#get("neocomplete.vim"))
 		autocmd FileType python setlocal omnifunc=jedi#completions
 		let g:jedi#completions_enabled = 0
 		let g:jedi#auto_vim_configuration = 0
 "		let g:neocomplete#force_omni_input_patterns.python =
 "					\ '\%([^. \t]\.\|^\s*@\|^\s*from\s.\+import \|^\s*from \|^\s*import \)\w*'
-	endif
+	" endif
 
 '''
 
@@ -134,7 +140,7 @@ hook_source = '''
 	let g:acp_enableAtStartup = 0
 	" Use neocomplete.
 	let g:neocomplete#enable_at_startup = 1
-	
+
 	if !exists('g:neocomplete#force_omni_input_patterns')
 	  let g:neocomplete#force_omni_input_patterns = {}
 	endif
@@ -143,10 +149,10 @@ hook_source = '''
 	      \ '[^.[:digit:] *\t]\%(\.\|->\)\w*'
 	let g:neocomplete#force_omni_input_patterns.cpp =
 	      \ '[^.[:digit:] *\t]\%(\.\|->\)\w*\|\h\w*::\w*'
-	
+
 	" <TAB>: completion.
 	inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
-	
+
 	"-- for neco look
 	if !exists('g:neocomplete#text_mode_filetypes')
 		let g:neocomplete#text_mode_filetypes = {}
@@ -162,7 +168,7 @@ hook_source = '''
 				\ 'help': 1,
 				\ 'tex': 1,
 				\ }
-	
+
 	"-- ruby
 	let g:neocomplete#sources#omni#input_patterns = {
 				\   "ruby" : '[^. *\t]\.\w*\|\h\w*::',
