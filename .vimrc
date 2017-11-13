@@ -32,7 +32,7 @@ if dein#load_state(s:dein_dir)
 endif
 
 " もし、未インストールものものがあったらインストール
-if !has('vim_starting') && dein#check_install()
+if has('vim_starting') && dein#check_install()
   call dein#install()
 endif
 
@@ -45,6 +45,7 @@ set encoding=utf-8
 set fileencodings=iso-2022-jp,euc-jp,sjis,utf-8
 
 "- path setting
-set runtimepath+=~/.vim/
-runtime! rc/*.vim
+source ~/.vim/rc/basic.vim
+"set runtimepath+=~/.vim/
+"runtime! rc/*.vim
 
