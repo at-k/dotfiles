@@ -1,0 +1,105 @@
+# 特定のファイルタイプで読み込む
+[[plugins]]
+repo  = 'Quramy/tsuquyomi'
+on_ft = ['typescript']
+
+[[plugins]]
+repo = 'justmao945/vim-clang'
+on_ft = ['cpp', 'c']
+
+[[plugins]]
+repo = 'plasticboy/vim-markdown'
+on_ft = ['markdown']
+
+[[plugins]]
+repo = 'kannokanno/previm'
+on_cmd = ['PrevimOpen']
+depends = ['open-browser.vim']
+
+[[plugins]]
+repo = 'tyru/open-browser.vim'
+
+[[plugins]]
+repo = 'stephpy/vim-yaml'
+on_ft = ['yaml']
+
+[[plugins]]
+repo = 'davidhalter/jedi-vim'
+on_ft = ['python', 'python3', 'djangohtml']
+
+[[plugins]]
+repo = 'andviro/flake8-vim'
+on_ft = ['python']
+
+[[plugins]]
+repo = 'hynek/vim-python-pep8-indent'
+on_ft = ['python']
+
+[[plugins]]
+repo = 'tell-k/vim-autopep8'
+on_ft = ['python']
+
+[[plugins]]
+repo = 'osyo-manga/vim-monster'
+on_ft = ['ruby']
+
+[[plugins]]
+repo = 'marcus/rsense'
+on_ft = ['ruby']
+
+[[plugins]]
+repo = 'supermomonga/neocomplete-rsense.vim'
+on_ft = ['ruby']
+
+[[plugins]]
+repo = 'fatih/vim-go'
+on_ft = ['go']
+
+# インサートモードに入ったら読み込む
+[[plugins]]
+repo = 'Shougo/neocomplete.vim'
+on_event = 'InsertEnter'
+if = "has('lua')"
+
+[[plugins]]
+repo = 'Shougo/neoinclude.vim'
+on_source = ['neocomplete.vim']
+
+[[plugins]]
+repo   = 'Shougo/unite.vim'
+on_cmd = ['Unite']
+
+# unite.vim を読み込んだら一緒に読み込む
+[[plugins]]
+repo      = 'Shougo/neomru.vim'
+on_source = ['unite.vim']
+
+[[plugins]]
+repo = 'ujihisa/unite-colorscheme'
+on_source = ['unite.vim']
+
+[[plugins]]
+repo = 'tacroe/unite-mark'
+on_source = ['unite.vim']
+
+
+# 特定のコマンドを打ったら読み込む
+[[plugins]]
+repo      = 'thinca/vim-prettyprint'
+on_cmd    = ['PP', 'PrettyPrint']
+
+[[plugins]]
+repo = 'scrooloose/nerdtree'
+on_cmd = ['NERDTree']
+
+[[plugins]]
+repo = 'mrtazz/simplenote.vim'
+on_cmd = ['SimplenoteList']
+
+# 特定のマッピングを使ったら読み込む
+# 又、gvim でしか利用しない
+[[plugins]]
+repo   = 'thinca/vim-fontzoom'
+on_cmd = ['Fontzoom']
+on_map = ['<Plug>(fontzoom-']
+gui    = 1
