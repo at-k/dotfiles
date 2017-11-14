@@ -1,51 +1,37 @@
 if filereadable(expand('~/.vimrc.local'))
-	source ~/.vimrc.local
+  source ~/.vimrc.local
 endif
 
 if &compatible
   set nocompatible
 endif
 
-" プラグインが実際にインストールされるディレクトリ
-let s:dein_dir = expand('~/.cache/dein')
-" dein.vim 本体
-let s:dein_repo_dir = s:dein_dir . '/repos/github.com/Shougo/dein.vim'
+" Set augroup.
+augroup MyAutoCmd
+  autocmd!
+  autocmd FileType,Syntax,BufNewFile,BufNew,BufRead *?
+        \ call vimrc#on_filetype()
+  autocmd CursorHold *.toml syntax sync minlines=300
+augroup END
 
-" dein.vim がなければ github から落としてくる
-if &runtimepath !~# '/dein.vim'
-  if !isdirectory(s:dein_repo_dir)
-    execute '!git clone https://github.com/Shougo/dein.vim' s:dein_repo_dir
-  endif
-  execute 'set runtimepath^=' . fnamemodify(s:dein_repo_dir, ':p')
+if has('vim_starting')
+  source ~/.vim/rc/init.rc.vim
 endif
 
-" 設定開始
-if dein#load_state(s:dein_dir)
-  call dein#begin(s:dein_dir)
+source ~/.vim/rc/dein.rc.vim
 
-  call dein#load_toml('~/.vim/rc/dein.toml', {'lazy': 0})
-  call dein#load_toml('~/.vim/rc/deinlazy.toml', {'lazy': 1})
-
-  " 設定終了
-  call dein#end()
-  call dein#save_state()
+if has('vim_starting') && !empty(argv())
+  call vimrc#on_filetype()
 endif
 
-" もし、未インストールものものがあったらインストール
-if has('vim_starting') && dein#check_install()
-  call dein#install()
+if !has('vim_starting')
+  call dein#call_hook('source')
+  call dein#call_hook('post_source')
+
+  syntax enable
+  filetype plugin indent on
 endif
 
+source ~/.vim/rc/encoding.rc.vim
 
-"-- basic settings
-filetype plugin indent on
-
-"-- encodings
-set encoding=utf-8
-set fileencodings=iso-2022-jp,euc-jp,sjis,utf-8
-
-"- path setting
 source ~/.vim/rc/basic.vim
-"set runtimepath+=~/.vim/
-"runtime! rc/*.vim
-
