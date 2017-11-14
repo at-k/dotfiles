@@ -75,8 +75,8 @@ set mouse=a
 
 " reload update file on moving from window
 augroup vimrc-checktime
-autocmd!
-autocmd WinEnter * checktime
+  autocmd!
+  autocmd WinEnter * checktime
 augroup END
 
 " -- clipboard settings : they require vim supporting +clipboard option
@@ -472,32 +472,9 @@ nnoremap ,ts <ESC>i<C-R>=strftime("%y%m%d")<CR>
 "-------------------------------------------------
 " Original commmand
 "-------------------------------------------------
-" Dictionary
-function! s:DictionaryTranslate(word)
-    let l:gene_path = '~/.vim/dict/gene.txt'
-    let l:output_option = a:word =~? '^[a-z_]\+$' ? '-A 1' : '-B 1' " eng->jap or jap->eng
-    silent pedit Translate\ Result
-    wincmd P
-    %delete " 前の結果が残っていることがあるため
-    setlocal buftype=nofile noswapfile modifiable
-    silent execute 'read !grep -ihw' l:output_option a:word l:gene_path
-    silent wincmd p
-endfunction
-command! -nargs=1 -complete=command DictionaryTranslate call <SID>DictionaryTranslate(<f-args>)
+command! -nargs=1 -complete=command DictionaryTranslate call vimrc#DictionaryTranslate(<f-args>)
 
 " Change Dir
-command! -nargs=? -complete=dir -bang CD  call s:ChangeCurrentDir('<args>', '<bang>')
-function! s:ChangeCurrentDir(directory, bang)
-    if a:directory == ''
-        lcd %:p:h
-    else
-        execute 'lcd' . a:directory
-    endif
-
-    if a:bang == ''
-        pwd
-    endif
-endfunction
-
+command! -nargs=? -complete=dir -bang CD  call vimrc#ChangeCurrentDir('<args>', '<bang>')
 nnoremap <silent> <Space>cd :<C-u>CD<CR>
 

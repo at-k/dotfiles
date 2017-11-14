@@ -1,6 +1,28 @@
 "---------------------------------------------------------------------------
 " vimrc functions:
 "
+function! vimrc#ChangeCurrentDir(directory, bang) abort
+    if a:directory == ''
+        lcd %:p:h
+    else
+        execute 'lcd' . a:directory
+    endif
+
+    if a:bang == ''
+        pwd
+    endif
+endfunction
+
+function! vimrc#DictionaryTranslate(word) abort
+    let l:gene_path = '~/.vim/dict/gene.txt'
+    let l:output_option = a:word =~? '^[a-z_]\+$' ? '-A 1' : '-B 1' " eng->jap or jap->eng
+    silent pedit Translate\ Result
+    wincmd P
+    %delete " 前の結果が残っていることがあるため
+    setlocal buftype=nofile noswapfile modifiable
+    silent execute 'read !grep -ihw' l:output_option a:word l:gene_path
+    silent wincmd p
+endfunction
 
 function! vimrc#sticky_func() abort
   let sticky_table = {
@@ -69,3 +91,6 @@ function! vimrc#on_filetype() abort "{{{
     filetype detect
   endif
 endfunction "}}}
+
+
+
