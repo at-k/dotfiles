@@ -84,6 +84,7 @@ function! vimrc#toggle_option(option_name) abort
 endfunction
 
 function! vimrc#on_filetype() abort "{{{
+  " execute() is available on > 8.0
   if execute('filetype') =~# 'OFF'
     " Lazy loading
     silent! filetype plugin indent on
@@ -91,6 +92,4 @@ function! vimrc#on_filetype() abort "{{{
     filetype detect
   endif
 endfunction "}}}
-
-
 
