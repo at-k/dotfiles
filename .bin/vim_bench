@@ -1,0 +1,44 @@
+#!/bin/bash
+#
+# bench mark tool for vim
+#
+
+#set -xeu
+
+FNAME="vimbench.tmp"
+LOGALL="vimbench.all.log"
+LOGSUM="vimbench.sum.log"
+
+FTYPE="empty, rb, py, go, c, cpp, md"
+COUNT=10
+
+if ! type vim > /dev/null 2>&1; then
+	echo "error: vim command not found"
+	exit 1
+fi
+
+echo "type, avg, trial[0 ~ ${COUNT}-1]" >> ${LOGSUM}
+
+for ex in $(echo ${FTYPE} | sed 's/,/\n/g' ); do
+	if [ "${ex}" != "empty" ]; then
+		file=${FNAME}.${ex}
+		touch ${file}
+	else
+		file=""
+	fi
+
+	RESULT=""
+	for c in `seq 1 ${COUNT}`; do
+		vim ${file} --startuptime ${LOGALL} +q
+		RESULT=$(paste -d, <(echo ${RESULT}) <(tail -1 ${LOGALL} | cut -d" " -f1))
+	done
+	RESULT=$(echo ${RESULT} | sed 's/^,//')
+
+	avg=$(echo ${RESULT} | gawk -F, '{s=0;for(i=1;i<= NF;i++){s+=$i};print s/NF;}')
+	paste -d, <(echo ${ex}) <(echo ${avg}) <(echo ${RESULT}) >> ${LOGSUM}
+
+	rm -f ${file}
+done
+
+column -t -s',' ${LOGSUM}
+
