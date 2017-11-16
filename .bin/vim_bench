@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# bench mark tool for vim
+# benchmark tool for vim
 #
 
 #set -xeu
@@ -11,11 +11,34 @@ LOGSUM="vimbench.sum.log"
 
 FTYPE="empty, rb, py, go, c, cpp, md"
 COUNT=10
+CLEARF=0
+
+function usage()
+{
+	echo "usage: $1 [options]"
+	echo "	-h         print this usage and exit"
+	echo "	-r         clean up temp file after finishing"
+	echo "	-c [count] do benchmark [count] times"
+	echo "	-t [type]  do benchmark for [type] file. (e.g. -t \"rb, py, go\")"
+}
+
+while getopts c:t:rh OPT;
+do
+	case $OPT in
+		"c") COUNT="$OPTARG";;
+		"t") FTYPE="$OPTARG";;
+		"r") CLEARF=1;;
+		"h") usage `basename $0`; exit;;
+	esac
+done
+
 
 if ! type vim > /dev/null 2>&1; then
 	echo "error: vim command not found"
 	exit 1
 fi
+
+echo "** count: ${COUNT}, target: ${FTYPE} **"
 
 echo "type, avg, trial[0 ~ ${COUNT}-1]" >> ${LOGSUM}
 
@@ -30,15 +53,23 @@ for ex in $(echo ${FTYPE} | sed 's/,/\n/g' ); do
 	RESULT=""
 	for c in `seq 1 ${COUNT}`; do
 		vim ${file} --startuptime ${LOGALL} +q
-		RESULT=$(paste -d, <(echo ${RESULT}) <(tail -1 ${LOGALL} | cut -d" " -f1))
+		# RESULT=$(paste -d, <(echo ${RESULT}) <(tail -1 ${LOGALL} | cut -d" " -f1))
+		RESULT=${RESULT},$(tail -1 ${LOGALL} | cut -d" " -f1)
 	done
 	RESULT=$(echo ${RESULT} | sed 's/^,//')
 
 	avg=$(echo ${RESULT} | gawk -F, '{s=0;for(i=1;i<= NF;i++){s+=$i};print s/NF;}')
-	paste -d, <(echo ${ex}) <(echo ${avg}) <(echo ${RESULT}) >> ${LOGSUM}
+	# paste -d, <(echo ${ex}) <(echo ${avg}) <(echo ${RESULT}) >> ${LOGSUM}
+	echo ${ex}, ${avg}, ${RESULT} >> ${LOGSUM}
 
 	rm -f ${file}
 done
 
 column -t -s',' ${LOGSUM}
+
+if [ ${CLEARF} = 1 ]; then
+	echo "** clean up **"
+	rm ${LOGALL}
+	rm ${LOGSUM}
+fi
 

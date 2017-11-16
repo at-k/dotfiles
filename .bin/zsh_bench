@@ -1,0 +1,40 @@
+#!/bin/bash
+#
+# benchmark tool for vim
+#
+
+# set -xeu
+
+COUNT=10
+
+function usage()
+{
+	echo "usage: $1 [options]"
+	echo "	-h         print this usage and exit"
+	echo "	-c [count] do benchmark [count] times"
+}
+
+while getopts c:t:rh OPT;
+do
+	case $OPT in
+		"c") COUNT="$OPTARG";;
+		"h") usage `basename $0`; exit;;
+	esac
+done
+
+if ! type zsh > /dev/null 2>&1; then
+	echo "error: vim command not found"
+	exit 1
+fi
+
+RESULT=""
+for c in `seq 1 ${COUNT}`; do
+	R=$( (time zsh -i -c exit) 2>&1 | grep real | cut -f2 | sed -e 's/0m//' -e 's/s//' )
+	RESULT=${RESULT},${R}
+	# RESULT=$(paste -d, <(echo ${RESULT}) <( ))
+done
+RESULT=$(echo ${RESULT} | sed 's/^,//')
+
+avg=$(echo ${RESULT} | gawk -F, '{s=0;for(i=1;i<= NF;i++){s+=$i};print s/NF;}')
+echo ${avg}, ${RESULT}
+
