@@ -75,8 +75,8 @@ set mouse=a
 
 " reload update file on moving from window
 augroup vimrc-checktime
-autocmd!
-autocmd WinEnter * checktime
+  autocmd!
+  autocmd WinEnter * checktime
 augroup END
 
 " -- clipboard settings : they require vim supporting +clipboard option
@@ -140,19 +140,7 @@ autocmd ColorScheme * hi DiffText     ctermbg=235  ctermfg=140  guibg=#262626 gu
 " load main color scheme
 " colorscheme molokai
 colorscheme wombat
-let g:lightline = {
-      \ 'colorscheme': 'wombat',
-      \ 'active': {
-      \   'left': [ [ 'mode', 'paste' ],
-      \             [ 'gitbranch', 'readonly', 'filename', 'modified' ] ]
-      \ },
-      \ 'component_function': {
-      \   'gitbranch': 'fugitive#head'
-      \ },
-      \ }
 
-" enable gui ver only -- usually given at gvimrc
-"set antialias
 
 "-------------------------------------------------
 " Editor Settings
@@ -278,50 +266,50 @@ augroup END
 " Highlighting status line on insert mode
 "	https://github.com/fuenor/vim-statusline/blob/master/insert-statusline.vim
 "------------------------------------------------
-if !exists('g:hi_insert')
-  let g:hi_insert = 'highlight StatusLine guifg=White guibg=DarkCyan gui=none ctermfg=White ctermbg=DarkCyan cterm=none'
-endif
-
-if has('syntax')
-  augroup InsertHook
-    autocmd!
-    autocmd InsertEnter * call s:StatusLine('Enter')
-    autocmd InsertLeave * call s:StatusLine('Leave')
-  augroup END
-endif
-
-let s:slhlcmd = ''
-function! s:StatusLine(mode)
-  if a:mode == 'Enter'
-    silent! let s:slhlcmd = 'highlight ' . s:GetHighlight('StatusLine')
-    silent exec g:hi_insert
-  else
-    highlight clear StatusLine
-    silent exec s:slhlcmd
-  endif
-endfunction
-
-function! s:GetHighlight(hi)
-  redir => hl
-  exec 'highlight '.a:hi
-  redir END
-  let hl = substitute(hl, '[\r\n]', '', 'g')
-  let hl = substitute(hl, 'xxx', '', '')
-  return hl
-endfunction
+"if !exists('g:hi_insert')
+"  let g:hi_insert = 'highlight StatusLine guifg=White guibg=DarkCyan gui=none ctermfg=White ctermbg=DarkCyan cterm=none'
+"endif
+"
+"if has('syntax')
+"  augroup InsertHook
+"    autocmd!
+"    autocmd InsertEnter * call s:StatusLine('Enter')
+"    autocmd InsertLeave * call s:StatusLine('Leave')
+"  augroup END
+"endif
+"
+"let s:slhlcmd = ''
+"function! s:StatusLine(mode)
+"  if a:mode == 'Enter'
+"    silent! let s:slhlcmd = 'highlight ' . s:GetHighlight('StatusLine')
+"    silent exec g:hi_insert
+"  else
+"    highlight clear StatusLine
+"    silent exec s:slhlcmd
+"  endif
+"endfunction
+"
+"function! s:GetHighlight(hi)
+"  redir => hl
+"  exec 'highlight '.a:hi
+"  redir END
+"  let hl = substitute(hl, '[\r\n]', '', 'g')
+"  let hl = substitute(hl, 'xxx', '', '')
+"  return hl
+"endfunction
 
 "------------------------------------------------
 " Create directory automatically
 "------------------------------------------------
 augroup vimrc-auto-mkdir
-    autocmd!
-    autocmd BufWritePre * call s:auto_mkdir(expand('<afile>:p:h'), v:cmdbang)
-    function! s:auto_mkdir(dir, force)
-        if !isdirectory(a:dir) && (a:force ||
-            \ input(printf('"%s" does not exist. Create? [y/N]', a:dir)) =~? '^y\%[es]$')
-            call mkdir(iconv(a:dir, &encoding, &termencoding), 'p')
-        endif
-    endfunction
+  autocmd!
+  autocmd BufWritePre * call s:auto_mkdir(expand('<afile>:p:h'), v:cmdbang)
+  function! s:auto_mkdir(dir, force)
+    if !isdirectory(a:dir) && (a:force ||
+          \ input(printf('"%s" does not exist. Create? [y/N]', a:dir)) =~? '^y\%[es]$')
+      call mkdir(iconv(a:dir, &encoding, &termencoding), 'p')
+    endif
+  endfunction
 augroup END
 
 "------------------------------------------------
@@ -484,192 +472,9 @@ nnoremap ,ts <ESC>i<C-R>=strftime("%y%m%d")<CR>
 "-------------------------------------------------
 " Original commmand
 "-------------------------------------------------
-" Dictionary
-function! s:DictionaryTranslate(word)
-    let l:gene_path = '~/.vim/dict/gene.txt'
-    let l:output_option = a:word =~? '^[a-z_]\+$' ? '-A 1' : '-B 1' " eng->jap or jap->eng
-    silent pedit Translate\ Result
-    wincmd P
-    %delete " 前の結果が残っていることがあるため
-    setlocal buftype=nofile noswapfile modifiable
-    silent execute 'read !grep -ihw' l:output_option a:word l:gene_path
-    silent wincmd p
-endfunction
-command! -nargs=1 -complete=command DictionaryTranslate call <SID>DictionaryTranslate(<f-args>)
+command! -nargs=1 -complete=command DictionaryTranslate call vimrc#DictionaryTranslate(<f-args>)
 
 " Change Dir
-command! -nargs=? -complete=dir -bang CD  call s:ChangeCurrentDir('<args>', '<bang>')
-function! s:ChangeCurrentDir(directory, bang)
-    if a:directory == ''
-        lcd %:p:h
-    else
-        execute 'lcd' . a:directory
-    endif
-
-    if a:bang == ''
-        pwd
-    endif
-endfunction
-
+command! -nargs=? -complete=dir -bang CD  call vimrc#ChangeCurrentDir('<args>', '<bang>')
 nnoremap <silent> <Space>cd :<C-u>CD<CR>
 
-"------------------------------------------------
-" go-vim
-"------------------------------------------------
-let s:bundle = neobundle#get("vim-go")
-function! s:bundle.hooks.on_source(bundle)
-	let g:go_highlight_functions = 1
-	let g:go_highlight_methods = 1
-	let g:go_highlight_structs = 1
-endfunction
-unlet s:bundle
-
-"------------------------------------------------
-" NERDTree
-"------------------------------------------------
-let NERDTreeShowHidden = 1
-
-let s:bundle = neobundle#get("nerdtree")
-function! s:bundle.hooks.on_source(bundle)
-	function! ExecuteNERDTree()
-		"b:nerdstatus = 1 : NERDTree 表示中
-		"b:nerdstatus = 2 : NERDTree 非表示中
-
-		if !exists('g:nerdstatus')
-			execute 'NERDTree ./'
-			let g:windowWidth = winwidth(winnr())
-			let g:nerdtreebuf = bufnr('')
-			let g:nerdstatus = 1
-
-		elseif g:nerdstatus == 1
-			execute 'wincmd t'
-			execute 'vertical resize' 0
-			execute 'wincmd p'
-			let g:nerdstatus = 2
-		elseif g:nerdstatus == 2
-			execute 'wincmd t'
-			execute 'vertical resize' g:windowWidth
-			let g:nerdstatus = 1
-
-		endif
-	endfunction
-endfunction
-unlet s:bundle
-
-"-------------------------------------------------
-" NeoComplete
-"-------------------------------------------------
-" Disable AutoComplPop.
-let g:acp_enableAtStartup = 0
-" Use neocomplete.
-let g:neocomplete#enable_at_startup = 1
-
-if !exists('g:neocomplete#force_omni_input_patterns')
-  let g:neocomplete#force_omni_input_patterns = {}
-endif
-let g:neocomplete#force_overwrite_completefunc = 1
-let g:neocomplete#force_omni_input_patterns.c =
-      \ '[^.[:digit:] *\t]\%(\.\|->\)\w*'
-let g:neocomplete#force_omni_input_patterns.cpp =
-      \ '[^.[:digit:] *\t]\%(\.\|->\)\w*\|\h\w*::\w*'
-
-" <TAB>: completion.
-inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
-
-"-- for neco look
-if !exists('g:neocomplete#text_mode_filetypes')
-	let g:neocomplete#text_mode_filetypes = {}
-endif
-let g:neocomplete#text_mode_filetypes = {
-			\ 'rst': 1,
-			\ 'markdown': 1,
-			\ 'gitrebase': 1,
-			\ 'gitcommit': 1,
-			\ 'vcs-commit': 1,
-			\ 'hybrid': 1,
-			\ 'text': 1,
-			\ 'help': 1,
-			\ 'tex': 1,
-			\ }
-
-"-- ruby
-let g:neocomplete#sources#omni#input_patterns = {
-			\   "ruby" : '[^. *\t]\.\w*\|\h\w*::',
-			\}
-
-
-"-------------------------------------------------
-" vim-clang
-"-------------------------------------------------
-let s:bundle = neobundle#get("vim-clang")
-function! s:bundle.hooks.on_source(bundle)
-	" disable auto completion for vim-clang
-	let g:clang_auto = 0
-
-	" default 'longest' can not work with neocomplete
-	let g:clang_c_completeopt   = 'menuone'
-	let g:clang_cpp_completeopt = 'menuone'
-
-	if executable('clang-3.6')
-		let g:clang_exec = 'clang-3.6'
-	elseif executable('clang-3.5')
-		let g:clang_exec = 'clang-3.5'
-	elseif executable('clang-3.4')
-		let g:clang_exec = 'clang-3.4'
-	else
-		let g:clang_exec = 'clang'
-	endif
-
-	if executable('clang-format-3.6')
-		let g:clang_format_exec = 'clang-format-3.6'
-	elseif executable('clang-format-3.5')
-		let g:clang_format_exec = 'clang-format-3.5'
-	elseif executable('clang-format-3.4')
-		let g:clang_format_exec = 'clang-format-3.4'
-	else
-		let g:clang_exec = 'clang'
-		"let g:clang_exec = 'clang-format'
-	endif
-
-	let g:clang_cpp_options = '-std=c++11 -stdlib=libc++ -I /usr/include/ -I /usr/include/c++/5/ -I /usr/include/x86_64-linux-gnu/c++/5'
-	"let g:clang_cpp_options = '-std=c++11 -stdlib=libc++'
-endfunction
-unlet s:bundle
-
-"-------------------------------------------------
-" jedi-vim
-"-------------------------------------------------
-let s:bundle = neobundle#get("jedi-vim")
-"if ! empty(neobundle#get("jedi-vim"))
-function! s:bundle.hooks.on_source(bundle)
-	autocmd FileType python setlocal omnifunc=jedi#completions
-
-	let g:jedi#auto_initialization = 1
-	let g:jedi#auto_vim_configuration = 1
-
-	nnoremap [jedi] <Nop>
-	xnoremap [jedi] <Nop>
-	nmap <Leader>j [jedi]
-	xmap <Leader>j [jedi]
-
-	let g:jedi#completions_command = "<C-Space>"    " 補完キーの設定この場合はCtrl+Space
-	let g:jedi#goto_assignments_command = "<C-g>"   " 変数の宣言場所へジャンプ（Ctrl + g)
-	let g:jedi#goto_definitions_command = "<C-d>"   " クラス、関数定義にジャンプ（Gtrl + d）
-	let g:jedi#documentation_command = "<C-k>"      " Pydocを表示（Ctrl + k）
-	let g:jedi#rename_command = "[jedi]r"
-	let g:jedi#usages_command = "[jedi]n"
-	let g:jedi#popup_select_first = 0
-	let g:jedi#popup_on_dot = 0
-
-	autocmd FileType python setlocal completeopt-=preview
-
-	" for w/ neocomplete
-	if ! empty(neobundle#get("neocomplete.vim"))
-		autocmd FileType python setlocal omnifunc=jedi#completions
-		let g:jedi#completions_enabled = 0
-		let g:jedi#auto_vim_configuration = 0
-"		let g:neocomplete#force_omni_input_patterns.python =
-"					\ '\%([^. \t]\.\|^\s*@\|^\s*from\s.\+import \|^\s*from \|^\s*import \)\w*'
-	endif
-endfunction
-unlet s:bundle
