@@ -21,6 +21,6 @@ do
 	[[ "$f" == ".git" ]] && continue
 	[[ "$f" == ".DS_Store" ]] && continue
 
-	ln -snf "$f" ~/"$f"
+	ln -snf $(pwd)/"$f" ~/"$f"
 done
 

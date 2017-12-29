@@ -34,7 +34,9 @@ if [ -d ~/.zplug ]; then
 	zplug load
 fi
 
-compdef vboxmanage=VBoxManage  # completion for vboxmanage command
+if [ -x "`which vboxmanage 2> /dev/null `" ]; then
+	compdef vboxmanage=VBoxManage  # completion for vboxmanage command
+fi
 
 # -- Prompt ... now using the one served by plugin
 if [ "$OSTYPE" = "cygwin" ]; then

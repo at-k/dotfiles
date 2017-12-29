@@ -27,3 +27,6 @@
 [diff]
 	tool = vimdiff
 	compactionHeuristic = true
+[user]
+	email = atushi.k@gmal.com
+	name = Atsushi Kawamura
