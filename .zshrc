@@ -10,6 +10,8 @@ export MANPAGER="less -is"
 export PAGER='less -is'
 export EDITOR='vi'
 
+export PATH="$HOME/.bin:$PATH"
+
 export LV="-c -Sh1;36 -Su1;4;32 -Ss7;37;1;33"
 export LESS='-i -M -R'
 
@@ -22,8 +24,11 @@ esac
 if [ -d ~/.zplug ]; then
 	source ~/.zplug/init.zsh
 
-	zplug "zsh-users/zsh-completions", lazy:true   # completion for other command, e.g. git
+	#zplug "zsh-users/zsh-completions", lazy:true   # completion for other command, e.g. git
+	zplug "zsh-users/zsh-completions"  # completion for other command, e.g. git
 	zplug "zsh-users/zsh-syntax-highlighting", defer:3 # enable color cli
+
+	#zplug "peco/peco", as:command, from:gh-r, use:"*amd64*" # interactive filter
 
 	zplug "mafredri/zsh-async", from:github
 	if [ "$OSTYPE" != "cygwin" ]; then
@@ -95,6 +100,20 @@ zle -N history-beginning-search-backward-end history-search-end
 zle -N history-beginning-search-forward-end history-search-end
 bindkey "^P" history-beginning-search-backward-end
 bindkey "^N" history-beginning-search-forward-end
+
+if [ -x "`which peco 2> /dev/null `" ]; then
+	function peco-select-history() {
+		# historyを番号なし、逆順、最初から表示。
+		# 順番を保持して重複を削除。
+		# カーソルの左側の文字列をクエリにしてpecoを起動
+		# \nを改行に変換
+		BUFFER="$(history -nr 1 | awk '!a[$0]++' | peco --query "$LBUFFER" | sed 's/\\n/\n/')"
+		CURSOR=$#BUFFER             # カーソルを文末に移動
+		zle -R -c                   # refresh
+	}
+	zle -N peco-select-history
+	bindkey '^R' peco-select-history
+fi
 
 # -- Glob (pattern matching for file name. wild card is a kind of glob)
 setopt extendedglob # enable extended file pattern mattching
