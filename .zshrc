@@ -125,7 +125,7 @@ setopt pushd_ignore_dups
 setopt auto_cd
 function chpwd() { # hook `ls` on `cd` ... it might interrupt shell script. be careful.
 	if [ 50 -gt `ls -1 | wc -l` ]; then
-		ls --show-control-chars --color=auto -F
+		ls
 	fi
 }
 
@@ -166,7 +166,13 @@ zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin /usr/s
 
 
 # -- Alias
-alias ls='ls --show-control-chars --color=auto -F'
+case ${OSTYPE} in
+	cygwin|linux*)
+		alias ls='ls --show-control-chars --color=auto -F';;
+	darwin*)
+		alias ls='ls -G';;
+esac
+
 alias la='ls -la'
 alias ll='ls -l'
 alias cp='cp -i'
