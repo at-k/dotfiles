@@ -30,3 +30,5 @@
 [user]
 	email = atushi.k@gmal.com
 	name = Atsushi Kawamura
+[credential]
+	helper = osxkeychain
