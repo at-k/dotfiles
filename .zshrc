@@ -178,7 +178,10 @@ alias ll='ls -l'
 alias cp='cp -i'
 alias mv='mv -i'
 alias bc="bc -l"
-alias pbcopy='xsel --clipboard --input'
+case ${OSTYPE} in
+	linux*)
+		alias pbcopy='xsel --clipboard --input';;
+esac
 alias pbpaste='xsel --clipboard --output'
 
 alias reloadsh='source ~/.zshrc'
