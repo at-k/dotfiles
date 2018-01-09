@@ -87,11 +87,13 @@ set clipboard&
 set clipboard+=autoselect
 
 " [caution] this option might have an effect upon yank function
-if has('unix') && !has('win32unix')
+if has('unix') && !has('win32unix') && !has('mac')
 	" add yank data to "+ register
 	set clipboard^=unnamedplus
 elseif has('win32') || has('win64') || has('win32unix')
 	" share clipbpard and "* register
+	set clipboard+=unnamed
+elseif has('mac')
 	set clipboard+=unnamed
 endif
 
