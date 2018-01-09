@@ -33,11 +33,10 @@
 [credential]
 	helper = osxkeychain
 
-[url "ssh://git@github.com"]
-	insteadOf = git://git@github.com
-
-[url "ssh://github.com"]
-	insteadOf = https://github.com
+[url "ssh://git@github.com/"]
+	insteadOf = https://github.com/
+	insteadOf = git://github.com/
+	insteadOf = git://git@github.com/]
 
 [secrets]
 	providers = git secrets --aws-provider
@@ -46,3 +45,5 @@
 	patterns = (\"|')?(AWS|aws|Aws)?_?(ACCOUNT|account|Account)_?(ID|id|Id)?(\"|')?\\s*(:|=>|=)\\s*(\"|')?[0-9]{4}\\-?[0-9]{4}\\-?[0-9]{4}(\"|')?
 	allowed = AKIAIOSFODNN7EXAMPLE
 	allowed = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+
+
