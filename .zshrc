@@ -123,11 +123,6 @@ setopt nomatch      # stop to make `not-found` warning on judging a character as
 setopt auto_pushd
 setopt pushd_ignore_dups
 setopt auto_cd
-function chpwd() { # hook `ls` on `cd` ... it might interrupt shell script. be careful.
-	if [ 50 -gt `ls -1 | wc -l` ]; then
-		ls
-	fi
-}
 
 # -- Completion
 #autoload -Uz compinit; compinit # zplug call it earlier
@@ -167,10 +162,8 @@ zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin /usr/s
 
 # -- Alias
 case ${OSTYPE} in
-	cygwin|linux*)
-		alias ls='ls --show-control-chars --color=auto -F';;
-	darwin*)
-		alias ls='ls -G';;
+	cygwin|linux*) alias ls='ls --show-control-chars --color=auto -F';;
+	darwin*) alias ls='ls -G';;
 esac
 
 alias la='ls -la'
@@ -180,9 +173,9 @@ alias mv='mv -i'
 alias bc="bc -l"
 case ${OSTYPE} in
 	linux*)
-		alias pbcopy='xsel --clipboard --input';;
+		alias pbcopy='xsel --clipboard --input'
+		alias pbpaste='xsel --clipboard --output';;
 esac
-alias pbpaste='xsel --clipboard --output'
 
 alias reloadsh='source ~/.zshrc'
 
@@ -211,10 +204,19 @@ alias iro='for i in {0..255} ; do; printf "\x1b[38;5;${i}m%03d " ${i}; done'
 alias gs='git status -uno'
 alias gl='git log'
 
-alias ue='(){ cd $(seq -s"../" $((1 + ${1:-1})) | tr -d "[:digit:]")}'
+case ${OSTYPE} in
+	cygwin|linux*)  alias ue='(){ cd $(seq -s"../" $((1 + ${1:-1})) | tr -d "[:digit:]")}';;
+	darwin*) alias ue='(){ cd $(jot -s"../" $((1 + ${1:-1})) | tr -d "[:digit:]")}';;
+esac
 alias bk='cd $OLDPWD'
 s() { pwd > ~/.save_dir ; }
 i() { cd "$(cat ~/.save_dir)" ; }
+
+function chpwd() { # hook `ls` on `cd` ... it might interrupt shell script. be careful.
+	if [ 50 -gt `ls -1 | wc -l` ]; then
+		ls
+	fi
+}
 
 function extract() {
 	case $1 in
@@ -266,20 +268,32 @@ if [ -d ~/.byobu ]; then
     export VTE_CJK_WIDTH=1
 fi
 
-# for python
-if [ -d ~/.pyenv ]; then
-    export PYENV_ROOT="$HOME/.pyenv"
-    export PATH="$PYENV_ROOT/bin:$PATH"
-    eval "$(pyenv init - --no-rehash)"
+# xenv
+if [ -d ~/.anyenv ]; then
+	export PATH="$HOME/.anyenv/bin:$PATH"
+	eval "$(anyenv init -)"
+else
+	# for python
+	if [ -d ~/.pyenv ]; then
+		export PYENV_ROOT="$HOME/.pyenv"
+		export PATH="$PYENV_ROOT/bin:$PATH"
+		eval "$(pyenv init - --no-rehash)"
 
-	if [ -d $PYENV_ROOT/versions/anaconda3-4.2.0/bin/ ]; then
-		export PATH="$PYENV_ROOT/versions/anaconda3-4.2.0/bin/:$PATH"
+		if [ -d $PYENV_ROOT/versions/anaconda3-4.2.0/bin/ ]; then
+			export PATH="$PYENV_ROOT/versions/anaconda3-4.2.0/bin/:$PATH"
+		fi
 	fi
-fi
 
-# for ruby
-if [ -d ~/.rbenv ]; then
-	eval "$(rbenv init - --no-rehash)"
+	# for ruby
+	if [ -d ~/.rbenv ]; then
+		eval "$(rbenv init - --no-rehash)"
+	fi
+
+	# for node.js
+	if [ -d ~/.ndenv ]; then
+		export PATH="$HOME/.ndenv/bin:$PATH"
+		eval "$(ndenv init -)"
+	fi
 fi
 
 # for golang
@@ -287,6 +301,7 @@ if [ -d ~/.go ]; then
 	export GOPATH=$HOME/.go
 	export PATH=$PATH:$GOPATH/bin
 fi
+
 
 # for proxy
 # alias with_proxy='export http_proxy="http://10033136:$( read -s "pw?proxy password: "; echo 1>&2 ;echo $pw; unset pw )@133.144.14.243:8080/" '
@@ -321,4 +336,5 @@ fi
 if [ -f ~/.zshrc.local ]; then
     source ~/.zshrc.local
 fi
+
 
