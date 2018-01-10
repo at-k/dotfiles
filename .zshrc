@@ -10,6 +10,7 @@ export MANPAGER="less -is"
 export PAGER='less -is'
 export EDITOR='vi'
 
+typeset -U path PATH
 export PATH="$HOME/.bin:$PATH"
 
 export LV="-c -Sh1;36 -Su1;4;32 -Ss7;37;1;33"
@@ -178,6 +179,7 @@ case ${OSTYPE} in
 esac
 
 alias reloadsh='source ~/.zshrc'
+alias clearcmp='rm ~/.zcompdump 2> /dev/null; rm ~/.zplug/zcompdump 2> /dev/null; exec $SHELL -l'
 
 alias hex2dec="printf '%d\n'"
 alias dec2hex="printf '%x\n'"
@@ -270,14 +272,12 @@ fi
 
 # xenv
 if [ -d ~/.anyenv ]; then
-	export PATH="$HOME/.anyenv/bin:$PATH"
-	eval "$(anyenv init -)"
+	export PATH="$HOME/.anyenv/bin:$PATH" && eval "$(anyenv init -)"
 else
 	# for python
 	if [ -d ~/.pyenv ]; then
 		export PYENV_ROOT="$HOME/.pyenv"
-		export PATH="$PYENV_ROOT/bin:$PATH"
-		eval "$(pyenv init - --no-rehash)"
+		export PATH="$PYENV_ROOT/bin:$PATH" && eval "$(pyenv init - --no-rehash)"
 
 		if [ -d $PYENV_ROOT/versions/anaconda3-4.2.0/bin/ ]; then
 			export PATH="$PYENV_ROOT/versions/anaconda3-4.2.0/bin/:$PATH"
@@ -291,8 +291,7 @@ else
 
 	# for node.js
 	if [ -d ~/.ndenv ]; then
-		export PATH="$HOME/.ndenv/bin:$PATH"
-		eval "$(ndenv init -)"
+		export PATH="$HOME/.ndenv/bin:$PATH" && eval "$(ndenv init -)"
 	fi
 fi
 
