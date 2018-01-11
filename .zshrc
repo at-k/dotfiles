@@ -216,7 +216,10 @@ i() { cd "$(cat ~/.save_dir)" ; }
 
 function chpwd() { # hook `ls` on `cd` ... it might interrupt shell script. be careful.
 	if [ 50 -gt `ls -1 | wc -l` ]; then
-		ls
+		case ${OSTYPE} in
+			cygwin|linux*) ls --show-control-chars --color=auto -F;;
+			darwin*) ls -G;;
+		esac
 	fi
 }
 

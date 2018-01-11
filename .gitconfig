@@ -4,8 +4,8 @@
 [color]
 	ui = true
 [color "status"]
-	added = yellow
-	changed = green
+	added = blue
+	changed = red
 	untracked = cyan
 
 [alias]
@@ -27,9 +27,7 @@
 [diff]
 	tool = vimdiff
 	compactionHeuristic = true
-[user]
-	email = atushi.k@gmal.com
-	name = Atsushi Kawamura
+
 [credential]
 	helper = osxkeychain
 

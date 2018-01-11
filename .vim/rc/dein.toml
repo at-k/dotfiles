@@ -72,6 +72,9 @@ repo = 'mhinz/vim-signify'
 repo = 'sheerun/vim-wombat-scheme'
 
 [[plugins]]
+repo = 'b4b4r07/solarized.vim'
+
+[[plugins]]
 repo = 'itchyny/lightline.vim'
 hook_add = '''
   let g:lightline = {
