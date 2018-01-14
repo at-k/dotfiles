@@ -18,9 +18,9 @@ repo = 'Shougo/dein.vim'
 #  let g:dein#plugin.build = cmd
 #'''
 
-[[plugins]] # カーソル位置のコンテキストに合わせてftを切り替える
-repo = 'osyo-manga/vim-precious'
-depends = ['context_filetype.vim']
+#[[plugins]] # カーソル位置のコンテキストに合わせてftを切り替える
+#repo = 'osyo-manga/vim-precious'
+#depends = ['context_filetype.vim']
 
 [[plugins]] # カーソル位置のコンテキストのftを判定するライブラリ
 repo = 'Shougo/context_filetype.vim'
@@ -29,6 +29,9 @@ repo = 'Shougo/context_filetype.vim'
 [[plugins]]
 repo = 'delphinus35/typescript-vim'
 rev  = 'colorize-template-strings'
+
+[[plugins]]
+repo = 'kchmck/vim-coffee-script'
 
 [[plugins]]
 repo = 'Shougo/neosnippet-snippets'
