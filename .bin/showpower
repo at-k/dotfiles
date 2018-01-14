@@ -1,0 +1,40 @@
+#!/bin/zsh
+#
+# show battery remain capacity
+#
+
+#set -xeu
+
+function usage()
+{
+	echo "usage: $1 [options]"
+	echo "	-h         print this usage and exit"
+}
+
+while getopts h OPT;
+do
+	case $OPT in
+		"h") usage `basename $0`; exit;;
+	esac
+done
+
+function macbook_power()
+{
+	if [ -x "`which ioreg 2> /dev/null`" ]; then
+		local full=`ioreg -l | grep Capacity`
+		local max=$(echo $full | grep MaxCap  | sed 's/^.*\"MaxCapacity\" = \([0-9]*\)$/\1/' | sed -n '1p')
+		local cur=$(echo $full | grep Curr  | sed 's/^.*\"CurrentCapacity\" = \([0-9]*\)$/\1/' | sed -n '1p')
+
+		# echo $full
+		# echo $max
+		# echo $cur
+		local rate=$(echo "scale=2; 100 * $cur / $max" | bc)
+		echo $rate
+	fi
+}
+
+case ${OSTYPE} in
+	cygwin|linux*) ;;
+	darwin*) macbook_power;;
+esac
+

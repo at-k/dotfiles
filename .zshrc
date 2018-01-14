@@ -242,6 +242,10 @@ alias -s {gz,tgz,zip,lzh,bz2,tbz,Z,tar,arj,xz}=extract
 
 alias zbench='time ( zsh -i -c exit)'
 
+function cmd_exists() {
+	test -x "`which $1 2> /dev/null`"
+}
+
 # for rythmbox
 export GST_TAG_ENCODING=CP932
 
