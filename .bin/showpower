@@ -18,7 +18,7 @@ do
 	esac
 done
 
-function macbook_power()
+function macbook_power_ioreg()
 {
 	if [ -x "`which ioreg 2> /dev/null`" ]; then
 		local full=`ioreg -l | grep Capacity`
@@ -28,9 +28,29 @@ function macbook_power()
 		# echo $full
 		# echo $max
 		# echo $cur
-		local rate=$(echo "scale=2; 100 * $cur / $max" | bc)
-		echo $rate
+		local percentage=$(echo "scale=0; 100 * $cur / $max" | bc)
+		echo $percentage
 	fi
+}
+
+function macbook_power_pmset()
+{
+	if [ -x "`which pmset 2> /dev/null`" ]; then
+		local percentage=$(pmset -g ps | grep -o '[0-9]\+%' | tr -d '%')
+		echo $percentage
+	fi
+}
+
+function macbook_power()
+{
+	local percentage
+	if [ "$1" = "" ]; then
+		percentage=$(macbook_power_pmset)
+	else
+		percentage=$(macbook_power_ioreg)
+	fi
+
+	echo $percentage
 }
 
 case ${OSTYPE} in
