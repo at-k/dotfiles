@@ -1,0 +1,46 @@
+#!/bin/sh
+#
+# wrapper for onelogin-aws-login
+#
+
+#set -xeu
+
+# mkfifo tmp_pipe
+# cat <tmp_pipe &
+
+rcfile=".zshrc.local"
+
+output=$(expect -c "
+set timeout 5
+
+spawn onelogin-aws-login
+
+expect {
+	\"Onelogin Username:\" {
+		send \"akawamura@c-fo.com\n\"
+	}
+}
+
+expect {
+	-glob \"Onelogin Password:\" {
+		interact
+		exit 0
+	}
+}
+" |tee /dev/stderr)
+
+if [ $? != 0 ]; then
+	exit 1
+fi
+
+# rm tmp_pipe
+profile=$(echo $output | sed 's/^.*profile \(.*\)$/\1/' | sed 's/^M//')
+
+export AWS_DEFAULT_PROFILE=${profile}
+
+case ${OSTYPE} in
+	cygwin|linux*) sed -i "s:FILE=\(.*\)$:FILE="$profile":" ${rcfile} ;;
+	darwin*)	   sed -i "" "s:FILE=\(.*\)$:FILE="$profile":" ${rcfile} ;;
+esac
+
+

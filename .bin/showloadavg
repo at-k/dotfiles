@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+# show load average
+#
+
+#set -xeu
+
+function usage()
+{
+	echo "usage: $1 [options]"
+	echo "	-h         print this usage and exit"
+}
+
+while getopts h OPT;
+do
+	case $OPT in
+		"h") usage `basename $0`; exit;;
+	esac
+done
+
+case ${OSTYPE} in
+	cygwin|linux*) cut -d' ' -f-3 /proc/loadavg;;
+	darwin*) sysctl -n vm.loadavg | sed 's/^{ \(.*\) }$/\1/';;
+esac

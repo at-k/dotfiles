@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+# show battery remain capacity
+#
+
+#set -xeu
+
+function usage()
+{
+	echo "usage: $1 [options]"
+	echo "	-h         print this usage and exit"
+}
+
+while getopts h OPT;
+do
+	case $OPT in
+		"h") usage `basename $0`; exit;;
+	esac
+done
+
+case ${OSTYPE} in
+	cygwin|linux*)  ;;
+	darwin*) airport -I | grep " SSID"  | sed 's/^.*: \(.*\)$/\1/';;
+esac

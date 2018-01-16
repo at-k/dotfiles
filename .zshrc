@@ -280,6 +280,12 @@ fi
 # xenv
 if [ -d ~/.anyenv ]; then
 	export PATH="$HOME/.anyenv/bin:$PATH" && eval "$(anyenv init -)"
+	PY2_VERSION="2.7.14"
+	PY3_VERSION="3.6.3"
+
+	pyenv global $PPY3_VERSION $PY2_VERSION
+	export PATH="$HOME/.anyenv/envs/pyenv/versions/$PY3_VERSION/bin:$PATH"
+	export PATH="$HOME/.anyenv/envs/pyenv/versions/$PY2_VERSION/bin:$PATH"
 else
 	# for python
 	if [ -d ~/.pyenv ]; then
