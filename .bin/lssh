@@ -1,0 +1,53 @@
+#!/bin/sh
+#
+# wrapper for lshost
+#
+
+#set -xeu
+
+#function usage()
+#{
+#	echo "usage: $1 [options]"
+#	echo "	-h         print this usage and exit"
+#}
+#
+#while getopts h OPT;
+#do
+#	case $OPT in
+#		"h") usage `basename $0`; exit;;
+#	esac
+#done
+
+hosts=~/.cache/awshosts
+rcfile=~/.zshrc.local
+
+if [ ! -x "`which lshost 2> /dev/null`" ]; then
+	echo "error: lshost not found" >&2
+	exit 1
+fi
+
+if [ ! -x "`which peco 2> /dev/null`" ]; then
+	echo "error: peco not found" >&2
+	exit 1
+fi
+
+eval $(stat -s $rcfile)
+mtime=${st_mtime}
+ctime=$(date +%s)
+laps=$(echo "$ctime - $mtime" | bc)
+
+if [ $laps -gt 3600 ]; then
+	echo "warning: onelogin may be expired."
+	onelogin
+	lshost -l > ${hosts}
+fi
+
+tgt_server=$(cat ${hosts} | peco)
+
+ipaddr=$(echo ${tgt_server} | sed 's/^.* \([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\) .*$/\1/')
+
+if [ $? -eq 0 -a "${ipaddr}" != "" ]
+then
+	echo " SSH to ${tgt_server}"
+	ssh ${ipaddr}
+fi

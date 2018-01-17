@@ -8,7 +8,9 @@
 # mkfifo tmp_pipe
 # cat <tmp_pipe &
 
-rcfile=".zshrc.local"
+rcfile=~/.zshrc.local
+
+unset AWS_DEFAULT_PROFILE
 
 output=$(expect -c "
 set timeout 5
@@ -27,20 +29,19 @@ expect {
 		exit 0
 	}
 }
-" |tee /dev/stderr)
+" | tee /dev/stderr)
 
 if [ $? != 0 ]; then
 	exit 1
 fi
 
 # rm tmp_pipe
-profile=$(echo $output | sed 's/^.*profile \(.*\)$/\1/' | sed 's/^M//')
+profile=$(echo $output | sed 's/^.*profile \(.*\)$/\1/' | sed 's///')
 
 export AWS_DEFAULT_PROFILE=${profile}
 
 case ${OSTYPE} in
 	cygwin|linux*) sed -i "s:FILE=\(.*\)$:FILE="$profile":" ${rcfile} ;;
-	darwin*)	   sed -i "" "s:FILE=\(.*\)$:FILE="$profile":" ${rcfile} ;;
+	darwin*) sed -i "" "s:FILE=\(.*\)$:FILE="$profile":" ${rcfile} ;;
 esac
-
 
