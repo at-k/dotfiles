@@ -5,18 +5,32 @@
 
 #set -xeu
 
-#function usage()
-#{
-#	echo "usage: $1 [options]"
-#	echo "	-h         print this usage and exit"
-#}
-#
-#while getopts h OPT;
-#do
-#	case $OPT in
-#		"h") usage `basename $0`; exit;;
-#	esac
-#done
+ONELOGIN_EXPIRED_SEC=3600
+CACHE_EXPIRED_SEC=600
+
+function usage()
+{
+	echo "usage: $1 [options]"
+	echo "	-h         print this usage and exit"
+	echo "	-f         set filter for lshost"
+	echo "	-r         force re-login to onelogin"
+	echo "	-u         update host cache file"
+
+}
+
+filter=""
+relogin=0
+update=0
+
+while getopts rf:h OPT;
+do
+	case $OPT in
+		"f") filter="$OPTARG";;
+		"r") relogin=1;;
+		"u") update=1;;
+		"h") usage `basename $0`; exit;;
+	esac
+done
 
 hosts=~/.cache/awshosts
 rcfile=~/.zshrc.local
@@ -36,18 +50,43 @@ mtime=${st_mtime}
 ctime=$(date +%s)
 laps=$(echo "$ctime - $mtime" | bc)
 
-if [ $laps -gt 3600 ]; then
+if [ $laps -gt $ONELOGIN_EXPIRED_SEC ]; then
 	echo "warning: onelogin may be expired."
+
+	while true;do
+		echo "re-login? [y/n]"
+		read ans
+		case $ans in
+			y) reload=1; break;;
+			n) reload=0; break;;
+			*) ;;
+		esac
+	done
+fi
+
+if [ $reload = 1 ]; then
 	onelogin
-	lshost -l > ${hosts}
+	update=1
+else
+	eval $(stat -s $hosts )
+	mtime=${st_mtime}
+	ctime=$(date +%s)
+	laps=$(echo "$ctime - $mtime" | bc)
+
+	if [ $laps -gt $CACHE_EXPIRED_SEC ]; then
+		update=1
+	fi
+fi
+
+
+if [ $update = 1 ]; then
+	lshost ${filter} -l > ${hosts}
 fi
 
 tgt_server=$(cat ${hosts} | peco)
-
 ipaddr=$(echo ${tgt_server} | sed 's/^.* \([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\) .*$/\1/')
 
-if [ $? -eq 0 -a "${ipaddr}" != "" ]
-then
+if [ $? -eq 0 -a "${ipaddr}" != "" ]; then
 	echo " SSH to ${tgt_server}"
 	ssh ${ipaddr}
 fi
