@@ -38,10 +38,10 @@ fi
 # rm tmp_pipe
 profile=$(echo $output | sed 's/^.*profile \(.*\)$/\1/' | sed 's///')
 
-export AWS_DEFAULT_PROFILE=${profile}
-
 case ${OSTYPE} in
 	cygwin|linux*) sed -i "s:FILE=\(.*\)$:FILE="$profile":" ${rcfile} ;;
 	darwin*) sed -i "" "s:FILE=\(.*\)$:FILE="$profile":" ${rcfile} ;;
 esac
+
+echo "  login success! please exec \"soure ${rcfile}\" on your terminal"
 
