@@ -1,0 +1,60 @@
+#!/bin/sh
+#
+# wrapper for original lshost
+#
+
+#set -xeu
+set -u
+
+CACHE_EXPIRED_SEC=600
+
+function usage()
+{
+	echo "usage: $1 [options]"
+	echo "	-h         print this usage and exit"
+	echo "	-u         update host cache file"
+	echo "... and the rest of options are handed to original lssh"
+}
+
+update=0
+
+while getopts :uh OPT;
+do
+	case $OPT in
+		"u") update=1;;
+		"h") usage `basename $0`; exit;;
+	esac
+done
+
+hosts_base=~/.cache/awshosts
+opt=$(echo $@ | sed 's/-u//')
+
+if [ "${AWS_ACCESS_KEY_ID}" != "" ]; then
+	echo "** use iam user"
+	sum=$(md5 -r -s "${AWS_ACCESS_KEY_ID}${opt}" | cut -d" " -f1)
+else
+	echo "** use onelogin profile"
+	sum=$(md5 -r -s "${AWS_DEFAULT_PROFILE}${AWS_DEFAULT_REGION}${opt}" | cut -d" " -f1)
+fi
+
+hosts=${hosts_base}_${sum}
+
+if [ ! -f ${hosts} -o ! -s ${hosts} ]; then
+	update=1
+else
+	eval $(stat -s $hosts )
+	mtime=${st_mtime}
+	ctime=$(date +%s)
+	laps=$(echo "$ctime - $mtime" | bc)
+
+	if [ $laps -gt $CACHE_EXPIRED_SEC ]; then
+		update=1
+	fi
+fi
+
+if [ ${update} = 1 ]; then
+	echo "** reload hosts file"
+	lshost_org ${opt} > ${hosts}
+fi
+
+cat ${hosts}

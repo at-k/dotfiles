@@ -283,7 +283,7 @@ if [ -d ~/.anyenv ]; then
 	PY2_VERSION="2.7.14"
 	PY3_VERSION="3.6.3"
 
-	pyenv global $PPY3_VERSION $PY2_VERSION
+	pyenv global $PY3_VERSION $PY2_VERSION
 	export PATH="$HOME/.anyenv/envs/pyenv/versions/$PY3_VERSION/bin:$PATH"
 	export PATH="$HOME/.anyenv/envs/pyenv/versions/$PY2_VERSION/bin:$PATH"
 else
@@ -320,29 +320,31 @@ fi
 # alias with_proxy_s='export http_proxy="http://10033136:$( read -s "pw?proxy password: " ; echo 1>&2 ;echo $pw; )@133.144.14.243:8080/" '
 
 # for specific OS
-if [ "$OSTYPE" = "cygwin" ]; then
-	alias op='cygstart'
+case ${OSTYPE} in
+	cygwin)
+		alias op='cygstart'
 
-	function cygupdate() {
-		local setup=$(find / -maxdepth 1 -name "setup*.exe" | sed 's/\///')
-		if [ -z ${setup} ]; then
-			echo "error: current setup file not found"
-		else
-			mkdir -p /setup_backup
-			mv /${setup} /setup_backup
-			wget http://www.cygwin.com/${setup} -q
-			if [ ! -f ${setup} ]; then
-				echo "error: fail to download setup file from official"
+		function cygupdate() {
+			local setup=$(find / -maxdepth 1 -name "setup*.exe" | sed 's/\///')
+			if [ -z ${setup} ]; then
+				echo "error: current setup file not found"
 			else
-				chmod +x ${setup}
-				mv ${setup} /
-				echo "complete update"
+				mkdir -p /setup_backup
+				mv /${setup} /setup_backup
+				wget http://www.cygwin.com/${setup} -q
+				if [ ! -f ${setup} ]; then
+					echo "error: fail to download setup file from official"
+				else
+					chmod +x ${setup}
+					mv ${setup} /
+					echo "complete update"
+				fi
 			fi
-		fi
-	}
-elif [ "$OSTYPE" = "linux-gnu" ]; then
-	alias op='gnome-open'
-fi
+		}
+		;;
+	linux*) alias op='gnome-open' ;;
+	darwi*) alias op='gnome-open' ;;
+esac
 
 # local limited
 if [ -f ~/.zshrc.local ]; then
