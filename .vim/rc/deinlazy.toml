@@ -227,7 +227,7 @@ on_cmd    = ['PP', 'PrettyPrint']
 [[plugins]]
 repo = 'scrooloose/nerdtree'
 on_cmd = ['NERDTree']
-hook_source = '''
+hook_add = '''
 	let NERDTreeShowHidden = 1
 	function! ExecuteNERDTree()
 		"b:nerdstatus = 1 : NERDTree 表示中

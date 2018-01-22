@@ -44,4 +44,5 @@
 	allowed = AKIAIOSFODNN7EXAMPLE
 	allowed = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
 
-
+[diff "vault"]
+	textconv = ansible-vault view
