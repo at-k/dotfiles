@@ -1,0 +1,21 @@
+#!/bin/zsh
+#
+# vault-grep: git grep for ansible-vault protected files
+#
+
+bname=`basename $0`
+
+if [ "${ANSIBLE_VAULT_PASSWORD_FILE}" = "" ]; then
+	echo "error: ANSIBLE_VAULT_PASSWORD_FILE is not configured"
+	exit 1
+fi
+
+for file in `git ls-files`; do
+	attr=$(git check-attr diff ${file} | sed 's/^.*diff: \(.*\)$/\1/')
+	if [ "${attr}" = "vault" ]; then
+		grep $@ <(ansible-vault view ${file} ) | sed "s!^!"${file}":!"
+	else
+		grep $@ ${file}
+	fi
+done
+
