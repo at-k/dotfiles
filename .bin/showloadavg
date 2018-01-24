@@ -20,5 +20,6 @@ done
 
 case ${OSTYPE} in
 	cygwin|linux*) cut -d' ' -f-3 /proc/loadavg;;
-	darwin*) sysctl -n vm.loadavg | sed 's/^{ \(.*\) }$/\1/';;
+	#darwin*) sysctl -n vm.loadavg | sed 's/^{ \(.*\) }$/\1/';;
+	darwin*) uptime  | sed 's/^.*averages: \(.*\)$/\1/';;
 esac

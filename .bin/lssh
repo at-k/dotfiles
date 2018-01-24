@@ -22,6 +22,7 @@ function usage()
 filter=""
 relogin=0
 update=0
+bname=`basename $0`
 
 while getopts urf:h OPT;
 do
@@ -29,7 +30,7 @@ do
 		"f") filter="$OPTARG";;
 		"r") relogin=1;;
 		"u") update=1;;
-		"h") usage `basename $0`; exit;;
+		"h") usage ${bname}; exit;;
 	esac
 done
 
@@ -52,7 +53,7 @@ ctime=$(date +%s)
 laps=$(echo "$ctime - $mtime" | bc)
 
 if [ $laps -gt $ONELOGIN_EXPIRED_SEC -a ${relogin} != 1 ]; then
-	echo "** warning: onelogin may be expired."
+	echo "** [${bname}] warning: onelogin may be expired."
 
 	while true;do
 		echo "re-login? [y/n]"
@@ -67,7 +68,7 @@ fi
 
 if [ $relogin = 1 ]; then
 	onelogin
-	echo "** retry after exec \"source ${rcfile}\""
+	echo "** [${bname}] retry after exec \"source ${rcfile}\""
 	exit 0
 fi
 
@@ -82,7 +83,12 @@ fi
 ipaddr=$(echo ${tgt_server} | sed 's/^.* \(10\.[0-9]*\.[0-9]*\.[0-9]*\) .*$/\1/')
 
 if [ $? -eq 0 -a "${ipaddr}" != "" ]; then
-	echo "** target: ${tgt_server}"
-	echo "** ssh to: ${ipaddr}"
-	ssh ${ipaddr}
+	echo "** [${bname}] target: ${tgt_server}"
+	if [ -x "`which sshrc 2> /dev/null`" ]; then
+		echo "** [${bname}] sshrc to: ${ipaddr}"
+		sshrc ${ipaddr}
+	else
+		echo "** [${bname}] ssh to: ${ipaddr}"
+		ssh ${ipaddr}
+	fi
 fi

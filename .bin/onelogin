@@ -39,9 +39,9 @@ fi
 profile=$(echo $output | sed 's/^.*profile \(.*\)$/\1/' | sed 's///')
 
 case ${OSTYPE} in
-	cygwin|linux*) sed -i "s:FILE=\(.*\)$:FILE="$profile":" ${rcfile} ;;
-	darwin*) sed -i "" "s:FILE=\(.*\)$:FILE="$profile":" ${rcfile} ;;
+	cygwin|linux*) sed -i "s:AWS_DEFAULT_PROFILE=\(.*\)$:AWS_DEFAULT_PROFILE="$profile":" ${rcfile} ;;
+	darwin*) sed -i "" "s:AWS_DEFAULT_PROFILEE=\(.*\)$:AWS_DEFAULT_PROFILE="$profile":" ${rcfile} ;;
 esac
 
-echo "  login success! please exec \"soure ${rcfile}\" on your terminal"
+echo "** [`basename $0`] login success! please exec \"soure ${rcfile}\" on your terminal"
 

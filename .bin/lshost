@@ -17,12 +17,13 @@ function usage()
 }
 
 update=0
+bname=`basename $0`
 
 while getopts :uh OPT;
 do
 	case $OPT in
 		"u") update=1;;
-		"h") usage `basename $0`; exit;;
+		"h") usage ${bname}; exit;;
 	esac
 done
 
@@ -30,10 +31,10 @@ hosts_base=~/.cache/awshosts
 opt=$(echo $@ | sed 's/-u//')
 
 if [ "${AWS_ACCESS_KEY_ID}" != "" ]; then
-	echo "** use iam user"
+	echo "** [${bname}] use iam user"
 	sum=$(md5 -r -s "${AWS_ACCESS_KEY_ID}${opt}" | cut -d" " -f1)
 else
-	echo "** use onelogin profile"
+	echo "** [${bname}] use onelogin profile"
 	sum=$(md5 -r -s "${AWS_DEFAULT_PROFILE}${AWS_DEFAULT_REGION}${opt}" | cut -d" " -f1)
 fi
 
@@ -53,7 +54,7 @@ else
 fi
 
 if [ ${update} = 1 ]; then
-	echo "** reload hosts file"
+	echo "** [${bname}] reload hosts file"
 	lshost_org ${opt} > ${hosts}
 fi
 

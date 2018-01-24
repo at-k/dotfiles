@@ -204,6 +204,7 @@ alias scr_paste='screen -X paste .'
 alias iro='for i in {0..255} ; do; printf "\x1b[38;5;${i}m%03d " ${i}; done'
 
 alias gs='git status -uno'
+alias gsa='git status'
 alias gl='git log'
 
 case ${OSTYPE} in

@@ -1,0 +1,4 @@
+#!/bin/sh
+#
+# rc file which is applied on the other host via sshrc
+#

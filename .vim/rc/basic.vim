@@ -139,9 +139,18 @@ autocmd ColorScheme * hi DiffChange   ctermbg=235  ctermfg=103  guibg=#262626 gu
 autocmd ColorScheme * hi DiffDelete   ctermbg=235  ctermfg=131  guibg=#262626 guifg=#af5f5f cterm=reverse  gui=reverse
 autocmd ColorScheme * hi DiffText     ctermbg=235  ctermfg=140  guibg=#262626 guifg=#ff8700 cterm=reverse  gui=reverse
 
+function! s:has_colorscheme(name)
+  let pat = "colors/".a:name.".vim"
+  return !empty(globpath(&rtp, pat))
+endfunction
+
 " load main color scheme
 " colorscheme molokai
-colorscheme wombat
+if s:has_colorscheme('wombat')
+  colorscheme wombat
+else
+  colorscheme desert
+endif
 
 
 "-------------------------------------------------
