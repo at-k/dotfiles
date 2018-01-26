@@ -179,6 +179,7 @@ case ${OSTYPE} in
 esac
 
 alias reloadsh='source ~/.zshrc'
+alias reloadlsh='source ~/.zshrc.local'
 alias clearcmp='rm ~/.zcompdump 2> /dev/null; rm ~/.zplug/zcompdump 2> /dev/null; exec $SHELL -l'
 
 alias hex2dec="printf '%d\n'"

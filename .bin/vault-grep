@@ -13,7 +13,10 @@ fi
 for file in `git ls-files`; do
 	attr=$(git check-attr diff ${file} | sed 's/^.*diff: \(.*\)$/\1/')
 	if [ "${attr}" = "vault" ]; then
-		grep $@ <(ansible-vault view ${file} ) | sed "s!^!"${file}":!"
+		grep $@ <(ansible-vault view ${file} ) | sed "s!^!"${file}":!" 2> /dev/null
+		if [ $? != 0 ]; then
+			grep $@ ${file}
+		fi
 	else
 		grep $@ ${file}
 	fi
