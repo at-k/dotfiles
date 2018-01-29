@@ -1,0 +1,78 @@
+#!/bin/sh
+#
+# awslogin: aws login utility, which provides a method to switch between onelogin and iam
+#
+
+#set -xeu
+
+function usage()
+{
+	echo "usage: $1 [options]"
+	echo "	-h         print this usage and exit"
+	echo "	-i         use iam"
+	echo "	-o         use onelogin"
+	echo "	-r         relogin to onelogin"
+}
+
+bname=`basename $0`
+
+MODE_O=10
+MODE_I=11
+
+mode=${MODE_I}
+relog=0
+
+rcfile=~/.zshrc.local
+ONELOGIN_EXPIRED_SEC=3600
+
+sed_cmd=""
+case ${OSTYPE} in
+	cygwin|linux*) sed_cmd='sed -i' ;;
+	darwin*)       sed_cmd='sed -i ""' ;;
+esac
+
+while getopts iorh OPT;
+do
+	case $OPT in
+		"i") mode=${MODE_I};;
+		"o") mode=${MODE_O};;
+		"r") relog=1;;
+		"h") usage ${bname}; exit;;
+	esac
+done
+
+if [ ${mode} = ${MODE_I} ]; then
+	eval '${sed_cmd} "s/use_onelogin=[0,1]/use_onelogin=0/" ${rcfile}'
+else
+	eval '${sed_cmd} "s/use_onelogin=[0,1]/use_onelogin=1/" ${rcfile}'
+
+	if [ ${relog} = 1 ]; then
+		output=$(expect -c "
+		set timeout 5
+
+		spawn onelogin-aws-login
+
+		expect {
+			\"Onelogin Username:\" {
+				send \"akawamura@c-fo.com\n\"
+			}
+		}
+
+		expect {
+			-glob \"Onelogin Password:\" {
+				interact
+				exit 0
+			}
+		}
+		" | tee /dev/stderr)
+
+		if [ $? != 0 ]; then
+			exit 1
+		fi
+
+		profile=$(echo $output | sed 's/^.*profile \(.*\)$/\1/' | sed 's///')
+
+		eval '${sed_cmd} "s:AWS_DEFAULT_PROFILE=\(.*\)$:AWS_DEFAULT_PROFILE="${profile}":" ${rcfile}'
+	fi
+fi
+
