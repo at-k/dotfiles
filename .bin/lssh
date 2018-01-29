@@ -6,21 +6,16 @@
 #set -xeu
 set -u
 
-ONELOGIN_EXPIRED_SEC=3600
-CACHE_EXPIRED_SEC=600
-
 function usage()
 {
 	echo "usage: $1 [options]"
 	echo "	-h         print this usage and exit"
 	echo "	-f         set filter for lshost"
-	echo "	-r         force re-login to onelogin"
 	echo "	-u         update host cache file"
 
 }
 
 filter=""
-relogin=0
 update=0
 bname=`basename $0`
 
@@ -28,14 +23,10 @@ while getopts urf:h OPT;
 do
 	case $OPT in
 		"f") filter="$OPTARG";;
-		"r") relogin=1;;
 		"u") update=1;;
 		"h") usage ${bname}; exit;;
 	esac
 done
-
-hosts_base=~/.cache/awshosts
-rcfile=~/.zshrc.local
 
 if [ ! -x "`which lshost 2> /dev/null`" ]; then
 	echo "error: lshost not found" >&2
@@ -46,33 +37,6 @@ if [ ! -x "`which peco 2> /dev/null`" ]; then
 	echo "error: peco not found" >&2
 	exit 1
 fi
-
-eval $(stat -s $rcfile)
-mtime=${st_mtime}
-ctime=$(date +%s)
-laps=$(echo "$ctime - $mtime" | bc)
-
-if [ $laps -gt $ONELOGIN_EXPIRED_SEC -a ${relogin} != 1 ]; then
-	echo "** [${bname}] warning: onelogin may be expired."
-
-	while true;do
-		echo "re-login? [y/n]"
-		read ans
-		case $ans in
-			y) relogin=1; break;;
-			n) relogin=0; break;;
-			*) ;;
-		esac
-	done
-fi
-
-if [ $relogin = 1 ]; then
-	onelogin
-	echo "** [${bname}] retry after exec \"source ${rcfile}\""
-	exit 0
-fi
-
-source ${rcfile}
 
 if [ $update = 1 ]; then
 	tgt_server=$(lshost -u -l ${filter} | peco)

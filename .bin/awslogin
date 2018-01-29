@@ -12,15 +12,19 @@ function usage()
 	echo "	-i         use iam"
 	echo "	-o         use onelogin"
 	echo "	-r         relogin to onelogin"
+	echo "	-p         print current env"
+	echo "  -s		   silent mode"
 }
 
 bname=`basename $0`
 
-MODE_O=10
-MODE_I=11
+MODE_O=onelogin
+MODE_I=iam
 
-mode=${MODE_I}
+mode=""
 relog=0
+
+silent=0
 
 rcfile=~/.zshrc.local
 ONELOGIN_EXPIRED_SEC=3600
@@ -31,19 +35,47 @@ case ${OSTYPE} in
 	darwin*)       sed_cmd='sed -i ""' ;;
 esac
 
-while getopts iorh OPT;
+curmode_tmp=$(sed -n 's/use_onelogin=\(.*\)$/\1/p' ${rcfile})
+if [ ${curmode_tmp} = 1 ]; then
+	curmode=${MODE_O}
+else
+	curmode=${MODE_I}
+fi
+
+while getopts iorsph OPT;
 do
 	case $OPT in
 		"i") mode=${MODE_I};;
 		"o") mode=${MODE_O};;
 		"r") relog=1;;
+		"s") silent=1;;
+		"p") echo ${curmode}; exit;;
 		"h") usage ${bname}; exit;;
 	esac
 done
 
+if [ "${mode}" = "" ]; then
+	mode=${curmode}
+	if [ "${silent}" != 1 ]; then
+		echo "** ${bname}: keep login mode ${curmode}"
+	fi
+else
+	if [ "${silent}" != 1 ]; then
+		echo "** ${bname}: switch login mode ${curmode} -> ${mode}"
+	fi
+fi
+
 if [ ${mode} = ${MODE_I} ]; then
 	eval '${sed_cmd} "s/use_onelogin=[0,1]/use_onelogin=0/" ${rcfile}'
 else
+	ltime=$(sed -n 's/aws_last_onelogin=\(.*\)/\1/p' ${rcfile})
+	ctime=$(date +%s)
+	laps=$(echo "$ctime - $ltime" | bc)
+
+	if [ $laps -gt $ONELOGIN_EXPIRED_SEC ]; then
+		relog=1
+	fi
+
 	eval '${sed_cmd} "s/use_onelogin=[0,1]/use_onelogin=1/" ${rcfile}'
 
 	if [ ${relog} = 1 ]; then
@@ -72,6 +104,7 @@ else
 
 		profile=$(echo $output | sed 's/^.*profile \(.*\)$/\1/' | sed 's///')
 
+		eval '${sed_cmd} "s/aws_last_onelogin=.*$/aws_last_onelogin="${ctime}"/" ${rcfile}'
 		eval '${sed_cmd} "s:AWS_DEFAULT_PROFILE=\(.*\)$:AWS_DEFAULT_PROFILE="${profile}":" ${rcfile}'
 	fi
 fi

@@ -29,11 +29,11 @@ done
 hosts_base=~/.cache/awshosts
 opt=$(echo $@ | sed 's/-u//')
 
-if [ -v $AWS_ACCESS_KEY_ID ]; then
-	echo "** [${bname}] use iam user"
+source ~/.zshrc.local
+
+if [ $(awslogin -p) = "iam" ]; then
 	sum=$(md5 -r -s "${opt}" | cut -d" " -f1)
 else
-	echo "** [${bname}] use onelogin profile"
 	sum=$(md5 -r -s "${AWS_DEFAULT_PROFILE}${AWS_DEFAULT_REGION}${opt}" | cut -d" " -f1)
 fi
 
@@ -52,8 +52,10 @@ else
 	fi
 fi
 
+awslogin -s
+
 if [ ${update} = 1 ]; then
-	echo "** [${bname}] reload hosts file"
+	echo "** [${bname}] reload hosts file - opt:${opt}"
 	lshost_org ${opt} > ${hosts}
 fi
 
