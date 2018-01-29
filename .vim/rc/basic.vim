@@ -450,11 +450,13 @@ nnoremap s			<Nop>
 nnoremap [plugin]   <Nop>
 nnoremap [orgfunc]	<Nop>
 nnoremap [unite]    <Nop>
+nnoremap [winr]     <Nop>
 "nnoremap [mark]		<Nop>
 nnoremap [templ]	<Nop>
 nmap     <Space>p	[plugin]
 nmap     <Space>o	[orgfunc]
 nmap     <Space>u	[unite]
+nmap     <Space>w [winr]
 "nmap	 <Space>m	[mark]
 nmap	 <Space>t	[templ]
 
@@ -468,6 +470,7 @@ nnoremap <silent> [unite]c   :<C-u>UniteWithCurrentDir -buffer-name=files buffer
 nnoremap <silent> [unite]b   :<C-u>Unite buffer<CR>
 nnoremap <silent> [unite]m	 :Unite mark<CR>
 nnoremap <silent> [unite]i	 :Unite colorscheme -auto-preview<CR>
+nnoremap <silent> [winr]     :WinResizerStartResize<CR>
 
 " for mark
 "nnoremap <silent> [mark]	`

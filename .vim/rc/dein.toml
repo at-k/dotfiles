@@ -49,6 +49,15 @@ if   = '''! has('kaoriya')'''
 ## 依存関係を指定したからと言って、自動でインストールはされない（ここは NeoBundle と違う）
 #[[plugins]]
 #repo = 'vim-airline/vim-airline-themes'
+#
+[[plugins]]
+repo = 'simeji/winresizer'
+hook_source = '''
+  let g:winresizer_start_key=''
+  let g:winresizer_gui_start_key=''
+  let g:winresizer_vert_resize=5
+  let g:winresizer_horiz_resize=2
+'''
 
 [[plugins]]
 repo = 'Shougo/vinarise'
