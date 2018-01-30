@@ -44,6 +44,10 @@ if [ -x "`which vboxmanage 2> /dev/null `" ]; then
 	compdef vboxmanage=VBoxManage  # completion for vboxmanage command
 fi
 
+if [ -x "`which sshrc 2> /dev/null `" ]; then
+	compdef sshrc=ssh
+fi
+
 # -- Prompt ... now using the one served by plugin
 if [ "$OSTYPE" = "cygwin" ]; then
 	autoload -Uz promptinit; promptinit
@@ -308,12 +312,12 @@ else
 	if [ -d ~/.ndenv ]; then
 		export PATH="$HOME/.ndenv/bin:$PATH" && eval "$(ndenv init -)"
 	fi
-fi
 
-# for golang
-if [ -d ~/.go ]; then
-	export GOPATH=$HOME/.go
-	export PATH=$PATH:$GOPATH/bin
+	# for golang
+	if [ -d ~/.go ]; then
+		export GOPATH=$HOME/.go
+		export PATH=$PATH:$GOPATH/bin
+	fi
 fi
 
 

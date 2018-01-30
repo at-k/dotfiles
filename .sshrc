@@ -1,4 +1,22 @@
 #!/bin/sh
 #
-# rc file which is applied on the other host via sshrc
+# rc file which is applied on the other host connected via sshrc
 #
+
+tmux() {
+	local TMUXDIR=/tmp/.akawamura-tmux
+	if ! [ -d $TMUXDIR ]; then
+		rm -rf $TMUXDIR
+		mkdir -p $TMUXDIR
+	fi
+	rm -rf $TMUXDIR/.sshrc.d
+	cp -r $SSHHOME/.sshrc $SSHHOME/bashsshrc $SSHHOME/sshrc $SSHHOME/.sshrc.d $TMUXDIR
+	SSHHOME=$TMUXDIR SHELL=$TMUXDIR/bashsshrc `which tmux` -f $SSHHOME/.sshrc.d/.tmux.conf -S $TMUXDIR/tmuxserver $@
+}
+
+export VIMINIT="let \$MYVIMRC='$SSHHOME/.sshrc.d/.vimrc' | source \$MYVIMRC"
+
+if [ -f $SSHHOME/.sshrc.d/.bashrc ]; then
+	source $SSHHOME/.sshrc.d/.bashrc
+fi
+
