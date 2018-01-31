@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# wrapper for lshost
+# issh: wrapper for lshost providing interactive ssh
 #
 
 #set -xeu
@@ -19,6 +19,8 @@ filter=""
 update=0
 bname=`basename $0`
 
+lshost=lsaws
+
 while getopts urf:h OPT;
 do
 	case $OPT in
@@ -28,8 +30,8 @@ do
 	esac
 done
 
-if [ ! -x "`which lshost 2> /dev/null`" ]; then
-	echo "error: lshost not found" >&2
+if [ ! -x "`which ${lshost} 2> /dev/null`" ]; then
+	echo "error: ${lshost} not found" >&2
 	exit 1
 fi
 
@@ -39,9 +41,9 @@ if [ ! -x "`which peco 2> /dev/null`" ]; then
 fi
 
 if [ $update = 1 ]; then
-	tgt_server=$(lshost -u -l ${filter} | peco)
+	tgt_server=$(${lshost} -u -l ${filter} | peco)
 else
-	tgt_server=$(lshost -l ${filter} | peco)
+	tgt_server=$(${lshost} -l ${filter} | peco)
 fi
 
 ipaddr=$(echo ${tgt_server} | sed 's/^.* \(10\.[0-9]*\.[0-9]*\.[0-9]*\) .*$/\1/')

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# wrapper for original lshost
+# lsaws: wrapper for original lshost
 #
 
 #set -xeu
@@ -17,6 +17,7 @@ function usage()
 
 update=0
 bname=`basename $0`
+lshost=lshost
 
 while getopts :uh OPT;
 do
@@ -56,7 +57,7 @@ awslogin -s
 
 if [ ${update} = 1 ]; then
 	echo "** [${bname}] reload hosts file - opt:${opt}"
-	lshost_org ${opt} > ${hosts}
+	${lshost} ${opt} > ${hosts}
 fi
 
 cat ${hosts}
