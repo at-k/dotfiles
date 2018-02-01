@@ -12,20 +12,24 @@ function usage()
 	echo "	-h         print this usage and exit"
 	echo "	-f         set filter for lshost"
 	echo "	-u         update host cache file"
-
+	echo "	-s         show history"
 }
 
 filter=""
 update=0
+hist=0
 bname=`basename $0`
+hfile=~/.cache/isshhists
+histsize=10
 
 lshost=lsaws
 
-while getopts urf:h OPT;
+while getopts usf:h OPT;
 do
 	case $OPT in
 		"f") filter="$OPTARG";;
 		"u") update=1;;
+		"s") hist=1;;
 		"h") usage ${bname}; exit;;
 	esac
 done
@@ -40,16 +44,25 @@ if [ ! -x "`which peco 2> /dev/null`" ]; then
 	exit 1
 fi
 
-if [ $update = 1 ]; then
-	tgt_server=$(${lshost} -u -l ${filter} | peco)
+if [ $hist = 0 ]; then
+	if [ $update = 1 ]; then
+		tgt_server=$(${lshost} -u -l ${filter} | peco)
+	else
+		tgt_server=$(${lshost} -l ${filter} | peco)
+	fi
 else
-	tgt_server=$(${lshost} -l ${filter} | peco)
+	tgt_server=$(cat $hfile | peco)
 fi
 
 ipaddr=$(echo ${tgt_server} | sed 's/^.* \(10\.[0-9]*\.[0-9]*\.[0-9]*\) .*$/\1/')
 
 if [ $? -eq 0 -a "${ipaddr}" != "" ]; then
 	echo "** [${bname}] target: ${tgt_server}"
+	echo ${tgt_server} >> $hfile
+	if [ `wc -l $hfile | tr -d '[ a-z]'` -gt $histsize ]; then
+		sed -i '' '1d' $hfile
+	fi
+
 	if [ -x "`which sshrc 2> /dev/null`" ]; then
 		echo "** [${bname}] sshrc to: ${ipaddr}"
 		sshrc ${ipaddr}

@@ -46,3 +46,5 @@
 
 [diff "vault"]
 	textconv = ansible-vault view
+[init]
+	templatedir = ~/.git_template
