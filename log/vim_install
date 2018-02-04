@@ -1,0 +1,20 @@
+   45  ls
+   46  mkdir vim
+   47  cd vim/
+   48  sudo apt-get install -y git build-essential ncurses-dev lua5.2 lua5.2-dev luajit python-dev python3-dev ruby-dev
+   49  sudo apt build-dep vim
+   50  cd ../
+   51  rm -rf vim/
+   52  git clone git://github.com/vim/vim
+   53  cd vim
+   54  sudo ./configure --with-features=huge --enable-gui=auto --enable-gtk2-check --with-x --enable-multibyte --enable-luainterp=dynamic --enable-gpm --enable-cscope --enable-fontset --enable-fail-if-missing --prefix=/usr/local --enable-pythoninterp=dynamic --enable-python3interp=dynamic --enable-rubyinterp=dynamic
+   55  make
+   56  sudo make install
+   57  vim --version
+   58  cd ../
+   59  ls
+   60  cd dotfiles/
+   61  history | tail 10
+   62  history | tail -10
+   63  history | tail -20
+   64  history | tail -20 > vim_install

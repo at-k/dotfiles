@@ -1,0 +1,3 @@
+  114  ls
+  115  git clone https://github.com/riywo/anyenv ~/.anyenv
+  116  history | tail -3 > anyenv_install
