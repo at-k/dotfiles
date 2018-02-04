@@ -1,3 +1,1 @@
   120  sudo apt-get install tmux
-  121  tmux -V
-  122  history | tail -3 > tmux_install
