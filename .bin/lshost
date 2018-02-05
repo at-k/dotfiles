@@ -1,0 +1,226 @@
+#!/usr/bin/env python
+
+import botocore.session
+import re
+import click
+import json
+from getpass import getuser
+
+from sys import stdout
+from os import execvp
+from pprint import pprint
+from operator import add
+
+__version__ = "0.4.0"
+
+
+class Color:
+
+    @staticmethod
+    def colorize(clr, string):
+        colors = {
+                'red': '\033[31m',
+                'green': '\033[32m',
+                'yellow': '\033[33m',
+                'blue': '\033[34m',
+                'end': '\033[0m'
+                }
+        if stdout.isatty():
+            return colors[clr] + string + colors['end']
+        else:
+            return string
+
+
+class Instance:
+    def __init__(self, dict):
+        self.dict = dict
+        self._instance_status = '--'
+
+    def name(self):
+        return self.get_tag('Name')
+
+    def role(self):
+        return self.get_tag('Role')
+
+    def stage(self):
+        return self.get_tag('Stage')
+
+    def address(self):
+        return self.dict.get('PrivateIpAddress', '')
+
+    def eip(self):
+        return self.dict.get('PublicIpAddress', '')
+
+    def set_instance_status(self, value):
+        self._instance_status = value
+        return value
+
+    def instance_status(self):
+        return self._instance_status
+
+    def instance_id(self):
+        return self.dict['InstanceId']
+
+    def get_tag(self, tag):
+        tag = list(filter(lambda dic: dic['Key'] == tag, self.dict.get('Tags', '')))
+        if len(tag) == 1:
+            return tag[0]['Value']
+        else:
+            return ''
+
+    def status(self):
+        return self.dict['State']['Name']
+
+def split_each(arr, n):
+    return [arr[i:i + n] for i in range(0, len(arr), n)]
+
+def get_instances(fltr):
+    session = botocore.session.get_session()
+    ec2conn = session.create_client('ec2', region_name='ap-northeast-1')
+    instances = ec2conn.describe_instances(Filters = fltr)
+
+    real_instances = [Instance(i) for r in instances['Reservations'] for i in r['Instances']]
+
+    instance_ids = [x.instance_id() for x in real_instances]
+
+    # split ids into each 100, for only 100 instances are permitted by AWS-SDK
+    for partial_ids in split_each(instance_ids, 100):
+        statuses = ec2conn.describe_instance_status(InstanceIds = partial_ids)
+
+        for status in statuses['InstanceStatuses']:
+            for instance in real_instances:
+                if instance.instance_id() == status['InstanceId']:
+                    instance_status =  'ok' if status['SystemStatus']['Status'] == 'ok' else 'ng'
+                    instance.set_instance_status(instance_status)
+
+    return real_instances
+
+def get_name(res):
+    return res.name()
+
+def build_filter(roles):
+    filters = []
+    for role in roles:
+        arr = role.split(':', 2)
+        if len(arr) == 3:
+            key = "{}:{}".format(arr[0], arr[1])
+            filters.append({'Name': key, 'Values': [arr[2]]})
+        elif len(arr) == 2:
+            filters.append({'Name': 'tag:' + arr[0], 'Values': [arr[1]]})
+        else:
+            filters.append({'Name': 'tag:Role', 'Values': [role]})
+    return filters
+
+
+class ColorizedOutput(list):
+    def __init__(self):
+        list.__init__(self)
+        self._color = None
+
+    def set_color(self, color):
+        self._color = color
+
+    def color(self):
+        return self._color
+
+    @staticmethod
+    def pretty_print(array_of_array):
+        maxlen = [0] * len(array_of_array[0])
+        for arr in array_of_array:
+            for i, elem in enumerate(arr):
+                #maxlen[i] = elem if maxlen[i] < elem
+                if maxlen[i] < len(elem):
+                    maxlen[i] = len(elem)
+
+        for arr in array_of_array:
+            output = ','.join([x + ' ' * (ml - len(x)) for x, ml in zip(arr, maxlen)])
+            if hasattr(arr, 'color') and arr.color() is not None:
+                output = Color.colorize(arr.color(), output)
+            print(output)
+
+
+@click.command()
+@click.option('--list', '-l', 'list', is_flag=True)
+@click.option('--all', '-a', 'all', is_flag=True)
+@click.option('--hosts', '-H', 'hosts', is_flag=True)
+@click.option('--internal-ip', '-i', 'internal_ip', is_flag=True)
+@click.argument('roles', nargs=-1)
+def find_from_role(roles, list=False, all=False, internal_ip=False, hosts=False):
+    insts = get_instances(build_filter(roles))
+    outputs = []
+    for x in sorted(insts, key=get_name):
+        output = ColorizedOutput()
+        if list:
+            output += [x.instance_id(), x.name(), x.role(), x.address(), x.eip(), x.stage(), x.status(), x.instance_status()]
+        elif internal_ip:
+            output += [x.address()]
+        elif hosts:
+            output += [x.name(), x.address()]
+        else:
+            output += [x.name() or x.address()]
+
+        status = x.status()
+        if all:
+            if status == "running" and x.instance_status() == "ok":
+                # normal output
+                pass
+            elif status == "stopping" or status == "shutting-down":
+                output.set_color('yellow')
+            else:
+                output.set_color('red')
+        else:
+            if status != "running":
+                # ignore unhealthy hosts
+                continue
+            elif x.instance_status() != "ok":
+                output.set_color('red')
+
+        outputs.append(output)
+
+    ColorizedOutput.pretty_print(outputs)
+
+
+@click.command()
+@click.option('--hosts', '-H', 'hosts', is_flag=True)
+@click.option('--configfile', '-c', 'config_file', is_flag=False)
+@click.argument('roles', nargs=-1)
+def ssh_into_role(roles, hosts=False, config_file=False):
+    idx = 0
+    if len(roles) > 0 and re.search('^[0-9]+$', roles[-1]):
+        idx = int(roles[-1])
+        roles = list(roles)
+        roles.pop()
+
+    insts = sorted(
+            filter(lambda x: x.status() == "running",
+                get_instances(build_filter(roles))),
+            key=get_name)
+
+    if len(insts) == 0 or (idx == 0 and len(insts) > 1):
+        outputs = [["idx:", "instance-id:", "hostname:", "address:", "Stage:", "Role:"]]
+        for i, x in enumerate(insts):
+            output = ColorizedOutput()
+            output += [str(i + 1), x.instance_id(), x.name(), x.address(), x.stage(), x.role()]
+            outputs.append(output)
+        ColorizedOutput.pretty_print(outputs)
+        exit(1)
+
+    if idx:
+        host = insts[idx - 1].address()
+    else:
+        host = insts[0].address()
+
+    print(host)
+    if config_file:
+        ssh_args = ['ssh', '-F', config_file, host]
+    else:
+        ssh_args = ['ssh', host]
+    execvp('ssh', ssh_args)
+
+
+if __name__ == '__main__':
+    if re.search('lssh$', __file__):
+        ssh_into_role()
+    else:
+        find_from_role()
+

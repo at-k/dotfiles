@@ -16,6 +16,10 @@ tmux() {
 
 export VIMINIT="let \$MYVIMRC='$SSHHOME/.sshrc.d/.vimrc' | source \$MYVIMRC"
 
+if [ -f $SSHHOME/.sshrc.d/.env ]; then
+	source $SSHHOME/.sshrc.d/.env
+fi
+
 if [ -f $SSHHOME/.sshrc.d/.bashrc ]; then
 	source $SSHHOME/.sshrc.d/.bashrc
 fi
