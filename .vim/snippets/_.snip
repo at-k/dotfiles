@@ -3,5 +3,9 @@
 snippet     date_diary
 alias       di
 options     word
-    `strftime("%Y-%m-%d %a")`${0}
+    `PrintCtime("%Y-%m-%d %a")` ${0}
+#    `strftime("%Y-%m-%d %a")`${0}
 
+snippet     testhoge
+options     word
+    `PrintCtime("%Y-%m-%d %a")` ${0}

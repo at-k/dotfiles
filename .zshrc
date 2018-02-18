@@ -41,12 +41,13 @@ if [ -d ~/.zplug ]; then
 fi
 
 if [ -x "`which vboxmanage 2> /dev/null `" ]; then
-	compdef vboxmanage=VBoxManage  # completion for vboxmanage command
+	compdef vboxmanage=VBoxManage  # completion for vboxmanage
 fi
 
 if [ -x "`which sshrc 2> /dev/null `" ]; then
-	compdef sshrc=ssh
+	compdef sshrc=ssh  # completion for sshrc
 fi
+
 
 # -- Prompt ... now using the one served by plugin
 if [ "$OSTYPE" = "cygwin" ]; then
@@ -214,8 +215,12 @@ alias gl='git log'
 
 case ${OSTYPE} in
 	cygwin|linux*)  alias ue='(){ cd $(seq -s"../" $((1 + ${1:-1})) | tr -d "[:digit:]")}';;
-	darwin*) alias ue='(){ cd $(jot -s"../" $((1 + ${1:-1})) | tr -d "[:digit:]")}';;
+	darwin*)
+		alias ue='(){ cd $(jot -s"../" $((1 + ${1:-1})) | tr -d "[:digit:]")}'
+		alias ctags="`brew --prefix`/bin/ctags"
+		;;
 esac
+
 alias bk='cd $OLDPWD'
 s() { pwd > ~/.save_dir ; }
 i() { cd "$(cat ~/.save_dir)" ; }
@@ -320,6 +325,11 @@ else
 	fi
 fi
 
+# completion config for aws-cli, probably this must be put after python settings
+aws_comp=$(type aws_zsh_completer.sh|cut -d' ' -f 3)
+if [ ${aws_comp} != "" ]; then
+	source ${aws_comp}
+fi
 
 # for proxy
 # alias with_proxy='export http_proxy="http://10033136:$( read -s "pw?proxy password: "; echo 1>&2 ;echo $pw; unset pw )@133.144.14.243:8080/" '

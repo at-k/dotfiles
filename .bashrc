@@ -38,7 +38,8 @@ case ${OSTYPE} in
 	darwin*) alias ls='ls -G' ;;
 esac
 alias ll="ls -alh"
-alias ll="ls -alh"
 
 alias grep='grep --color=auto'
 
+alias ue='cd ../'
+alias psa='ps auxf'

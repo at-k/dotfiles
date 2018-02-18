@@ -178,6 +178,11 @@ function! s:remove_dust()
 endfunction
 autocmd BufWritePre * call <SID>remove_dust()
 
+augroup FtType
+  autocmd!
+  autocmd BufRead,BufNewFile *.toml setfiletype conf
+augroup END
+
 "-------------------------------------------------
 " Indent Settings
 "-------------------------------------------------
@@ -273,45 +278,7 @@ augroup cch
 "  autocmd WinEnter,BufRead * set cursorcolumn
 augroup END
 
-"------------------------------------------------
-" Highlighting status line on insert mode
-"	https://github.com/fuenor/vim-statusline/blob/master/insert-statusline.vim
-"------------------------------------------------
-"if !exists('g:hi_insert')
-"  let g:hi_insert = 'highlight StatusLine guifg=White guibg=DarkCyan gui=none ctermfg=White ctermbg=DarkCyan cterm=none'
-"endif
-"
-"if has('syntax')
-"  augroup InsertHook
-"    autocmd!
-"    autocmd InsertEnter * call s:StatusLine('Enter')
-"    autocmd InsertLeave * call s:StatusLine('Leave')
-"  augroup END
-"endif
-"
-"let s:slhlcmd = ''
-"function! s:StatusLine(mode)
-"  if a:mode == 'Enter'
-"    silent! let s:slhlcmd = 'highlight ' . s:GetHighlight('StatusLine')
-"    silent exec g:hi_insert
-"  else
-"    highlight clear StatusLine
-"    silent exec s:slhlcmd
-"  endif
-"endfunction
-"
-"function! s:GetHighlight(hi)
-"  redir => hl
-"  exec 'highlight '.a:hi
-"  redir END
-"  let hl = substitute(hl, '[\r\n]', '', 'g')
-"  let hl = substitute(hl, 'xxx', '', '')
-"  return hl
-"endfunction
-
-"------------------------------------------------
 " Create directory automatically
-"------------------------------------------------
 augroup vimrc-auto-mkdir
   autocmd!
   autocmd BufWritePre * call s:auto_mkdir(expand('<afile>:p:h'), v:cmdbang)
@@ -323,64 +290,15 @@ augroup vimrc-auto-mkdir
   endfunction
 augroup END
 
-"------------------------------------------------
-" Enumeration Down/Up ... to do: space-indent case
-"------------------------------------------------
-augroup enum-down-up
-	autocmd!
+" print date with C language
+function! PrintCtime(format)
+	let language =  v:lc_time
+	execute ":silent! language time " . "C"
+	let ctime = strftime(a:format)
+	execute ":silent! language time " . language
+	return ctime
+endfunction
 
-	function! s:enum_down()
-		let l:pos = getpos(".")
-		let l:tnum = s:count_tab()
-		if l:tnum == 0
-			return
-		endif
-
-		execute ":s/^\t//g"
-		let l:cmd = s:rep_cmd(l:tnum - 1)
-		execute l:cmd
-		execute ":noh"
-		echo l:cmd
-		call setpos(".", l:pos)
-	endfunction
-
-	function! s:enum_up()
-		let l:pos = getpos(".")
-		let l:tnum = s:count_tab()
-
-		execute ":s/^/\t/g"
-		let l:cmd = s:rep_cmd(l:tnum + 1)
-		execute l:cmd
-		execute ":noh"
-		echo l:cmd
-		call setpos(".", l:pos)
-	endfunction
-
-	function! s:rep_cmd(tnum)
-		let l:cmd = ""
-		if a:tnum == 0
-			let l:cmd = ":s/^./*/g"
-		else
-			if a:tnum == 1
-				let l:ch = "-"
-			else
-				let l:ch = "+"
-			endif
-			let l:cmd = ":s/^\\(\\t\\{" . a:tnum . "}\\)./\\1" . l:ch . "/g"
-		endif
-		return l:cmd
-	endfunction
-
-	function! s:count_tab()
-		let l:tab_num = 0
-		let l:line = getline(".")
-
-		let l:tmp = strlen(substitute(l:line, "^\t*", "", "g"))
-		let l:tab_num = strlen(l:line) - l:tmp
-
-		return l:tab_num
-	endfunction
-augroup END
 
 "-------------------------------------------------
 " Key Map
@@ -474,10 +392,6 @@ nnoremap <silent> [winr]     :WinResizerStartResize<CR>
 
 " for mark
 "nnoremap <silent> [mark]	`
-
-"--- original command
-nnoremap ,, :call <SID>enum_down()<CR>
-nnoremap ,. :call <SID>enum_up()<CR>
 
 " <F6>  inserting date
 nnoremap ,tl <ESC>i<C-R>=strftime("%Y/%m/%d (%a) %H:%M")<CR>

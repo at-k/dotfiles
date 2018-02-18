@@ -132,3 +132,6 @@ repo = 'ujihisa/neco-look'
 [[plugins]]
 repo = 'Konfekt/FastFold'
 
+[[plugins]]
+repo = 'b4b4r07/vim-ansible-vault'
+
