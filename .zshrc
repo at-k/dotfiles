@@ -294,9 +294,11 @@ if [ -d ~/.anyenv ]; then
 	PY2_VERSION="2.7.14"
 	PY3_VERSION="3.6.3"
 
-	pyenv global $PY3_VERSION $PY2_VERSION
-	export PATH="$HOME/.anyenv/envs/pyenv/versions/$PY3_VERSION/bin:$PATH"
-	export PATH="$HOME/.anyenv/envs/pyenv/versions/$PY2_VERSION/bin:$PATH"
+	if [ -x "`which pyenv 2> /dev/null `" ]; then
+		pyenv global $PY3_VERSION $PY2_VERSION
+		export PATH="$HOME/.anyenv/envs/pyenv/versions/$PY3_VERSION/bin:$PATH"
+		export PATH="$HOME/.anyenv/envs/pyenv/versions/$PY2_VERSION/bin:$PATH"
+	fi
 else
 	# for python
 	if [ -d ~/.pyenv ]; then

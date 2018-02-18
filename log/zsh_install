@@ -1,0 +1,4 @@
+  102  sudo apt-get install zsh
+  103  curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh| zsh
+  104  history | tail -3
+  105  history | tail -4 > zsh_install
