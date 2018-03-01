@@ -36,6 +36,8 @@ if [ -d ~/.zplug ]; then
 		zplug "sindresorhus/pure", use:pure.zsh, from:github, as:theme
 	fi
 
+	zplug "greymd/tmux-xpanes"
+
 	#zplug load --verbose
 	zplug load
 fi
@@ -230,7 +232,7 @@ function chpwd() { # hook `ls` on `cd` ... it might interrupt shell script. be c
 	fi
 }
 
-function extract() {
+function decomp() {
 	case $1 in
 		*.tar.gz|*.tgz) tar xzvf $1;;
 		*.tar.xz) tar Jxvf $1;;
@@ -245,7 +247,17 @@ function extract() {
 		*.arj) unarj $1;;
 	esac
 }
-alias -s {gz,tgz,zip,lzh,bz2,tbz,Z,tar,arj,xz}=extract
+alias -s {gz,tgz,zip,lzh,bz2,tbz,Z,tar,arj,xz}=decomp
+
+function comp() {
+	if [ $# = 0 ]; then
+		echo "no input"
+	else
+		local aname
+		aname=$1.tgz
+		tar cfvz $aname $@
+	fi
+}
 
 alias zbench='time ( zsh -i -c exit)'
 
