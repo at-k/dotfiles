@@ -1,0 +1,21 @@
+#compdef issh
+
+_issh() {
+    _arguments \
+	    '(- *)'{-h,--help}'[show help]' \
+	    -r'[recursive]' \
+	    -f'[force]' \
+        '*: :->modes'
+
+    case $state in
+        modes)
+            _values \
+                'mode' \
+                'neko[kawaii normal neko]' \
+                'usagi[kawaii usa-neko]' \
+                'kuma[kawaii kuma-neko]' \
+                'github[kawaii octcat]'
+            ;;
+    esac
+
+}

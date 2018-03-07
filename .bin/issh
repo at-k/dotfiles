@@ -12,7 +12,7 @@ function usage()
 	echo "	-h         print this usage and exit"
 	echo "	-f         set filter for lshost"
 	echo "	-u         update host cache file"
-	echo "	-s         show history"
+	echo "	-s         choose from history"
 }
 
 filter=""

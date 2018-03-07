@@ -50,6 +50,7 @@ if [ -x "`which sshrc 2> /dev/null `" ]; then
 	compdef sshrc=ssh  # completion for sshrc
 fi
 
+fpath=($HOME/.config/zcompl(N-/) $fpath)
 
 # -- Prompt ... now using the one served by plugin
 if [ "$OSTYPE" = "cygwin" ]; then
