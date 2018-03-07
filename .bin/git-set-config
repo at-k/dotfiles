@@ -3,7 +3,7 @@
 # git-set-config: set local gitconfig for corp repos
 #
 
-rep_name=$(git remote get-url origin | cut -d'/' -f5)
+rep_name=$(basename `git remote get-url origin`)
 org_name=C-FO
 
 git remote add upstream git://github.com/${org_name}/${rep_name}.git

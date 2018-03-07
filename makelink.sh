@@ -16,11 +16,31 @@
 #git clone ${repos}
 #cd dotfiles
 
+function mkdir_and_ln_recursively()
+{
+	local dir_stack=$1
+	for f in $dir_stack/* $dir_stack/.??*; do
+		if [ -e $f ]; then
+			if [ -d $f ]; then
+				mkdir_and_ln_recursively $f
+			else
+				mkdir -p ~/$dir_stack
+				ln -snf $(pwd)/${f} ~/${f}
+			fi
+		fi
+	done
+}
+
 for f in .??*
 do
 	[[ "$f" == ".git" ]] && continue
 	[[ "$f" == ".DS_Store" ]] && continue
 
-	ln -snf $(pwd)/"$f" ~/"$f"
+	if [ -d $f ]; then
+		mkdir_and_ln_recursively $f
+	else
+		ln -snf $(pwd)/"$f" ~/"$f"
+	fi
 done
 
+#read
