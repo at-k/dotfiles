@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/zsh
 #
 # issh: wrapper for lshost providing interactive ssh
 #
@@ -15,22 +15,62 @@ function usage()
 	echo "	-s         choose from history"
 }
 
-filter=""
+function single_ssh()
+{
+	tgt_server=$1
+	local instid=$(echo ${tgt_server} | cut -d"," -f 1 | sed 's/ *//g')
+	local role=$(echo ${tgt_server} | cut -d"," -f 3 | sed 's/ *//g')
+	local ipaddr=$(echo ${tgt_server} | cut -d"," -f 4 | sed 's/ *//g')
+	local stage=$(echo ${tgt_server} | cut -d"," -f 6 | sed 's/ *//g')
+
+	if [ $? -eq 0 -a "${ipaddr}" != "" ]; then
+		echo "** [${bname}] target: ${tgt_server}"
+
+		sed -i '' '/^"${instid}"/d' $hfile
+		echo ${tgt_server} >> $hfile
+
+		sed -i '' "s/AWS_ROLE_NAME=.*$/AWS_ROLE_NAME="${role}"/" ${envfile}
+		sed -i '' "s/AWS_STAGE_NAME=.*$/AWS_STAGE_NAME="${stage}"/" ${envfile}
+
+		if [ `wc -l < $hfile` -gt $histsize ]; then
+			sed -i '' '1d' $hfile
+		fi
+
+		if [ -x "`which sshrc 2> /dev/null`" ]; then
+			echo "** [${bname}] sshrc to: ${ipaddr}"
+			sshrc ${ipaddr}
+		else
+			echo "** [${bname}] ssh to: ${ipaddr}"
+			ssh ${ipaddr}
+		fi
+	fi
+}
+
+function multi_ssh()
+{
+}
+
 update=0
 hist=0
 bname=`basename $0`
 hfile=~/.cache/isshhists
 envfile=~/.sshrc.d/.env
 histsize=10
+filter=
+role=
+stage=
+proj=
 
 lshost=lsaws
 
-while getopts usf:h OPT;
+while getopts r:s:p:lfh OPT;
 do
 	case $OPT in
-		"f") filter="$OPTARG";;
-		"u") update=1;;
-		"s") hist=1;;
+		"r") role="$OPTARG";;
+		"s") stage="$OPTARG";;
+		"p") proj="$OPTARG";;
+		"l") hist=1;;
+		"f") update=1;;
 		"h") usage ${bname}; exit;;
 	esac
 done
@@ -45,6 +85,10 @@ if [ ! -x "`which peco 2> /dev/null`" ]; then
 	exit 1
 fi
 
+if [ ! -z ${role} ]; then filter=${filter}" Role:${role}"; fi
+if [ ! -z ${stage} ]; then filter=${filter}" Stage:${stage}"; fi
+if [ ! -z ${proj} ]; then filter=${filter}" Project:${proj}"; fi
+
 if [ $hist = 0 ]; then
 	if [ $update = 1 ]; then
 		tgt_server=$(${lshost} -u -l ${filter} | peco)
@@ -55,30 +99,10 @@ else
 	tgt_server=$(cat $hfile | peco)
 fi
 
-# ipaddr=$(echo ${tgt_server} | sed 's/^.* \(10\.[0-9]*\.[0-9]*\.[0-9]*\) .*$/\1/')
-instid=$(echo ${tgt_server} | cut -d"," -f 1 | sed 's/ *//g')
-role=$(echo ${tgt_server} | cut -d"," -f 3 | sed 's/ *//g')
-ipaddr=$(echo ${tgt_server} | cut -d"," -f 4 | sed 's/ *//g')
-stage=$(echo ${tgt_server} | cut -d"," -f 6 | sed 's/ *//g')
+sel_count=$(echo $tgt_server | wc -l)
 
-if [ $? -eq 0 -a "${ipaddr}" != "" ]; then
-	echo "** [${bname}] target: ${tgt_server}"
-
-	sed -i '' '/^"${instid}"/d' $hfile
-	echo ${tgt_server} >> $hfile
-
-	sed -i '' "s/AWS_ROLE_NAME=.*$/AWS_ROLE_NAME="${role}"/" ${envfile}
-	sed -i '' "s/AWS_STAGE_NAME=.*$/AWS_STAGE_NAME="${stage}"/" ${envfile}
-
-	if [ `wc -l < $hfile` -gt $histsize ]; then
-		sed -i '' '1d' $hfile
-	fi
-
-	if [ -x "`which sshrc 2> /dev/null`" ]; then
-		echo "** [${bname}] sshrc to: ${ipaddr}"
-		sshrc ${ipaddr}
-	else
-		echo "** [${bname}] ssh to: ${ipaddr}"
-		ssh ${ipaddr}
-	fi
+if [ $sel_count -lt 2 ]; then
+	single_ssh $tgt_server
+else
+	multi_ssh $tgt_server
 fi

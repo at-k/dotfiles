@@ -1,21 +1,112 @@
 #compdef issh
 
+
 _issh() {
     _arguments \
-	    '(- *)'{-h,--help}'[show help]' \
-	    -r'[recursive]' \
-	    -f'[force]' \
-        '*: :->modes'
+	    "(- *)-h[show help]" \
+	    "-l[choose from history]" \
+	    "-f[force update cache]" \
+		"-r[role]: :->role" \
+		"-s[stage]: :->stage" \
+		"-p[project]: :->proj" \
+        "*: :->modes" && return 0
 
     case $state in
-        modes)
-            _values \
-                'mode' \
-                'neko[kawaii normal neko]' \
-                'usagi[kawaii usa-neko]' \
-                'kuma[kawaii kuma-neko]' \
-                'github[kawaii octcat]'
-            ;;
+		"role")
+			_values 'role' \
+			accounts_console \
+			accounts_resque \
+			accounts_web \
+			advisors \
+			auth_admin \
+			auth_api \
+			auth_batch \
+			build \
+			cebu \
+			cebu_console \
+			cfoalpha_admin \
+			cfoalpha_api \
+			cfoalpha_api_internal \
+			cfoalpha_batch \
+			cfoalpha_console \
+			cfoalpha_gateway \
+			cfoalpha_resque \
+			cfoalpha_scraper \
+			cfoalpha_scraper_origin \
+			cfoalpha_scraper_sandbox \
+			cfoalpha_web \
+			chrono \
+			ctax_console \
+			ctax_resque \
+			ctax_web \
+			deploy \
+			deploy-slave \
+			docker_host \
+			fluentd \
+			importer \
+			infra_console \
+			insight \
+			insight_digdag \
+			insight_digdag_sandbox \
+			jenkins-master \
+			kibana \
+			launch_admin \
+			launch_batch \
+			launch_console \
+			launch_resque \
+			launch_web \
+			maintenance \
+			misc \
+			monyog \
+			mynumber_admin \
+			mynumber_console \
+			mynumber_resque \
+			mynumber_web \
+			ocean_aggregator \
+			ocean_api \
+			ocean_console \
+			ocean_sandbox \
+			ocr \
+			operation \
+			payroll_admin \
+			payroll_api \
+			payroll_batch \
+			payroll_console \
+			payroll_resque \
+			payroll_web \
+			playground \
+			prometheus \
+			proxy \
+			proxy2 \
+			redash \
+			sandbox \
+			step \
+			thumbnail \
+			vbx \
+			wkhtmltopdf_server \
+			zendesk_analytics \
+			zuora_web
+			;;
+		"stage")
+			_values 'role' \
+			ardbeg \
+			build \
+			chita \
+			hakushu \
+			hibiki \
+			himeama \
+			internal \
+			koshiaka \
+			midori \
+			new-staging \
+			nishiiwa \
+			ojiro \
+			operation \
+			production \
+			sanshoku \
+			yoichi
+			;;
+		"proj")
+			_values 'role' "Hoge" "Huga" ;;
     esac
-
 }
