@@ -17,7 +17,7 @@ function usage()
 
 function single_ssh()
 {
-	tgt_server=$1
+	local tgt_server=$1
 	local instid=$(echo ${tgt_server} | cut -d"," -f 1 | sed 's/ *//g')
 	local role=$(echo ${tgt_server} | cut -d"," -f 3 | sed 's/ *//g')
 	local ipaddr=$(echo ${tgt_server} | cut -d"," -f 4 | sed 's/ *//g')
@@ -48,6 +48,20 @@ function single_ssh()
 
 function multi_ssh()
 {
+	local tgt_servers=$1
+	local ip_list=""
+
+	if [ ! -x "`which xpanes 2> /dev/null`" ]; then
+		echo "error: xpanes not found" >&2
+		exit 1
+	fi
+
+
+	for tgt_server in ${tgt_servers}; do
+		ip_list=${ip_list}" "$(echo ${tgt_server} | cut -d"," -f 4 | sed 's/ *//g')
+	done
+
+	echo $ip_list | xpanes -c "ssh {}"
 }
 
 update=0
