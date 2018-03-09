@@ -13,11 +13,13 @@ function usage()
 	echo "	-f         set filter for lshost"
 	echo "	-u         update host cache file"
 	echo "	-s         choose from history"
+	echo "  -c         command executed on remote host"
 }
 
 function single_ssh()
 {
 	local tgt_server=$1
+	local cmd=$2
 	local instid=$(echo ${tgt_server} | cut -d"," -f 1 | sed 's/ *//g')
 	local role=$(echo ${tgt_server} | cut -d"," -f 3 | sed 's/ *//g')
 	local ipaddr=$(echo ${tgt_server} | cut -d"," -f 4 | sed 's/ *//g')
@@ -38,10 +40,12 @@ function single_ssh()
 
 		if [ -x "`which sshrc 2> /dev/null`" ]; then
 			echo "** [${bname}] sshrc to: ${ipaddr}"
-			sshrc ${ipaddr}
+			if [ ! -z $cmd ]; then echo "** remote executing command: $cmd"; fi
+			sshrc ${ipaddr} -t $cmd
 		else
 			echo "** [${bname}] ssh to: ${ipaddr}"
-			ssh ${ipaddr}
+			if [ ! -z $cmd ]; then echo "** remote executing command: $cmd"; fi
+			ssh ${ipaddr} -t $cmd
 		fi
 	fi
 }
@@ -49,6 +53,7 @@ function single_ssh()
 function multi_ssh()
 {
 	local tgt_servers=$1
+	local cmd=$2
 	local ip_list=""
 
 	if [ ! -x "`which xpanes 2> /dev/null`" ]; then
@@ -56,12 +61,11 @@ function multi_ssh()
 		exit 1
 	fi
 
-
 	for tgt_server in ${tgt_servers}; do
 		ip_list=${ip_list}" "$(echo ${tgt_server} | cut -d"," -f 4 | sed 's/ *//g')
 	done
 
-	echo $ip_list | xpanes -c "ssh {}"
+	echo $ip_list | xpanes -c "ssh {} -t $cmd"
 }
 
 update=0
@@ -74,15 +78,17 @@ filter=
 role=
 stage=
 proj=
+cmd=
 
 lshost=lsaws
 
-while getopts r:s:p:lfh OPT;
+while getopts r:s:p:c:lfh OPT;
 do
 	case $OPT in
 		"r") role="$OPTARG";;
 		"s") stage="$OPTARG";;
 		"p") proj="$OPTARG";;
+		"c") cmd="$OPTARG";;
 		"l") hist=1;;
 		"f") update=1;;
 		"h") usage ${bname}; exit;;
@@ -116,7 +122,7 @@ fi
 sel_count=$(echo $tgt_server | wc -l)
 
 if [ $sel_count -lt 2 ]; then
-	single_ssh $tgt_server
+	single_ssh $tgt_server $cmd
 else
-	multi_ssh $tgt_server
+	multi_ssh $tgt_server $cmd
 fi
