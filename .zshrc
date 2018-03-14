@@ -335,10 +335,13 @@ else
 		export PATH=$PATH:$GOPATH/bin
 	fi
 fi
+if [ -x "`which direnv 2> /dev/null `" ]; then
+	eval "$(direnv hook zsh)"
+fi
 
 # completion config for aws-cli, probably this must be put after python settings
-aws_comp=$(type aws_zsh_completer.sh|cut -d' ' -f 3)
-if [ ${aws_comp} != "" ]; then
+if [ -x "`which aws_zsh_completer.sh 2> /dev/null `" ]; then
+	local aws_comp=$(type aws_zsh_completer.sh|cut -d' ' -f 3)
 	source ${aws_comp}
 fi
 
