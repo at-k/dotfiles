@@ -76,6 +76,12 @@ hook_source = '''
 repo = 'mhinz/vim-signify'
 
 [[plugins]]
+repo = 'Shougo/vimfiler'
+
+[[plugins]]
+repo = 'Shougo/vimshell'
+
+[[plugins]]
 repo = 'sheerun/vim-wombat-scheme'
 
 [[plugins]]
@@ -95,8 +101,8 @@ hook_add = '''
         \ },
         \ }
 '''
-hook_source = '''
-  augroup ReloadLL
+hook_post_source = '''
+  augroup ReloadLightLine
     autocmd BufRead,BufNewFile * call lightline#colorscheme()
   augroup END
 '''

@@ -97,7 +97,6 @@ elseif has('mac')
 	set clipboard+=unnamed
 endif
 
-
 "-------------------------------------------------
 " Color Settings
 "-------------------------------------------------
@@ -107,28 +106,6 @@ syntax enable
 
 "call togglebg#map("<f5>")
 set t_Co=256
-
-" setting for solarized
-" let g:solarized_termcolors=256
-" let g:solarized_termtrans=0
-" let g:solarized_degrade=0
-" let g:solarized_bold=1
-" let g:solarized_underline=1
-" let g:solarized_italic=1
-" let g:solarized_contrast="normal"
-" let g:solarized_visibility="normal"
-"set background=light
-"set background=dark
-"colorschem solarized
-"colorscheme elflord
-"colorscheme mustang
-
-"autocmd ColorScheme * highlight Comment ctermfg=2 guifg=#008800
-"" autocmd ColorScheme * highlight Visual  term=reverse ctermfg=255 guifg=#008800
-"autocmd ColorScheme * highlight Visual term=reverse cterm=reverse ctermfg=193 ctermbg=16 gui=reverse guifg=#C4BE89 guibg=#000000
-" autocmd ColorScheme * highlight MatchParen ctermfg=193 ctermbg=16 guifg=#C4BE89 guibg=#000000
-" autocmd ColorScheme * highlight Delimiter ctermfg=180 ctermbg=16 guifg=#C4BE89 guibg=#000000
-"autocmd ColorScheme * highlight IncSearch guifg=black guibg=#C6C5FE gui=BOLD ctermfg=black ctermbg=cyan cterm=BOLD
 
 highlight clear SpellBad
 autocmd ColorScheme * highlight SpellBad cterm=underline
