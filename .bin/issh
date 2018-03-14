@@ -18,14 +18,14 @@ function usage()
 
 function single_ssh()
 {
-	local tgt_server=$1
-	local cmd=$2
+	local tgt_server=${1:-""}
+	local cmd=${2:-""}
 	local instid=$(echo ${tgt_server} | cut -d"," -f 1 | sed 's/ *//g')
 	local role=$(echo ${tgt_server} | cut -d"," -f 3 | sed 's/ *//g')
 	local ipaddr=$(echo ${tgt_server} | cut -d"," -f 4 | sed 's/ *//g')
 	local stage=$(echo ${tgt_server} | cut -d"," -f 6 | sed 's/ *//g')
 
-	if [ $? -eq 0 -a "${ipaddr}" != "" ]; then
+	if [ "${ipaddr}" != "" ]; then
 		echo "** [${bname}] target: ${tgt_server}"
 
 		sed -i '' '/^"${instid}"/d' $hfile
@@ -52,8 +52,8 @@ function single_ssh()
 
 function multi_ssh()
 {
-	local tgt_servers=$1
-	local cmd=$2
+	local tgt_servers=${1:-""}
+	local cmd=${2:-""}
 	local ip_list=""
 
 	if [ ! -x "`which xpanes 2> /dev/null`" ]; then
@@ -65,10 +65,11 @@ function multi_ssh()
 		ip_list=${ip_list}" "$(echo ${tgt_server} | cut -d"," -f 4 | sed 's/ *//g')
 	done
 
-	echo $ip_list | xpanes -c "ssh {} -t $cmd"
+	echo $ip_list | xpanes -c "ssh {} -t '$cmd'"
 }
 
 update=0
+nossh=0
 hist=0
 bname=`basename $0`
 hfile=~/.cache/isshhists
@@ -82,7 +83,7 @@ cmd=
 
 lshost=lsaws
 
-while getopts r:s:p:c:lfh OPT;
+while getopts r:s:p:c:lfnh OPT;
 do
 	case $OPT in
 		"r") role="$OPTARG";;
@@ -91,7 +92,9 @@ do
 		"c") cmd="$OPTARG";;
 		"l") hist=1;;
 		"f") update=1;;
+		"n") nossh=1;;
 		"h") usage ${bname}; exit;;
+		"*") usage ${bname}; exit;;
 	esac
 done
 
@@ -117,6 +120,11 @@ if [ $hist = 0 ]; then
 	fi
 else
 	tgt_server=$(cat $hfile | peco)
+fi
+
+if [ $nossh = 1 ]; then
+	echo $tgt_server
+	exit
 fi
 
 sel_count=$(echo $tgt_server | wc -l)

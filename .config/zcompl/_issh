@@ -4,6 +4,7 @@
 _issh() {
     _arguments \
 	    "(- *)-h[show help]" \
+	    "-n[print selected servers and exit]" \
 	    "-l[choose from history]" \
 	    "-f[force update cache]" \
 		"-r[role]: :->role" \
