@@ -1,31 +1,14 @@
-# 基本は github.com のレポジトリーを指定するだけ
 [[plugins]]
 repo = 'Shougo/dein.vim'
 
-# git clone 後、実行すべきコマンドがある場合はこんな感じ
+# カーソル位置のコンテキストに合わせてftを切り替える -- 重すぎるので無効化
 #[[plugins]]
-#repo = 'Shougo/vimproc.vim'
-#hook_post_update = '''
-#  if dein#util#_is_windows()
-#    let cmd = 'tools\\update-dll-mingw'
-#  elseif dein#util#_is_cygwin()
-#    let cmd = 'make -f make_cygwin.mak'
-#  elseif executable('gmake')
-#    let cmd = 'gmake'
-#  else
-#    let cmd = 'make'
-#  endif
-#  let g:dein#plugin.build = cmd
-#'''
-
-#[[plugins]] # カーソル位置のコンテキストに合わせてftを切り替える
 #repo = 'osyo-manga/vim-precious'
 #depends = ['context_filetype.vim']
 
 [[plugins]] # カーソル位置のコンテキストのftを判定するライブラリ
 repo = 'Shougo/context_filetype.vim'
 
-# ブランチやタグを指定したいとき
 [[plugins]]
 repo = 'delphinus35/typescript-vim'
 rev  = 'colorize-template-strings'
@@ -36,20 +19,10 @@ repo = 'kchmck/vim-coffee-script'
 [[plugins]]
 repo = 'Shougo/neosnippet-snippets'
 
-# 特定の条件で読み込みたいとき
 [[plugins]]
 repo = 'elzr/vim-json'
 if   = '''! has('kaoriya')'''
 
-# 依存関係を指定したいとき
-#[[plugins]]
-#repo    = 'vim-airline/vim-airline'
-#depends = ['vim-airline-themes']
-#
-## 依存関係を指定したからと言って、自動でインストールはされない（ここは NeoBundle と違う）
-#[[plugins]]
-#repo = 'vim-airline/vim-airline-themes'
-#
 [[plugins]]
 repo = 'simeji/winresizer'
 hook_source = '''
@@ -121,6 +94,11 @@ hook_add = '''
         \   'gitbranch': 'fugitive#head'
         \ },
         \ }
+'''
+hook_source = '''
+  augroup ReloadLL
+    autocmd BufRead,BufNewFile * call lightline#colorscheme()
+  augroup END
 '''
 
 [[plugins]]
