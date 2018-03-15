@@ -24,15 +24,6 @@ repo = 'elzr/vim-json'
 if   = '''! has('kaoriya')'''
 
 [[plugins]]
-repo = 'simeji/winresizer'
-hook_source = '''
-  let g:winresizer_start_key=''
-  let g:winresizer_gui_start_key=''
-  let g:winresizer_vert_resize=5
-  let g:winresizer_horiz_resize=2
-'''
-
-[[plugins]]
 repo = 'Shougo/vinarise'
 
 [[plugins]]
@@ -52,7 +43,7 @@ repo = 'tpope/vim-fugitive'
 
 [[plugins]]
 repo = 'rhysd/committia.vim'
-hook_source = '''
+hook_add = '''
 	let g:committia_open_only_vim_starting = 1
 	let g:committia_hooks = {}
 	function! g:committia_hooks.edit_open(info)
@@ -86,26 +77,6 @@ repo = 'sheerun/vim-wombat-scheme'
 
 [[plugins]]
 repo = 'b4b4r07/solarized.vim'
-
-[[plugins]]
-repo = 'itchyny/lightline.vim'
-hook_add = '''
-  let g:lightline = {
-        \ 'colorscheme': 'wombat',
-        \ 'active': {
-        \   'left': [ [ 'mode', 'paste' ],
-        \             [ 'gitbranch', 'readonly', 'filename', 'modified' ] ]
-        \ },
-        \ 'component_function': {
-        \   'gitbranch': 'fugitive#head'
-        \ },
-        \ }
-'''
-hook_post_source = '''
-  augroup ReloadLightLine
-    autocmd BufRead,BufNewFile * call lightline#colorscheme()
-  augroup END
-'''
 
 [[plugins]]
 repo = 'itchyny/vim-gitbranch'
