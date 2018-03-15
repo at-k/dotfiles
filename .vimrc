@@ -6,7 +6,6 @@ if &compatible
   set nocompatible
 endif
 
-" Set augroup.
 augroup MyAutoCmd
   autocmd!
   autocmd FileType,Syntax,BufNewFile,BufNew,BufRead *?

@@ -129,6 +129,9 @@ else
   colorscheme desert
 endif
 
+autocmd colorscheme * hi TabLineFill ctermfg=LightGreen ctermbg=DarkGreen
+autocmd colorscheme * hi TabLine ctermfg=Blue ctermbg=Yellow
+autocmd colorscheme * hi TabLineSel ctermfg=Red ctermbg=Yellow
 
 "-------------------------------------------------
 " Editor Settings
@@ -366,9 +369,6 @@ nnoremap <silent> [unite]b   :<C-u>Unite buffer<CR>
 nnoremap <silent> [unite]m	 :Unite mark<CR>
 nnoremap <silent> [unite]i	 :Unite colorscheme -auto-preview<CR>
 nnoremap <silent> [winr]     :WinResizerStartResize<CR>
-
-" for mark
-"nnoremap <silent> [mark]	`
 
 " <F6>  inserting date
 nnoremap ,tl <ESC>i<C-R>=strftime("%Y/%m/%d (%a) %H:%M")<CR>
