@@ -1,0 +1,22 @@
+{
+  "title": "Disable IME when ^[ or C-z on iterm2",
+  "rules": [
+    {
+      "description": "Disable IME whe ^[ or C-z on iterm2",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": { "key_code": "z", "modifiers": { "mandatory": ["left_control"] } },
+          "to": [ { "key_code": "japanese_eisuu" }, { "key_code": "z", "modifiers":["left_control"] } ],
+          "conditions": [ { "type": "frontmost_application_if", "bundle_identifiers": [ "^com\\.googlecode\\.iterm2", "^org\\.vim\\." ] } ]
+        },
+        {
+          "type": "basic",
+          "from": { "key_code": "close_bracket", "modifiers": { "mandatory": ["left_control"] } },
+          "to": [ { "key_code": "japanese_eisuu" }, { "key_code": "escape" } ],
+          "conditions": [ { "type": "frontmost_application_if", "bundle_identifiers": [ "^com\\.googlecode\\.iterm2", "^org\\.vim\\." ] } ]
+        }
+      ]
+    }
+  ]
+}
