@@ -220,6 +220,9 @@ case ${OSTYPE} in
 		;;
 esac
 
+# delimiter definition to split words
+export WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
+
 alias bk='cd $OLDPWD'
 s() { pwd > ~/.save_dir ; }
 i() { cd "$(cat ~/.save_dir)" ; }
