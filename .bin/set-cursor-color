@@ -1,0 +1,50 @@
+#!/bin/zsh
+#
+#
+#
+
+function 32bit_to_128bit() {
+  local color=$1
+
+  local R=`echo $color | sed 's/../0x&,/g' | awk -F "," '{printf("%d",$1 * 257)}'`
+  local G=`echo $color | sed 's/../0x&,/g' | awk -F "," '{printf("%d",$2 * 257)}'`
+  local B=`echo $color | sed 's/../0x&,/g' | awk -F "," '{printf("%d",$3 * 257)}'`
+
+  echo $R, $G, $B
+}
+
+function get_color() {
+	osascript <<EOF
+tell application "iTerm"
+   tell current session of first window
+	  get cursor color
+  end tell
+end tell
+EOF
+}
+
+
+def_color="28873, 33397, 33871"
+
+case $OSTYPE  in
+	"darwin*");;
+	"*")
+	echo "this script is available only in OSX";
+	exit 0;;
+esac
+
+if [ -z $ITERM_SESSION_ID ]; then
+	echo "this must be executed on iterm2"
+	exit 0
+fi
+
+color=$(32bit_to_128bit ff0000)
+color=$def_color
+
+osascript <<EOF
+tell application "iTerm"
+   tell current session of first window
+	  set cursor color to {$color}
+  end tell
+end tell
+EOF

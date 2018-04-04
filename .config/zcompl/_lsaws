@@ -1,0 +1,9 @@
+#compdef _lsaws
+
+local role=(a b)
+local stage=(c d)
+local proj=(e f)
+
+_lsaws() {
+	_arguments {-h, --help}'[show help]'
+}

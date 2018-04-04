@@ -1,12 +1,7 @@
 {
 	"Keymap": {
-		"C-k": "peco.SelectUp",
-		"C-j": "peco.SelectDown",
-
 		"C-t": "peco.ToggleSelection",
 		"C-s": "peco.ToggleSelectionAndSelectNext",
-
-		"C-a": "peco.SelectAll",
 		"C-g": "peco.SelectNone"
 	},
 	"Style": {

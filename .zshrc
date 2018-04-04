@@ -376,12 +376,11 @@ case ${OSTYPE} in
 		}
 		;;
 	linux*) alias op='gnome-open' ;;
-	darwi*) alias op='gnome-open' ;;
+	darwi*) alias op='open' ;;
 esac
 
 # local limited
 if [ -f ~/.zshrc.local ]; then
     source ~/.zshrc.local
 fi
-
 
