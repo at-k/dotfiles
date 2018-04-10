@@ -29,9 +29,14 @@ hook_add = '''
         \             [ 'gitbranch', 'readonly', 'filename', 'modified' ] ]
         \ },
         \ 'component_function': {
-        \   'gitbranch': 'fugitive#head'
+        \   'gitbranch': 'fugitive#head',
+		\   'filename':  'LightlineFilename',
         \ },
         \ }
+  function! LightlineFilename()
+    return expand("%:p")
+  endfunction
+
 '''
 hook_source = '''
   augroup ReloadLightLine
