@@ -348,6 +348,13 @@ if [ -x "`which aws_zsh_completer.sh 2> /dev/null `" ]; then
 	source ${aws_comp}
 fi
 
+if [ -x "`which kubectl 2> /dev/null `" ]; then
+	source <(kubectl completion zsh)
+fi
+if [ -x "`which helm 2> /dev/null `" ]; then
+	source <(helm completion zsh)
+fi
+
 # for proxy
 # alias with_proxy='export http_proxy="http://10033136:$( read -s "pw?proxy password: "; echo 1>&2 ;echo $pw; unset pw )@133.144.14.243:8080/" '
 # alias with_proxy_s='export http_proxy="http://10033136:$( read -s "pw?proxy password: " ; echo 1>&2 ;echo $pw; )@133.144.14.243:8080/" '

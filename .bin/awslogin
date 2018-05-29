@@ -97,6 +97,7 @@ else
 			}
 		}
 		" | tee /dev/stderr)
+#		onelogin-aws-login -u akawamura@c-fo.com
 
 		if [ $? != 0 ]; then
 			exit 1
