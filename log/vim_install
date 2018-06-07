@@ -1,8 +1,23 @@
-   48  sudo apt-get install -y git build-essential ncurses-dev lua5.2 lua5.2-dev luajit python-dev python3-dev ruby-dev
-   49  sudo apt build-dep vim
-   52  git clone git://github.com/vim/vim
-   53  cd vim
-   54  sudo ./configure --with-features=huge --enable-gui=auto --enable-gtk2-check --with-x --enable-multibyte --enable-luainterp=dynamic --enable-gpm --enable-cscope --enable-fontset --enable-fail-if-missing --prefix=/usr/local --enable-pythoninterp=dynamic --enable-python3interp=dynamic --enable-rubyinterp=dynamic
-   55  make
-   56  sudo make install
-   57  vim --version
+# for linux
+sudo apt-get install -y git build-essential ncurses-dev lua5.2 lua5.2-dev luajit python-dev python3-dev ruby-dev
+sudo apt build-dep vim
+git clone git://github.com/vim/vim
+cd vim
+sudo ./configure --with-features=huge --enable-gui=auto --enable-gtk2-check --with-x --enable-multibyte --enable-luainterp=dynamic --enable-gpm --enable-cscope --enable-fontset --enable-fail-if-missing --prefix=/usr/local --enable-pythoninterp=dynamic --enable-python3interp=dynamic --enable-rubyinterp=dynamic
+make
+sudo make install
+vim --version
+
+# for darwin
+
+git clone http://luajit.org/git/luajit-2.0.git luajit
+cd luajit
+make
+sudo make install
+
+git clone git://github.com/vim/vim vim
+cd vim
+./configure --with-features=huge --enable-gui=auto --enable-gtk2-check --with-x --enable-multibyte --enable-luainterp=dynamic --with-lua-prefix=/usr/local --enable-gpm --enable-cscope --enable-fontset --enable-fail-if-missing --prefix=/usr/local --enable-pythoninterp=dynamic --enable-python3interp=dynamic --enable-rubyinterp=dynamic --disable-darwin
+
+make
+sudo make install
