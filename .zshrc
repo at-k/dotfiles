@@ -343,10 +343,19 @@ if [ -x "`which direnv 2> /dev/null `" ]; then
 fi
 
 # completion config for aws-cli, probably this must be put after python settings
-if [ -x "`which aws_zsh_completer.sh 2> /dev/null `" ]; then
-	local aws_comp=$(type aws_zsh_completer.sh|cut -d' ' -f 3)
-	source ${aws_comp}
-fi
+case ${OSTYPE} in
+	darwin*)
+		if [ -f /usr/local/share/zsh/site-functions/_aws ]; then
+			source /usr/local/share/zsh/site-functions/_aws
+		fi
+		;;
+	linux*)
+		if [ -x "`which aws_zsh_completer.sh 2> /dev/null `" ]; then
+			local aws_comp=$(type aws_zsh_completer.sh|cut -d' ' -f 3)
+			source ${aws_comp}
+		fi
+		;;
+esac
 
 if [ -x "`which kubectl 2> /dev/null `" ]; then
 	source <(kubectl completion zsh)
