@@ -34,7 +34,16 @@ hook_add = '''
         \ },
         \ }
   function! LightlineFilename()
-    return expand("%:p")
+    let l:ap = expand("%:p")
+    let l:p = substitute(ap, $HOME, "~", "")
+
+    let l:wid = winwidth(winnr()) / 2
+
+    if strlen(p) > wid
+      let p = strcharpart(p, 0, wid).".../".expand("%:t")
+    endif
+
+    return p
   endfunction
 
 '''
