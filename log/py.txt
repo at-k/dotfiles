@@ -1,0 +1,7 @@
+anyenv install pyenv
+anyenv install ndenv
+anyenv install rbenv
+source ~/.zshrc
+sudo apt-get install libbz2-dev
+sudo apt-get install libssl-dev
+pyenv install 3.6.4
