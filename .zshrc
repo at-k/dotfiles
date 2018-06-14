@@ -42,6 +42,11 @@ if [ -d ~/.zplug ]; then
 	zplug load
 fi
 
+if [ "$OSTYPE" != "cygwin" ]; then
+	PROMPT='%(1j.[%j] .)%(?.%F{magenta}.%F{red})${PURE_PROMPT_SYMBOL:-❯}%f '
+	PURE_GIT_UNTRACKED_DIRTY=0
+fi
+
 if [ -x "`which vboxmanage 2> /dev/null `" ]; then
 	compdef vboxmanage=VBoxManage  # completion for vboxmanage
 fi
