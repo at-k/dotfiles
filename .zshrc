@@ -400,3 +400,8 @@ if [ -f ~/.zshrc.local ]; then
     source ~/.zshrc.local
 fi
 
+if [ "$ZSH_PROFILE_MODE" ]; then
+	if (which zprof > /dev/null 2>&1) ;then
+	  zprof
+	fi
+fi
