@@ -8,7 +8,7 @@ fi
 export LANG=ja_JP.UTF-8
 export MANPAGER="less -is"
 export PAGER='less -is'
-export EDITOR='vi'
+export EDITOR='vim'
 
 typeset -U path PATH
 export PATH="$HOME/.bin:$PATH"
