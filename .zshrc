@@ -274,37 +274,6 @@ function cmd_exists() {
 	test -x "`which $1 2> /dev/null`"
 }
 
-# for rythmbox
-export GST_TAG_ENCODING=CP932
-
-## for tmux
-## if [ -x "`which tmux 2> /dev/null`" ]; then
-#if type tmux > /dev/null 2>&1; then
-#    show-current-dir-as-window-name() {
-#        tmux set-window-option window-status-format " #I ${PWD:t} " > /dev/null
-#    }
-#
-#	if $(tmux has-session); then
-#		show-current-dir-as-window-name
-#		add-zsh-hook chpwd show-current-dir-as-window-name
-#	fi
-#fi
-
-# for screen (http://ogawa.s18.xrea.com/tdiary/20080331.html)
-case "${TERM}" in screen)
-	preexec() {
-		echo -ne "\ek#${1%% *}\e\\"
-	}
-	precmd() {
-		echo -ne "\ek$(basename $(pwd))\e\\"
-	}
-esac
-
-# for byobu
-if [ -d ~/.byobu ]; then
-    export VTE_CJK_WIDTH=1
-fi
-
 # xenv
 if [ -d ~/.anyenv ]; then
 	export PATH="$HOME/.anyenv/bin:$PATH" && eval "$(anyenv init -)"
@@ -369,10 +338,6 @@ if [ -x "`which helm 2> /dev/null `" ]; then
 	source <(helm completion zsh)
 fi
 
-# for proxy
-# alias with_proxy='export http_proxy="http://10033136:$( read -s "pw?proxy password: "; echo 1>&2 ;echo $pw; unset pw )@133.144.14.243:8080/" '
-# alias with_proxy_s='export http_proxy="http://10033136:$( read -s "pw?proxy password: " ; echo 1>&2 ;echo $pw; )@133.144.14.243:8080/" '
-
 # for specific OS
 case ${OSTYPE} in
 	cygwin)
@@ -405,6 +370,7 @@ if [ -f ~/.zshrc.local ]; then
     source ~/.zshrc.local
 fi
 
+# keep this code end
 if [ "$ZSH_PROFILE_MODE" ]; then
 	if (which zprof > /dev/null 2>&1) ;then
 	  zprof
