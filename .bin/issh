@@ -65,7 +65,16 @@ function multi_ssh()
 		ip_list=${ip_list}" "$(echo ${tgt_server} | cut -d"," -f 4 | sed 's/ *//g')
 	done
 
+	default_shell=$(tmux show-options -g default-shell | cut -d' ' -f2 | tr -d \")
+	default_cmd=$(tmux show-options -g default-command | cut -d' ' -f2 | tr -d \")
+
+	tmux set -g default-shell   /bin/bash
+	tmux set -g default-command /bin/bash
+
 	echo $ip_list | xpanes -c "ssh {} -t '$cmd'"
+
+	tmux set -g default-shell   ${default_shell}
+	tmux set -g default-command ${default_cmd}
 }
 
 update=0
