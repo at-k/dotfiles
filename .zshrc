@@ -58,7 +58,7 @@ if [ "$OSTYPE" = "cygwin" ]; then
 fi
 
 # --- Color
-if [ "$OSTYPE" != "cygwin" -a -f ~/.zsh/dircolors-solarized/dircolors.ansi-dark ]; then
+if [ -f ~/.zsh/dircolors-solarized/dircolors.ansi-dark ]; then
 	if type dircolors > /dev/null 2>&1; then
 		eval $(dircolors ~/.zsh/dircolors-solarized/dircolors.ansi-dark)
 	elif type gdircolors > /dev/null 2>&1; then
