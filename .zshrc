@@ -236,7 +236,7 @@ function cmd_exists() {
 
 # xenv
 if [ -d ~/.anyenv ]; then
-	export PATH="$HOME/.anyenv/bin:$PATH" && eval "$(anyenv init -)"
+	export PATH="$HOME/.anyenv/bin:$PATH" && eval "$(anyenv init - --no-rehash)"
 	PY2_VERSION="2.7.14"
 	PY3_VERSION="3.6.3"
 
