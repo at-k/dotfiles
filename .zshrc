@@ -38,7 +38,9 @@ if [ -d ~/.zplug ]; then
 fi
 
 # -- setting for pure
-PROMPT='%(1j.[%j] .)%(?.%F{magenta}.%F{red})${PURE_PROMPT_SYMBOL:-❯}%f '
+PURE_PROMPT_SYMBOL='>'
+PROMPT_BASE='%(1j.[%j] .)%(?.%F{magenta}.%F{red})${PURE_PROMPT_SYMBOL:-❯}%f '
+PROMPT=$PROMPT_BASE
 PURE_GIT_UNTRACKED_DIRTY=0
 
 if [ -x "`which vboxmanage 2> /dev/null `" ]; then
@@ -274,14 +276,27 @@ if [ -x "`which direnv 2> /dev/null `" ]; then
 	eval "$(direnv hook zsh)"
 fi
 
+function start-kube () {
+	if [ -x "`which kubectl 2> /dev/null `" ]; then
+		source <(kubectl completion zsh)
+	fi
+	if [ -x "`which helm 2> /dev/null `" ]; then
+		source <(helm completion zsh)
+	fi
 
-if [ -x "`which kubectl 2> /dev/null `" ]; then
-	source <(kubectl completion zsh)
-fi
-if [ -x "`which helm 2> /dev/null `" ]; then
-	source <(helm completion zsh)
-fi
+	PURE_PROMPT_SYMBOL='k >'
+	PROMPT_BASE=${PROMPT}
+	__set_kube_prompt
+	add-zsh-hook preexec set_kube_prompt
 
+	alias k='kubectl'
+	compdef k=kubectl
+}
+
+function __set_kube_prompt () {
+	context=$(kubectl config current-context)
+	PROMPT="%F{magenta}${context} "$PROMPT_BASE
+}
 
 # local limited
 if [ -f ~/.zshrc.local ]; then
