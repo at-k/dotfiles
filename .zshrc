@@ -95,16 +95,6 @@ zle -N history-beginning-search-forward-end history-search-end
 bindkey "^P" history-beginning-search-backward-end
 bindkey "^N" history-beginning-search-forward-end
 
-if [ -x "`which peco 2> /dev/null `" ]; then
-	function peco-select-history() {
-		BUFFER="$(history -nr 1 | awk '!a[$0]++' | peco --query "$LBUFFER" | sed 's/\\n/;/g')"
-		CURSOR=$#BUFFER             # カーソルを文末に移動
-		zle -R -c                   # refresh
-	}
-	zle -N peco-select-history
-	bindkey '^R' peco-select-history
-fi
-
 # -- Glob (pattern matching for file name. wild card is a kind of glob)
 setopt extendedglob # enable extended file pattern mattching
 setopt nomatch      # stop to make `not-found` warning on judging a character as file name
@@ -149,7 +139,6 @@ zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
 
 zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin
 
-
 # -- Alias
 alias ls='lscolor'
 alias la='ls -la'
@@ -187,6 +176,8 @@ alias iro='for i in {0..255} ; do; printf "\x1b[38;5;${i}m%03d " ${i}; done'
 alias gs='git status -uno'
 alias gsa='git status'
 alias gl='git log'
+
+alias zbench='time ( zsh -i -c exit)'
 
 # delimiter definition to split words
 export WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
@@ -229,7 +220,13 @@ function comp() {
 	fi
 }
 
-alias zbench='time ( zsh -i -c exit)'
+function peco-select-history() {
+	BUFFER="$(history -nr 1 | awk '!a[$0]++' | peco --query "$LBUFFER" | sed 's/\\n/;/g')"
+	CURSOR=$#BUFFER             # カーソルを文末に移動
+	zle -R -c                   # refresh
+}
+zle -N peco-select-history
+bindkey '^R' peco-select-history
 
 function cmd_exists() {
 	test -x "`which $1 2> /dev/null`"
