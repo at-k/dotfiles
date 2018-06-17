@@ -25,16 +25,11 @@ esac
 if [ -d ~/.zplug ]; then
 	source ~/.zplug/init.zsh
 
-	#zplug "zsh-users/zsh-completions", lazy:true   # completion for other command, e.g. git
 	zplug "zsh-users/zsh-completions"  # completion for other command, e.g. git
 	zplug "zsh-users/zsh-syntax-highlighting", defer:3 # enable color cli
 
-	#zplug "peco/peco", as:command, from:gh-r, use:"*amd64*" # interactive filter
-
 	zplug "mafredri/zsh-async", from:github
-	if [ "$OSTYPE" != "cygwin" ]; then
-		zplug "sindresorhus/pure", use:pure.zsh, from:github, as:theme
-	fi
+	zplug "sindresorhus/pure", use:pure.zsh, from:github, as:theme
 
 	zplug "greymd/tmux-xpanes"
 
