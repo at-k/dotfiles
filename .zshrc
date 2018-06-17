@@ -51,11 +51,16 @@ fi
 
 fpath=($HOME/.config/zcompl(N-/) $fpath)
 
-# -- Prompt ... now using the one served by plugin
-if [ "$OSTYPE" = "cygwin" ]; then
-	autoload -Uz promptinit; promptinit
-	prompt adam1 # `prompt -p` shows other style
-fi
+case ${OSTYPE} in
+	cygwin)
+		source ~/.zshrc.linux;;
+	linux*)
+		source ~/.zshrc.linux;;
+	darwin*)
+		source ~/.zshrc.mac;;
+	*)
+		echo "unknown OS type";;
+esac
 
 # --- Color
 if [ -f ~/.zsh/dircolors-solarized/dircolors.ansi-dark ]; then
@@ -68,25 +73,6 @@ else
 	if type dircolors > /dev/null 2>&1; then
 		eval $(dircolors -b)  # setup LS_COLORS
 	fi
-fi
-
-# Less colors, available only in 256 color terminal(e.g. TERM=xterm-256color)
-#      see also http://linuxtidbits.wordpress.com/2009/03/23/less-colors-for-man-pages/
-if [ "$OSTYPE" != "cygwin" ]; then
-	export LESS_TERMCAP_mb=$(tput bold; tput setaf 2)					# begin blinking
-	export LESS_TERMCAP_md=$(tput bold; tput setaf 74)  				# begin bold
-	export LESS_TERMCAP_me=$(tput sgr0)									# end mode
-	export LESS_TERMCAP_so=$(tput bold; tput setaf 7; tput setab 60)	# begin standout-mode - info box
-	export LESS_TERMCAP_se=$(tput rmso; tput sgr0)						# end standout-mode
-	export LESS_TERMCAP_us=$(tput smul; tput bold; tput setaf 146)		# begin underline
-	export LESS_TERMCAP_ue=$(tput rmul; tput sgr0)						# end underline
-	export LESS_TERMCAP_mr=$(tput rev)
-	export LESS_TERMCAP_mh=$(tput dim)
-	export LESS_TERMCAP_ZN=$(tput ssubm)
-	export LESS_TERMCAP_ZV=$(tput rsubm)
-	export LESS_TERMCAP_ZO=$(tput ssupm)
-	export LESS_TERMCAP_ZW=$(tput rsupm)
-	export GROFF_NO_SGR=1         # For Konsole and Gnome-terminal
 fi
 
 # -- Key Bind
@@ -165,21 +151,12 @@ zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin /usr/s
 
 
 # -- Alias
-case ${OSTYPE} in
-	cygwin|linux*) alias ls='ls --show-control-chars --color=auto -F';;
-	darwin*) alias ls='ls -G';;
-esac
-
+alias ls='lscolor'
 alias la='ls -la'
 alias ll='ls -l'
 alias cp='cp -i'
 alias mv='mv -i'
 alias bc="bc -l"
-case ${OSTYPE} in
-	linux*)
-		alias pbcopy='xsel --clipboard --input'
-		alias pbpaste='xsel --clipboard --output';;
-esac
 
 alias reloadsh='source ~/.zshrc'
 alias reloadlsh='source ~/.zshrc.local'
@@ -211,14 +188,6 @@ alias gs='git status -uno'
 alias gsa='git status'
 alias gl='git log'
 
-case ${OSTYPE} in
-	cygwin|linux*)  alias ue='(){ cd $(seq -s"../" $((1 + ${1:-1})) | tr -d "[:digit:]")}';;
-	darwin*)
-		alias ue='(){ cd $(jot -s"../" $((1 + ${1:-1})) | tr -d "[:digit:]")}'
-		alias ctags="`brew --prefix`/bin/ctags"
-		;;
-esac
-
 # delimiter definition to split words
 export WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
 
@@ -226,12 +195,10 @@ alias bk='cd $OLDPWD'
 s() { pwd > ~/.save_dir ; }
 i() { cd "$(cat ~/.save_dir)" ; }
 
-function chpwd() { # hook `ls` on `cd` ... it might interrupt shell script. be careful.
+# hook `ls` on `cd` ... it might interrupt shell script. be careful.
+function chpwd() {
 	if [ 50 -gt `ls -1 | wc -l` ]; then
-		case ${OSTYPE} in
-			cygwin|linux*) ls --show-control-chars --color=auto -F;;
-			darwin*) ls -G;;
-		esac
+		ls
 	fi
 }
 
@@ -310,20 +277,6 @@ if [ -x "`which direnv 2> /dev/null `" ]; then
 	eval "$(direnv hook zsh)"
 fi
 
-# completion config for aws-cli, probably this must be put after python settings
-case ${OSTYPE} in
-	darwin*)
-		if [ -f /usr/local/share/zsh/site-functions/_aws ]; then
-			source /usr/local/share/zsh/site-functions/_aws
-		fi
-		;;
-	linux*)
-		if [ -x "`which aws_zsh_completer.sh 2> /dev/null `" ]; then
-			local aws_comp=$(type aws_zsh_completer.sh|cut -d' ' -f 3)
-			source ${aws_comp}
-		fi
-		;;
-esac
 
 if [ -x "`which kubectl 2> /dev/null `" ]; then
 	source <(kubectl completion zsh)
@@ -332,32 +285,6 @@ if [ -x "`which helm 2> /dev/null `" ]; then
 	source <(helm completion zsh)
 fi
 
-# for specific OS
-case ${OSTYPE} in
-	cygwin)
-		alias op='cygstart'
-
-		function cygupdate() {
-			local setup=$(find / -maxdepth 1 -name "setup*.exe" | sed 's/\///')
-			if [ -z ${setup} ]; then
-				echo "error: current setup file not found"
-			else
-				mkdir -p /setup_backup
-				mv /${setup} /setup_backup
-				wget http://www.cygwin.com/${setup} -q
-				if [ ! -f ${setup} ]; then
-					echo "error: fail to download setup file from official"
-				else
-					chmod +x ${setup}
-					mv ${setup} /
-					echo "complete update"
-				fi
-			fi
-		}
-		;;
-	linux*) alias op='gnome-open' ;;
-	darwi*) alias op='open' ;;
-esac
 
 # local limited
 if [ -f ~/.zshrc.local ]; then
