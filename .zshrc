@@ -287,7 +287,6 @@ function start-kube () {
 		source <(minikube completion zsh)
 	fi
 
-	PURE_PROMPT_SYMBOL='k >'
 	PROMPT_BASE=${PROMPT}
 	__set_kube_prompt
 	add-zsh-hook preexec __set_kube_prompt
