@@ -245,6 +245,10 @@ if [ -d ~/.anyenv ]; then
 		export PATH="$HOME/.anyenv/envs/pyenv/versions/$PY3_VERSION/bin:$PATH"
 		export PATH="$HOME/.anyenv/envs/pyenv/versions/$PY2_VERSION/bin:$PATH"
 	fi
+
+	if [ -d ~/go/bin ]; then
+		export PATH="~/go/bin:$PATH"
+	fi
 else
 	# for python
 	if [ -d ~/.pyenv ]; then
