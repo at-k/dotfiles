@@ -287,7 +287,7 @@ function start-kube () {
 	PURE_PROMPT_SYMBOL='k >'
 	PROMPT_BASE=${PROMPT}
 	__set_kube_prompt
-	add-zsh-hook preexec set_kube_prompt
+	add-zsh-hook preexec __set_kube_prompt
 
 	alias k='kubectl'
 	compdef k=kubectl
