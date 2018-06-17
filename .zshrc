@@ -283,6 +283,9 @@ function start-kube () {
 	if [ -x "`which helm 2> /dev/null `" ]; then
 		source <(helm completion zsh)
 	fi
+	if [ -x "`which minikube 2> /dev/null `" ]; then
+		source <(minikube completion zsh)
+	fi
 
 	PURE_PROMPT_SYMBOL='k >'
 	PROMPT_BASE=${PROMPT}
