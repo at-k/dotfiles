@@ -301,15 +301,19 @@ function skube () {
 
 	PROMPT_BASE=${PROMPT}
 	__set_kube_prompt
-	add-zsh-hook preexec __set_kube_prompt
+#	add-zsh-hook preexec __set_kube_prompt
+	add-zsh-hook precmd __set_kube_prompt
 
 	alias k='kubectl'
+	alias ksns='(){ k config set-context $(kubectl config current-context) --namespace=$1}'
 	compdef k=kubectl
 }
 
 function __set_kube_prompt () {
 	context=$(kubectl config current-context 2> /dev/null)
-	PROMPT="%F{magenta}${context} "$PROMPT_BASE
+	namespace=$(kubectl config view | grep namespace: | cut -d: -f2 | tr -d ' ' 2> /dev/null)
+#	PROMPT="%F{magenta}${context} "$PROMPT_BASE
+	PROMPT="%F{magenta}${context}:${namespace} "$PROMPT
 }
 
 function saws () {
