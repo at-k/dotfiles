@@ -283,7 +283,7 @@ if [ -x "`which direnv 2> /dev/null `" ]; then
 	eval "$(direnv hook zsh)"
 fi
 
-function start-kube () {
+function skube () {
 	if [ -x "`which kubectl 2> /dev/null `" ]; then
 		source <(kubectl completion zsh)
 	fi
@@ -303,8 +303,22 @@ function start-kube () {
 }
 
 function __set_kube_prompt () {
-	context=$(kubectl config current-context)
+	context=$(kubectl config current-context 2> /dev/null)
+	if [ $? ]; then
+		context="none"
+	fi
 	PROMPT="%F{magenta}${context} "$PROMPT_BASE
+}
+
+function saws () {
+	awslogin $@
+
+	PROMPT_BASE=${PROMPT}
+	__set_aws_prompt
+	add-zsh-hook preexec __set_aws_prompt
+}
+
+function __set_aws_prompt () {
 }
 
 # local limited
