@@ -191,7 +191,10 @@ i() { cd "$(cat ~/.save_dir)" ; }
 # hook `ls` on `cd` ... it might interrupt shell script. be careful.
 function chpwd() {
 	if [ 50 -gt `ls -1 | wc -l` ]; then
-		ls
+		case ${OSTYPE} in
+			cygwin|linux*) ls --show-control-chars --color=auto -F ;;
+			darwin*) ls -G ;;
+		esac
 	fi
 }
 
@@ -247,7 +250,7 @@ if [ -d ~/.anyenv ]; then
 	fi
 
 	if [ -d ~/go/bin ]; then
-		export PATH="~/go/bin:$PATH"
+		export PATH="$HOME/go/bin:$PATH"
 	fi
 else
 	# for python
