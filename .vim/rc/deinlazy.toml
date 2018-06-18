@@ -37,7 +37,7 @@ hook_add = '''
     let l:ap = expand("%:p")
     let l:p = substitute(ap, $HOME, "~", "")
 
-    let l:wid = winwidth(winnr()) / 2
+    let l:wid = winwidth(winnr()) / 3
 
     if strlen(p) > wid
       let p = strcharpart(p, 0, wid).".../".expand("%:t")

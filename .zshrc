@@ -179,6 +179,8 @@ alias gs='git status -uno'
 alias gsa='git status'
 alias gl='git log'
 
+alias diff='diff -Bw'
+
 alias zbench='time ( zsh -i -c exit)'
 
 # delimiter definition to split words
@@ -304,9 +306,6 @@ function skube () {
 
 function __set_kube_prompt () {
 	context=$(kubectl config current-context 2> /dev/null)
-	if [ $? ]; then
-		context="none"
-	fi
 	PROMPT="%F{magenta}${context} "$PROMPT_BASE
 }
 
