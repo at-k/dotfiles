@@ -295,6 +295,9 @@ function skube () {
 	if [ -x "`which minikube 2> /dev/null `" ]; then
 		source <(minikube completion zsh)
 	fi
+	if [ -x "`which stern 2> /dev/null `" ]; then
+		source <(stern --completion=zsh)
+	fi
 
 	PROMPT_BASE=${PROMPT}
 	__set_kube_prompt
