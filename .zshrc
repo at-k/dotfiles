@@ -286,6 +286,9 @@ if [ -x "`which direnv 2> /dev/null `" ]; then
 fi
 
 function skube () {
+	if [ -x "`which stern 2> /dev/null `" ]; then
+		source <(stern --completion=zsh)
+	fi
 	if [ -x "`which kubectl 2> /dev/null `" ]; then
 		source <(kubectl completion zsh)
 	fi
@@ -294,9 +297,6 @@ function skube () {
 	fi
 	if [ -x "`which minikube 2> /dev/null `" ]; then
 		source <(minikube completion zsh)
-	fi
-	if [ -x "`which stern 2> /dev/null `" ]; then
-		source <(stern --completion=zsh)
 	fi
 
 	PROMPT_BASE=${PROMPT}
