@@ -174,6 +174,7 @@ alias scr_cpdir='screen -X register . "$(pwd)"'
 alias scr_paste='screen -X paste .'
 
 alias iro='for i in {0..255} ; do; printf "\x1b[38;5;${i}m%03d " ${i}; done'
+alias iro-e='for i in {0..255} ; do; echo -e "\e[${i}m ${i}"; done'
 
 alias gs='git status -uno'
 alias gsa='git status'
