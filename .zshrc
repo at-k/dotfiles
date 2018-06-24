@@ -310,7 +310,7 @@ function envk () {
 function __set_kube_prompt () {
 	local context=$(kubectl config current-context 2> /dev/null)
 	local namespace=$(kubectl config view | grep namespace: | cut -d: -f2 | tr -d ' ' 2> /dev/null)
-	RPROMPT="%F{magenta}${context}:${namespace} "
+	RPROMPT="%F{green}${context}:%f%F{red}${namespace}%f"
 	#PROMPT="%F{magenta}${context}:${namespace} "$PROMPT
 }
 
