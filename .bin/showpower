@@ -40,13 +40,13 @@ function print_power()
 		fi
 	elif [ "$mode" = "tmux" ]; then
 		if [ $pow -ge 80 ]; then
-			echo "#[bg=colour002,fg=colour015, bold] $pow% "
+			echo "#[bg=colour002,fg=colour015, bold] $pow%"
 		elif [ $pow -ge 50 ]; then
-			echo "#[bg=colour111,fg=colour117, bold] $pow% "
+			echo "#[bg=colour111,fg=colour117, bold] $pow%"
 		elif [ $pow -gt 20 ]; then
-			echo "#[bg=colour204,fg=colour199, bold] $pow% "
+			echo "#[bg=colour204,fg=colour199, bold] $pow%"
 		else
-			echo "#[bg=colour203,fg=colour124, bold] $pow% "
+			echo "#[bg=colour203,fg=colour124, bold] $pow%"
 		fi
 	else
 		echo $pow
