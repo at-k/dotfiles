@@ -39,8 +39,7 @@ fi
 
 # -- setting for pure
 PURE_PROMPT_SYMBOL='>'
-PROMPT_BASE='%(1j.[%j] .)%(?.%F{magenta}.%F{red})${PURE_PROMPT_SYMBOL:-❯}%f '
-PROMPT=$PROMPT_BASE
+PROMPT='%(1j.[%j] .)%(?.%F{magenta}.%F{red})${PURE_PROMPT_SYMBOL:-❯}%f '
 PURE_GIT_UNTRACKED_DIRTY=0
 
 if [ -x "`which vboxmanage 2> /dev/null `" ]; then
@@ -286,7 +285,7 @@ if [ -x "`which direnv 2> /dev/null `" ]; then
 	eval "$(direnv hook zsh)"
 fi
 
-function skube () {
+function envk () {
 	if [ -x "`which stern 2> /dev/null `" ]; then
 		source <(stern --completion=zsh)
 	fi
@@ -300,7 +299,6 @@ function skube () {
 		source <(minikube completion zsh)
 	fi
 
-	PROMPT_BASE=${PROMPT}
 	__set_kube_prompt
 #	add-zsh-hook preexec __set_kube_prompt
 	add-zsh-hook precmd __set_kube_prompt
@@ -313,11 +311,11 @@ function skube () {
 function __set_kube_prompt () {
 	context=$(kubectl config current-context 2> /dev/null)
 	namespace=$(kubectl config view | grep namespace: | cut -d: -f2 | tr -d ' ' 2> /dev/null)
-#	PROMPT="%F{magenta}${context} "$PROMPT_BASE
-	PROMPT="%F{magenta}${context}:${namespace} "$PROMPT
+	RPROMPT="%F{magenta}${context}:${namespace} "
+	#PROMPT="%F{magenta}${context}:${namespace} "$PROMPT
 }
 
-function saws () {
+function enva() {
 	awslogin $@
 
 	PROMPT_BASE=${PROMPT}
