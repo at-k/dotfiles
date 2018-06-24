@@ -115,6 +115,10 @@ repo = 'stephpy/vim-yaml'
 on_ft = ['yaml']
 
 [[plugins]]
+repo = 'lmeijvogel/vim-yaml-helper'
+on_ft = ['yaml']
+
+[[plugins]]
 repo = 'davidhalter/jedi-vim'
 on_ft = ['python', 'python3', 'djangohtml']
 hook_source = '''
