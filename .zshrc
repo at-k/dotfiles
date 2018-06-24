@@ -300,7 +300,6 @@ function envk () {
 	fi
 
 	__set_kube_prompt
-#	add-zsh-hook preexec __set_kube_prompt
 	add-zsh-hook precmd __set_kube_prompt
 
 	alias k='kubectl'
@@ -309,22 +308,25 @@ function envk () {
 }
 
 function __set_kube_prompt () {
-	context=$(kubectl config current-context 2> /dev/null)
-	namespace=$(kubectl config view | grep namespace: | cut -d: -f2 | tr -d ' ' 2> /dev/null)
+	local context=$(kubectl config current-context 2> /dev/null)
+	local namespace=$(kubectl config view | grep namespace: | cut -d: -f2 | tr -d ' ' 2> /dev/null)
 	RPROMPT="%F{magenta}${context}:${namespace} "
 	#PROMPT="%F{magenta}${context}:${namespace} "$PROMPT
 }
 
 function enva() {
-	awslogin $@
+	#awslogin $@
 
 	PROMPT_BASE=${PROMPT}
 	__set_aws_prompt
-	add-zsh-hook preexec __set_aws_prompt
+	add-zsh-hook precmd __set_aws_prompt
 }
 
 function __set_aws_prompt () {
+	local mode=$(awslogin -p)
+	RPROMPT="%F{magenta}${mode}"
 }
+enva
 
 # local limited
 if [ -f ~/.zshrc.local ]; then
