@@ -285,6 +285,15 @@ if [ -x "`which direnv 2> /dev/null `" ]; then
 	eval "$(direnv hook zsh)"
 fi
 
+add-zsh-hook precmd __set_context_prompt
+function __set_context_prompt() {
+	if [ "$KPROMPT_AVAILABLE" = 1 ]; then
+		__set_kube_prompt
+	fi
+	__set_aws_prompt
+	RPROMPT="$AWS_PROMPT $KUBE_PROMPT"
+}
+
 function envk () {
 	if [ -x "`which stern 2> /dev/null `" ]; then
 		source <(stern --completion=zsh)
@@ -299,34 +308,24 @@ function envk () {
 		source <(minikube completion zsh)
 	fi
 
-	__set_kube_prompt
-	add-zsh-hook precmd __set_kube_prompt
-
+	export KPROMPT_AVAILABLE=1
 	alias k='kubectl'
-	alias ksns='(){ k config set-context $(kubectl config current-context) --namespace=$1}'
+	alias kns='(){ k config set-context $(kubectl config current-context) --namespace=$1}'
 	compdef k=kubectl
 }
 
 function __set_kube_prompt () {
 	local context=$(kubectl config current-context 2> /dev/null)
 	local namespace=$(kubectl config view | grep namespace: | cut -d: -f2 | tr -d ' ' 2> /dev/null)
-	RPROMPT="%F{green}${context}:%f%F{red}${namespace}%f"
+
+	KUBE_PROMPT="%F{green}${context}:%f%F{red}${namespace}%f"
 	#PROMPT="%F{magenta}${context}:${namespace} "$PROMPT
-}
-
-function enva() {
-	#awslogin $@
-
-	PROMPT_BASE=${PROMPT}
-	__set_aws_prompt
-	add-zsh-hook precmd __set_aws_prompt
 }
 
 function __set_aws_prompt () {
 	local mode=$(awslogin -p)
-	RPROMPT="%F{magenta}${mode}"
+	AWS_PROMPT="%F{magenta}${mode}"
 }
-enva
 
 # local limited
 if [ -f ~/.zshrc.local ]; then
