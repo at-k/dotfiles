@@ -24,9 +24,9 @@ function print_curmode()
 		ctime=$(date +%s)
 		remain=$(echo "$ONELOGIN_EXPIRED_SEC - ($ctime - $ltime)" | bc)
 		if [ $remain -lt 0 ]; then
-			echo ${curmode}"[expire]"
+			echo ${curmode}"-expire"
 		else
-			echo ${curmode}"[$remain]"
+			echo ${curmode}"-$remain"
 		fi
 	fi
 }

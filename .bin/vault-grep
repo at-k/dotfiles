@@ -15,10 +15,10 @@ for file in `git ls-files`; do
 	if [ "${attr}" = "vault" ]; then
 		grep $@ <(ansible-vault view ${file} ) | sed "s!^!"${file}":!" 2> /dev/null
 		if [ $? != 0 ]; then
-			grep $@ ${file}
+			grep $@ ${file} | sed "s!^!"${file}":!" 2> /dev/null
 		fi
 	else
-		grep $@ ${file}
+		grep $@ ${file} | sed "s!^!"${file}":!" 2> /dev/null
 	fi
 done
 

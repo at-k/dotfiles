@@ -178,8 +178,10 @@ alias iro-e='for i in {0..255} ; do; echo -e "\e[${i}m ${i}"; done'
 alias gs='git status -uno'
 alias gsa='git status'
 alias gl='git log'
+alias gupstream='git remote -v|grep upstream | grep git | cut -f2 | cut -d" " -f1 |sed "s/ssh/https/"'
 
 alias diff='diff -Bw'
+alias vimdiff='vimdiff -c "set diffopt+=iwhite"'
 
 alias zbench='time ( zsh -i -c exit)'
 
