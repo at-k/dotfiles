@@ -96,25 +96,7 @@ else
 	eval '${sed_cmd} "s/use_onelogin=[0,1]/use_onelogin=1/" ${rcfile}'
 
 	if [ ${relog} = 1 ]; then
-		output=$(expect -c "
-		set timeout 5
-
-		spawn onelogin-aws-login
-
-		expect {
-			\"Onelogin Username:\" {
-				send \"akawamura@c-fo.com\n\"
-			}
-		}
-
-		expect {
-			-glob \"Onelogin Password:\" {
-				interact
-				exit 0
-			}
-		}
-		" | tee /dev/stderr)
-#		onelogin-aws-login -u akawamura@c-fo.com
+		onelogin-aws-login -d $ONELOGIN_EXPIRED_SEC
 
 		if [ $? != 0 ]; then
 			exit 1
