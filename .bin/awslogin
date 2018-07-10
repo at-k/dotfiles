@@ -96,7 +96,8 @@ else
 	eval '${sed_cmd} "s/use_onelogin=[0,1]/use_onelogin=1/" ${rcfile}'
 
 	if [ ${relog} = 1 ]; then
-		onelogin-aws-login -d $ONELOGIN_EXPIRED_SEC
+
+    output=$(onelogin-aws-login -d $ONELOGIN_EXPIRED_SEC | tee /dev/stderr)
 
 		if [ $? != 0 ]; then
 			exit 1
