@@ -14,6 +14,7 @@ function usage()
 	echo "	-u         update host cache file"
 	echo "	-s         choose from history"
 	echo "  -c         command executed on remote host"
+	echo "  -t         set sort key as launchtime"
 }
 
 function single_ssh()
@@ -89,10 +90,11 @@ role=
 stage=
 proj=
 cmd=
+sort_key=3
 
 lshost=lsaws
 
-while getopts r:s:p:c:lfnh OPT;
+while getopts r:s:p:c:lfnth OPT;
 do
 	case $OPT in
 		"r") role="$OPTARG";;
@@ -102,6 +104,7 @@ do
 		"l") hist=1;;
 		"f") update=1;;
 		"n") nossh=1;;
+		"t") sort_key=9;;
 		"h") usage ${bname}; exit;;
 		"*") usage ${bname}; exit;;
 	esac
@@ -123,12 +126,12 @@ if [ ! -z ${proj} ]; then filter=${filter}" Project:${proj}"; fi
 
 if [ $hist = 0 ]; then
 	if [ $update = 1 ]; then
-		tgt_server=$(${lshost} -u -l ${filter} | peco)
+		tgt_server=$(${lshost} -u -l ${filter} | sort -t, -k${sort_key} | peco)
 	else
-		tgt_server=$(${lshost} -l ${filter} | peco)
+		tgt_server=$(${lshost} -l ${filter} | sort -t, -k${sort_key} | peco)
 	fi
 else
-	tgt_server=$(cat $hfile | peco)
+	tgt_server=$(cat $hfile | sort -t, -k${sort_key} | peco)
 fi
 
 if [ $nossh = 1 ]; then
