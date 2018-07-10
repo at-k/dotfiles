@@ -61,6 +61,9 @@ class Instance:
     def instance_id(self):
         return self.dict['InstanceId']
 
+    def launch_time(self):
+        return self.dict['LaunchTime']
+
     def get_tag(self, tag):
         tag = list(filter(lambda dic: dic['Key'] == tag, self.dict.get('Tags', '')))
         if len(tag) == 1:
@@ -151,7 +154,7 @@ def find_from_role(roles, list=False, all=False, internal_ip=False, hosts=False)
     for x in sorted(insts, key=get_name):
         output = ColorizedOutput()
         if list:
-            output += [x.instance_id(), x.name(), x.role(), x.address(), x.eip(), x.stage(), x.status(), x.instance_status()]
+            output += [x.instance_id(), x.name(), x.role(), x.address(), x.eip(), x.stage(), x.status(), x.instance_status(), x.launch_time().strftime('%Y%m%d-%H:%M:%S')]
         elif internal_ip:
             output += [x.address()]
         elif hosts:
