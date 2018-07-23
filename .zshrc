@@ -178,7 +178,8 @@ alias iro-e='for i in {0..255} ; do; echo -e "\e[${i}m ${i}"; done'
 alias gs='git status -uno'
 alias gsa='git status'
 alias gl='git log'
-alias gupstream='git remote -v|grep upstream | grep git | cut -f2 | cut -d" " -f1 |sed "s/ssh/https/"'
+alias gupstream='git remote -v | grep upstream | grep git | cut -f2 | cut -d" " -f1 | sed -e "s/ssh/https/" -e "s/:/\//" -e "s/git@/https:\/\//"'
+alias gfetch-master='git fetch upstream && git checkout master && git merge upstream/master'
 
 alias diff='diff -Bw'
 alias vimdiff='vimdiff -c "set diffopt+=iwhite"'
@@ -287,7 +288,9 @@ if [ -x "`which direnv 2> /dev/null `" ]; then
 	eval "$(direnv hook zsh)"
 fi
 
+# rprompt setting
 add-zsh-hook precmd __set_context_prompt
+setopt transientrprompt
 function __set_context_prompt() {
 	if [ "$KPROMPT_AVAILABLE" = 1 ]; then
 		__set_kube_prompt
