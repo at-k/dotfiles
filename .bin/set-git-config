@@ -6,7 +6,7 @@
 rep_name=$(basename `git remote get-url origin`)
 org_name=C-FO
 
-git remote add upstream git://github.com/${org_name}/${rep_name}.git
+git remote add upstream git://github.com/${org_name}/${rep_name}
 git remote set-url --push upstream no_push
-git remote add pr git://github.com/${org_name}/${rep_name}.git
+git remote add pr git://github.com/${org_name}/${rep_name}
 git config remote.pr.fetch '+refs/pull/*:refs/remotes/pr/*'
