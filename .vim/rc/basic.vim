@@ -183,7 +183,7 @@ set softtabstop=4
 set shiftwidth=4
 
 " setting for tab expansion
-set noexpandtab
+set expandtab
 "set expandtab
 
 " insert <Tab> as size of 'shiftwidth' when hit <Tab> on line head
@@ -336,6 +336,9 @@ nnoremap ]q :cnext<CR>
 nnoremap [q :cprevious<CR>
 
 "--- fold
+
+"--- tag jump
+nnoremap C-] :vsp<CR> :exe("tjump ".expand('<cword>'))<CR>
 
 
 "--- prefix settings
