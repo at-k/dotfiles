@@ -52,6 +52,7 @@ fi
 
 fpath=($HOME/.config/zcompl(N-/) $fpath)
 
+# --- Load OS specific setting
 case ${OSTYPE} in
 	cygwin)
 		source ~/.zshrc.linux;;
@@ -62,6 +63,12 @@ case ${OSTYPE} in
 	*)
 		echo "unknown OS type";;
 esac
+
+# --- Mouse setting w/ tmux
+if [ -f ~/.bin/mouse.zsh ]; then
+    source ~/.bin/mouse.zsh
+    zle-toggle-mouse
+fi
 
 # --- Color
 if [ -f ~/.zsh/dircolors-solarized/dircolors.ansi-dark ]; then
