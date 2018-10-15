@@ -184,12 +184,6 @@ alias iro-e='for i in {0..255} ; do; echo -e "\e[${i}m ${i}"; done'
 
 alias g='git'
 compdef g=git
-alias gs='git status -uno'
-alias gsa='git status'
-alias gl='git log'
-alias gupstream='git remote get-url upstream | sed -e "s;.*github;https://github;" | sed "s;github.com:;github.com/;"'
-alias gfetch-master='git fetch upstream && git checkout master && git merge upstream/master'
-alias gwip='git branch --list --no-merged'
 
 alias diff='diff -Bw'
 alias vimdiff='vimdiff -c "set diffopt+=iwhite"'

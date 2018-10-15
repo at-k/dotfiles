@@ -10,10 +10,15 @@
 
 [alias]
 	wdiff = diff --color-words --ignore-all-space
-	ldiff = difftool -y -t latex
-	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+    ldiff = difftool -y -t latex
+    s = status
+	l = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
 	lga = log --graph --all --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
-	dt = difftool
+    dt = difftool
+    sync-upstream = !git fetch upstream && git checkout master && git merge upstream/master
+    ls-wip = branch --list --no-merged
+	rm-merged = !git branch --merged | grep -v \\* | xargs -I % git branch -d %
+    print-upstream = "!git remote get-url upstream | sed -e \"s;.*github;https://github;\" | sed \"s;github.com:;github.com/;\""
 
 [difftool.latex]
 	cmd = latexdiff -e ISO-2022-JP "$LOCAL" "$REMOTE"
@@ -23,6 +28,9 @@
 
 [core]
 	editor = vim
+
+[pager]
+    branch = cat
 
 [diff]
 	tool = vimdiff
