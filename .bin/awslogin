@@ -16,97 +16,163 @@ function usage()
 	echo "  -s		   silent mode"
 }
 
-function print_curmode()
+function print_lastmode()
 {
-	if [ "${curmode}" = "iam" ]; then
-		echo ${curmode}
-	else
-		ctime=$(date +%s)
-		remain=$(echo "$ONELOGIN_EXPIRED_SEC - ($ctime - $ltime)" | bc)
-		if [ $remain -lt 0 ]; then
-			echo ${curmode}"-expire"
-		else
-			echo ${curmode}"-$remain"
-		fi
-	fi
+  echo "test"
 }
 
+function list_profile()
+{
+  if [ $# != 1 -a ! -f "$1" ]; then
+    echo "error list_profile: history file not found"
+  else
+    local hist_file=$1
+    local ctime=$(date +%s)
+    while read line; do
+      local prof=$(echo $line | cut -d, -f 1)
+
+      if [ "$prof" = "" ]; then
+        continue
+      fi
+
+      local expire=$(echo $line | cut -d, -f 2)
+      local remain=$(($expire - $ctime))
+      if [ $remain -lt 0 ]; then
+        remain="expired"
+      fi
+
+      echo ${line},${remain}
+
+    done < $hist_file
+  fi
+}
+
+function switch_profile()
+{
+  if [ $# -lt 2 ]; then
+    echo 'error switch_profile: invalid arg'
+  else
+    local hist_file=$1
+    local prof_file=$2
+    local prof_item=""
+    if [ $# = 3 ]; then
+      # use latest
+      prof_item=$(tail -1 $hist_file)
+    else
+      # select from hist file
+      prof_item=$(list_profile $hist_file | peco)
+    fi
+
+    if [ "${prof_item}" != "" ]; then
+      local prof=$(echo $prof_item | cut -d, -f1)
+      local alias=$(echo $prof_item | cut -d, -f3)
+      echo > $prof_file
+
+      echo "unset AWS_ACCESS_KEY_ID" >> $prof_file
+      echo "unset AWS_SECRET_ACCESS_KEY" >> $prof_file
+      echo "export AWS_ENABLE_USER=0" >> $prof_file
+      echo "export AWS_DEFAULT_PROFILE=$prof" >> $prof_file
+      echo "export AWS_PROFILE=$prof" >> $prof_file
+      echo "export AWS_DEFAULT_REGION=ap-northeast-1" >> $prof_file
+      echo "export AWS_PROFILE_ALIAS=$alias" >> $prof_file
+    fi
+  fi
+}
+
+function get_current()
+{
+  if [ "$AWS_ENABLE_USER" = 1 ]; then
+    echo "iam"
+  else
+    remain="none"
+    if [ $# -gt 0 ]; then
+      hist_file=$1
+      remain=$(list_profile $hist_file | grep $AWS_PROFILE_ALIAS | cut -d, -f5)
+    fi
+    echo $AWS_PROFILE_ALIAS..$remain
+  fi
+}
+
+function clear_env()
+{
+  for fn in `env | grep AWS`;do
+    key=$(echo $fn | cut -d= -f1) && unset $key
+  done
+}
+
+function login_via_onelogin()
+{
+  if [ $# -lt 2 ]; then
+    echo 'error login_via_onelogin: invalid arg'
+    exit
+  fi
+
+  local histfile=$1
+  local duration=$2
+
+  unset AWS_DEFAULT_PROFILE
+  unset AWS_PROFILE
+
+  local output=$(onelogin-aws-login -d $duration | tee /dev/stderr)
+  local check=$(echo $output | grep "profile")
+  if [ "$check" = "" ]; then
+    echo "error: fail to login"
+    exit 1
+  fi
+
+  local profile=$(echo $output | sed 's/^.*profile \(.*\)$/\1/' | sed 's///')
+  local rolename=$(echo $profile | cut -d/ -f2)
+
+  if [ "$profile" != "" -a "$rolename" != "" ]; then
+    local alias=$(aws iam list-account-aliases --profile $profile | jq -r '.AccountAliases[0]')
+    local maxduration=$(aws iam get-role --profile $profile --role-name $rolename  | jq -r '.Role.MaxSessionDuration')
+    local expire_time=$(echo $(date +%s) + $duration | bc)
+
+    sed "/$rolename@$alias/d" $histfile > /tmp/awslogin_tmp && mv /tmp/awslogin_tmp $histfile
+    echo ${profile},${expire_time},$rolename@$alias,$maxduration >> $histfile
+  else
+    echo "error: login error"
+    exit 1
+  fi
+}
+
+function use_iam()
+{
+   if [ $# -lt 1 ]; then
+    echo 'error use_iam: invalid arg'
+    exit
+  fi
+
+  local aws_prof_file=$1
+
+  echo "export AWS_ENABLE_USER=1" > $aws_prof_file
+}
+
+
+
 bname=`basename $0`
-
-MODE_O=saml
-MODE_I=iam
-
-mode=""
-ltime=""
-relog=0
-
-silent=0
-
-rcfile=~/.zshrc.local
+rcfile=~/.zshrc.aws.local
+cache=~/.cache/aws_profiles
 ONELOGIN_EXPIRED_SEC=10800
-# aws iam get-role --role-name freee-sso-admin | grep Duration
 
-sed_cmd=""
-case ${OSTYPE} in
-	cygwin|linux*) sed_cmd='sed -i' ;;
-	darwin*)       sed_cmd='sed -i ""' ;;
-esac
-
-curmode_tmp=$(sed -n 's/use_onelogin=\(.*\)$/\1/p' ${rcfile})
-if [ ${curmode_tmp} = 1 ]; then
-	curmode=${MODE_O}
-else
-	curmode=${MODE_I}
-fi
-ltime=$(sed -n 's/aws_last_onelogin=\(.*\)/\1/p' ${rcfile})
-
-while getopts iorsph OPT;
+while getopts iorspluh OPT;
 do
 	case $OPT in
-		"i") mode=${MODE_I};;
-		"o") mode=${MODE_O};;
-		"r") relog=1;;
-		"s") silent=1;;
-		"p") print_curmode; exit;;
+		"i") use_iam $rcfile;;
+		"s") switch_profile $cache $rcfile; exit;;
+		"r")
+      login_via_onelogin $cache $ONELOGIN_EXPIRED_SEC
+      switch_profile $cache $rcfile 1
+      exit;;
+		"p") get_current $cache; exit;;
+    'l') list_profile $cache; exit;;
+    'u') clear_env; exit;;
 		"h") usage ${bname}; exit;;
+    '?') usage ${bname}; exit;;
 	esac
 done
 
-if [ "${mode}" = "" ]; then
-	mode=${curmode}
-	if [ "${silent}" != 1 ]; then
-		echo "** ${bname}: keep login mode ${curmode}"
-	fi
-else
-	if [ "${silent}" != 1 ]; then
-		echo "** ${bname}: switch login mode ${curmode} -> ${mode}"
-	fi
-fi
 
-if [ ${mode} = ${MODE_I} ]; then
-	eval '${sed_cmd} "s/use_onelogin=[0,1]/use_onelogin=0/" ${rcfile}'
-else
-	ctime=$(date +%s)
-	laps=$(echo "$ctime - $ltime" | bc)
-
-	if [ $laps -gt $ONELOGIN_EXPIRED_SEC ]; then
-		relog=1
-	fi
-
-	eval '${sed_cmd} "s/use_onelogin=[0,1]/use_onelogin=1/" ${rcfile}'
-
-	if [ ${relog} = 1 ]; then
-
-    output=$(onelogin-aws-login -d $ONELOGIN_EXPIRED_SEC | tee /dev/stderr)
-
-		if [ $? != 0 ]; then
-			exit 1
-		fi
-
-		profile=$(echo $output | sed 's/^.*profile \(.*\)$/\1/' | sed 's///')
-
-		eval '${sed_cmd} "s/aws_last_onelogin=.*$/aws_last_onelogin="${ctime}"/" ${rcfile}'
-		eval '${sed_cmd} "s:AWS_DEFAULT_PROFILE=\(.*\)$:AWS_DEFAULT_PROFILE="${profile}":" ${rcfile}'
-	fi
-fi
-
+# login_via_onelogin $cache $ONELOGIN_EXPIRED_SEC
+# switch_profile $cache $rcfile
+use_iam $rcfile
