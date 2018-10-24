@@ -12,12 +12,15 @@
 	wdiff = diff --color-words --ignore-all-space
     ldiff = difftool -y -t latex
     s = status
-	l = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
-	lga = log --graph --all --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+    co = checkout
+    l = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+    lga = log --graph --all --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
     dt = difftool
+    pr = "!sh -c 'git fetch upstream refs/pull/$1/head:pr/$1/head && git checkout pr/$1/head' -"
     sync-upstream = !git fetch upstream && git checkout master && git merge upstream/master
-    ls-wip = branch --list --no-merged
-	rm-merged = !git branch --merged | grep -v \\* | xargs -I % git branch -d %
+    ls-unmerged = branch --list --no-merged
+    ls-merged = branch --merged
+    rm-merged = !git branch --merged | grep -v \\* | xargs -I % git branch -d %
     print-upstream = "!git remote get-url upstream | sed -e \"s;.*github;https://github;\" | sed \"s;github.com:;github.com/;\""
 
 [difftool.latex]
