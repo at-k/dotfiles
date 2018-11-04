@@ -186,6 +186,10 @@ hook_source = '''
 	let g:go_highlight_functions = 1
 	let g:go_highlight_methods = 1
 	let g:go_highlight_structs = 1
+  let g:go_highlight_types = 1
+  let g:go_highlight_fields = 1
+  autocmd FileType go :highlight goErr cterm=bold ctermfg=214
+  autocmd FileType go :match goErr /\<err\>/
 '''
 
 [[plugins]]
@@ -205,6 +209,8 @@ hook_source = '''
 	      \ '[^.[:digit:] *\t]\%(\.\|->\)\w*'
 	let g:neocomplete#force_omni_input_patterns.cpp =
 	      \ '[^.[:digit:] *\t]\%(\.\|->\)\w*\|\h\w*::\w*'
+  let g:neocomplete#force_omni_input_patterns.go =
+        \ '\h\w\.\w*'
 
 	" <TAB>: completion.
 	inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"

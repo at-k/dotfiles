@@ -8,12 +8,12 @@
 function usage()
 {
 	echo "usage: $1 [options]"
-	echo "	-h         print this usage and exit"
-	echo "	-i         use iam"
-	echo "	-o         use onelogin"
-	echo "	-r         relogin to onelogin"
-	echo "	-p         print current env"
-	echo "  -s		   silent mode"
+	echo "	-h       print this usage and exit"
+	echo "	-i       use iam"
+	echo "	-o       use onelogin"
+	echo "	-r       relogin to onelogin"
+	echo "	-p       print current env"
+	echo "  -s		   switch role"
 }
 
 function print_lastmode()
@@ -87,7 +87,7 @@ function get_current()
     remain="none"
     if [ $# -gt 0 ]; then
       hist_file=$1
-      remain=$(list_profile $hist_file | grep $AWS_PROFILE_ALIAS | cut -d, -f5)
+      remain=$(list_profile $hist_file | grep $AWS_PROFILE_ALIAS | cut -d, -f4)
     fi
     echo $AWS_PROFILE_ALIAS..$remain
   fi
@@ -102,18 +102,24 @@ function clear_env()
 
 function login_via_onelogin()
 {
-  if [ $# -lt 2 ]; then
+  if [ $# -lt 1 ]; then
     echo 'error login_via_onelogin: invalid arg'
     exit
   fi
 
   local histfile=$1
-  local duration=$2
 
   unset AWS_DEFAULT_PROFILE
   unset AWS_PROFILE
 
-  local output=$(onelogin-aws-login -d $duration | tee /dev/stderr)
+  local conf=$(grep "^\[" ~/.onelogin-aws.config | sed 's/\[\(.*\)\]/\1/'|peco)
+  if [ "$conf" = "" ]; then
+    echo "error: get conf"
+    exit 1
+  fi
+  local duration=$(grep -A6 $conf ~/.onelogin-aws.config | grep duration | head -1 | awk -F'=' '{print $2}')
+
+  local output=$(onelogin-aws-login -C $conf | tee /dev/stderr)
   local check=$(echo $output | grep "profile")
   if [ "$check" = "" ]; then
     echo "error: fail to login"
@@ -124,12 +130,11 @@ function login_via_onelogin()
   local rolename=$(echo $profile | cut -d/ -f2)
 
   if [ "$profile" != "" -a "$rolename" != "" ]; then
-    local alias=$(aws iam list-account-aliases --profile $profile | jq -r '.AccountAliases[0]')
-    local maxduration=$(aws iam get-role --profile $profile --role-name $rolename  | jq -r '.Role.MaxSessionDuration')
+    # local maxduration=$(aws iam get-role --profile $profile --role-name $rolename  | jq -r '.Role.MaxSessionDuration')
     local expire_time=$(echo $(date +%s) + $duration | bc)
 
-    sed "/$rolename@$alias/d" $histfile > /tmp/awslogin_tmp && mv /tmp/awslogin_tmp $histfile
-    echo ${profile},${expire_time},$rolename@$alias,$maxduration >> $histfile
+    sed "/$conf/d" $histfile > /tmp/awslogin_tmp && mv /tmp/awslogin_tmp $histfile
+    echo ${profile},${expire_time},$conf >> $histfile
   else
     echo "error: login error"
     exit 1
@@ -158,10 +163,10 @@ ONELOGIN_EXPIRED_SEC=10800
 while getopts iorspluh OPT;
 do
 	case $OPT in
-		"i") use_iam $rcfile;;
+		"i") use_iam $rcfile; exit;;
 		"s") switch_profile $cache $rcfile; exit;;
 		"r")
-      login_via_onelogin $cache $ONELOGIN_EXPIRED_SEC
+      login_via_onelogin $cache
       switch_profile $cache $rcfile 1
       exit;;
 		"p") get_current $cache; exit;;
@@ -172,7 +177,7 @@ do
 	esac
 done
 
+# no option
+login_via_onelogin $cache
+switch_profile $cache $rcfile 1
 
-# login_via_onelogin $cache $ONELOGIN_EXPIRED_SEC
-# switch_profile $cache $rcfile
-use_iam $rcfile
