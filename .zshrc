@@ -38,8 +38,8 @@ if [ -d ~/.zplug ]; then
 fi
 
 # -- setting for pure
-PURE_PROMPT_SYMBOL='>'
-PROMPT='%(1j.[%j] .)%(?.%F{magenta}.%F{red})${PURE_PROMPT_SYMBOL:-❯}%f '
+#PURE_PROMPT_SYMBOL='$'
+#PROMPT='%(1j.[%j] .)%(?.%F{magenta}.%F{red})${PURE_PROMPT_SYMBOL:-❯}%f '
 PURE_GIT_UNTRACKED_DIRTY=0
 
 if [ -x "`which vboxmanage 2> /dev/null `" ]; then
@@ -261,6 +261,8 @@ if [ -d ~/.anyenv ]; then
 		pyenv global $PY3_VERSION $PY2_VERSION
 		export PATH="$HOME/.anyenv/envs/pyenv/versions/$PY3_VERSION/bin:$PATH"
 		export PATH="$HOME/.anyenv/envs/pyenv/versions/$PY2_VERSION/bin:$PATH"
+        eval "$(pyenv virtualenv-init -)"
+        eval "$(pyenv init -)"
 	fi
 
 	if [ -d ~/go/bin ]; then
