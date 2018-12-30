@@ -38,8 +38,11 @@ if [ -d ~/.zplug ]; then
 fi
 
 # -- setting for pure
-#PURE_PROMPT_SYMBOL='$'
-#PROMPT='%(1j.[%j] .)%(?.%F{magenta}.%F{red})${PURE_PROMPT_SYMBOL:-❯}%f '
+#local number_of_jobs="%(1j.%F{208} / %f%F{226}%B%j%b%f.)"
+local number_of_jobs="%(1j.[%j] .)%"
+
+#PURE_PROMPT_SYMBOL='>'
+PROMPT="${number_of_jobs} $PROMPT"
 PURE_GIT_UNTRACKED_DIRTY=0
 
 if [ -x "`which vboxmanage 2> /dev/null `" ]; then
