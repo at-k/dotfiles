@@ -256,21 +256,25 @@ function cmd_exists() {
 
 # xenv
 if [ -d ~/.anyenv ]; then
-	export PATH="$HOME/.anyenv/bin:$PATH" && eval "$(anyenv init - --no-rehash)"
-	PY2_VERSION="2.7.14"
-	PY3_VERSION="3.6.3"
+    export ANYENV_ENABLE=false
+    function enva() {
+        export PATH="$HOME/.anyenv/bin:$PATH" && eval "$(anyenv init - --no-rehash)"
+        PY2_VERSION="2.7.14"
+        PY3_VERSION="3.6.3"
 
-	if [ -d ~/.anyenv/envs/pyenv ]; then
-		pyenv global $PY3_VERSION $PY2_VERSION
-		export PATH="$HOME/.anyenv/envs/pyenv/versions/$PY3_VERSION/bin:$PATH"
-		export PATH="$HOME/.anyenv/envs/pyenv/versions/$PY2_VERSION/bin:$PATH"
-        eval "$(pyenv virtualenv-init -)"
-        eval "$(pyenv init -)"
-	fi
+        if [ -d ~/.anyenv/envs/pyenv ]; then
+            pyenv global $PY3_VERSION $PY2_VERSION
+            export PATH="$HOME/.anyenv/envs/pyenv/versions/$PY3_VERSION/bin:$PATH"
+            export PATH="$HOME/.anyenv/envs/pyenv/versions/$PY2_VERSION/bin:$PATH"
+            eval "$(pyenv virtualenv-init -)"
+            eval "$(pyenv init -)"
+        fi
 
-	if [ -d ~/go/bin ]; then
-		export PATH="$HOME/go/bin:$PATH"
-	fi
+        if [ -d ~/go/bin ]; then
+            export PATH="$HOME/go/bin:$PATH"
+        fi
+        export ANYENV_ENABLE=true
+    }
 else
 	# for python
 	if [ -d ~/.pyenv ]; then
@@ -310,7 +314,8 @@ function __set_context_prompt() {
 		__set_kube_prompt
 	fi
 	__set_aws_prompt
-	RPROMPT="$AWS_PROMPT $KUBE_PROMPT"
+    __set_xenv_prompt
+	RPROMPT="$XENV_PROMPT $AWS_PROMPT $KUBE_PROMPT"
 }
 
 function envk () {
@@ -344,6 +349,12 @@ function __set_kube_prompt () {
 function __set_aws_prompt () {
 	local mode=$(awslogin -p)
 	AWS_PROMPT="%F{magenta}${mode}"
+}
+
+function __set_xenv_prompt() {
+    if [ $ANYENV_ENABLE = true ]; then
+        XENV_PROMPT="%F{yellow}any"
+    fi
 }
 
 # local limited
