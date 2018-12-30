@@ -38,7 +38,10 @@ function list_profile()
       local expire=$(echo $line | cut -d, -f 2)
       local remain=$(($expire - $ctime))
       if [ $remain -lt 0 ]; then
-        remain="expired"
+        remain="x"
+      else
+        # second to minitus
+        remain=$(($remain/60))m
       fi
 
       echo ${line},${remain}
@@ -89,7 +92,7 @@ function get_current()
       hist_file=$1
       remain=$(list_profile $hist_file | grep $AWS_PROFILE_ALIAS | cut -d, -f4)
     fi
-    echo $AWS_PROFILE_ALIAS..$remain
+    echo $AWS_PROFILE_ALIAS.$remain
   fi
 }
 
