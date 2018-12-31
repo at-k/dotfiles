@@ -69,15 +69,24 @@ function switch_profile()
     if [ "${prof_item}" != "" ]; then
       local prof=$(echo $prof_item | cut -d, -f1)
       local alias=$(echo $prof_item | cut -d, -f3)
-      echo > $prof_file
+      local remain=$(echo $prof_item | cut -d, -f4)
 
-      echo "unset AWS_ACCESS_KEY_ID" >> $prof_file
-      echo "unset AWS_SECRET_ACCESS_KEY" >> $prof_file
-      echo "export AWS_ENABLE_USER=0" >> $prof_file
-      echo "export AWS_DEFAULT_PROFILE=$prof" >> $prof_file
-      echo "export AWS_PROFILE=$prof" >> $prof_file
-      echo "export AWS_DEFAULT_REGION=ap-northeast-1" >> $prof_file
-      echo "export AWS_PROFILE_ALIAS=$alias" >> $prof_file
+      if [ $remain = 'x' ]; then
+        echo "session expired! select again"
+        sleep 1
+        login_via_onelogin $hist_file
+        switch_profile $hist_file $prof_file 1
+      else
+        echo > $prof_file
+
+        echo "unset AWS_ACCESS_KEY_ID" >> $prof_file
+        echo "unset AWS_SECRET_ACCESS_KEY" >> $prof_file
+        echo "export AWS_ENABLE_USER=0" >> $prof_file
+        echo "export AWS_DEFAULT_PROFILE=$prof" >> $prof_file
+        echo "export AWS_PROFILE=$prof" >> $prof_file
+        echo "export AWS_DEFAULT_REGION=ap-northeast-1" >> $prof_file
+        echo "export AWS_PROFILE_ALIAS=$alias" >> $prof_file
+      fi
     fi
   fi
 }
@@ -180,7 +189,6 @@ do
 	esac
 done
 
-# no option
-login_via_onelogin $cache
-switch_profile $cache $rcfile 1
+# default action
+switch_profile $cache $rcfile
 
