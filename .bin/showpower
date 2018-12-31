@@ -15,18 +15,10 @@ function usage()
 	echo "	-f         set output format"
 }
 
-while getopts f:h OPT;
-do
-	case $OPT in
-		"f") mode=${OPTARG} ;;
-		"h") usage ${bname}; exit;;
-	esac
-done
-
-
 function print_power()
 {
 	local pow=$1
+    local powersupply=$2
 
 	if [ "$mode" = 'std' ]; then
 		if [ $pow -ge 80 ]; then
@@ -39,7 +31,9 @@ function print_power()
 			echo -e '\e[1;31m '$pow' \e[m'
 		fi
 	elif [ "$mode" = "tmux" ]; then
-		if [ $pow -ge 80 ]; then
+        if [ $powersupply = "true" ]; then
+            echo "#[bg=colour002,fg=colour015, bold] ps $pow%"
+        elif [ $pow -ge 80 ]; then
 			echo "#[bg=colour002,fg=colour015, bold] $pow%"
 		elif [ $pow -ge 50 ]; then
 			echo "#[bg=colour111,fg=colour117, bold] $pow%"
@@ -71,8 +65,13 @@ function macbook_power_ioreg()
 function macbook_power_pmset()
 {
 	if [ -x "`which pmset 2> /dev/null`" ]; then
-		local percentage=$(pmset -g ps | grep -o '[0-9]\+%' | tr -d '%')
-		print_power $percentage
+        local psinfo=$(pmset -g ps)
+		local percentage=$(echo $psinfo | grep -o '[0-9]\+%' | tr -d '%')
+		local powersupply=true
+        if [[ $psinfo =~ "discharging" ]]; then
+            powersupply=false
+        fi
+		print_power $percentage $powersupply
 	fi
 }
 
@@ -88,9 +87,15 @@ function macbook_power()
 	echo $percentage
 }
 
+while getopts f:h OPT;
+do
+	case $OPT in
+		"f") mode=${OPTARG} ;;
+		"h") usage ${bname}; exit;;
+	esac
+done
 
 case ${OSTYPE} in
 	cygwin|linux*) ;;
 	darwin*) macbook_power -pm;;
 esac
-
