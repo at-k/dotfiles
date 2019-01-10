@@ -71,7 +71,7 @@ function switch_profile()
       local alias=$(echo $prof_item | cut -d, -f3)
       local remain=$(echo $prof_item | cut -d, -f4)
 
-      if [ $remain = 'x' ]; then
+      if [ "$remain" = 'x' ]; then
         echo "session expired! select again"
         sleep 1
         login_via_onelogin $hist_file
