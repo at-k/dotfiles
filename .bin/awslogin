@@ -72,9 +72,8 @@ function switch_profile()
       local remain=$(echo $prof_item | cut -d, -f4)
 
       if [ "$remain" = 'x' ]; then
-        echo "session expired! select again"
-        sleep 1
-        login_via_onelogin $hist_file
+        echo "session expired! relogin to $alias"
+        login_via_onelogin $hist_file $alias
         switch_profile $hist_file $prof_file 1
       else
         echo > $prof_file
@@ -124,7 +123,13 @@ function login_via_onelogin()
   unset AWS_DEFAULT_PROFILE
   unset AWS_PROFILE
 
-  local conf=$(grep "^\[" ~/.onelogin-aws.config | sed 's/\[\(.*\)\]/\1/'|peco)
+  local conf=""
+  if [ $# = 2 ]; then
+    conf=$2
+  else
+    conf=$(grep "^\[" ~/.onelogin-aws.config | sed 's/\[\(.*\)\]/\1/'|peco)
+  fi
+
   if [ "$conf" = "" ]; then
     echo "error: get conf"
     exit 1
