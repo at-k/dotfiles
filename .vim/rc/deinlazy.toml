@@ -119,6 +119,14 @@ repo = 'lmeijvogel/vim-yaml-helper'
 on_ft = ['yaml']
 
 [[plugins]]
+repo = 'hashivim/vim-terraform'
+on_ft = ['tf']
+hook_source = '''
+    let g:terraform_align=1
+    let g:terraform_fmt_on_save=1
+'''
+
+[[plugins]]
 repo = 'davidhalter/jedi-vim'
 on_ft = ['python', 'python3', 'djangohtml']
 hook_source = '''

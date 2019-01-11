@@ -333,6 +333,8 @@ function envk () {
 	fi
 
 	export KPROMPT_AVAILABLE=1
+    # for helm-secret (issue:https://github.com/futuresimple/helm-secrets/issues/71)
+    export PATH="/usr/local/Cellar/gnu-getopt/1.1.6/bin":$PATH
 	alias k='kubectl'
 	alias kns='(){ k config set-context $(kubectl config current-context) --namespace=$1}'
 	compdef k=kubectl

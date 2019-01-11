@@ -60,3 +60,5 @@
 	textconv = ansible-vault view
 [init]
 	templatedir = ~/.git_template
+[diff "sopsdiffer"]
+	textconv = sops -d
