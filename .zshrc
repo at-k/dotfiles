@@ -331,6 +331,9 @@ function envk () {
 	if [ -x "`which minikube 2> /dev/null `" ]; then
 		source <(minikube completion zsh)
 	fi
+	if [ -x "`which eksctl 2> /dev/null `" ]; then
+        eksctl completion zsh > ~/.config/zcompl/_eksctl
+	fi
 
 	export KPROMPT_AVAILABLE=1
     # for helm-secret (issue:https://github.com/futuresimple/helm-secrets/issues/71)

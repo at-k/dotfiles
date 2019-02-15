@@ -19,6 +19,7 @@
     dt = difftool
     pr = "!sh -c 'git fetch upstream refs/pull/$1/head:pr/$1/head && git checkout pr/$1/head' -"
     sync-upstream = !git fetch upstream && git checkout master && git merge upstream/master
+    sync-upstreamd = !git fetch upstream && git checkout develop && git merge upstream/develop
     ls-unmerged = branch --list --no-merged
     ls-merged = branch --merged
     rm-merged = !git branch --merged | grep -v \\* | xargs -I % git branch -d %
