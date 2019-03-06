@@ -110,6 +110,11 @@ do
 	esac
 done
 
+if [ "$ANYENV_ENABLE" != "true" ]; then
+    echo "enva is disable"
+    exit
+fi
+
 if [ ! -x "`which ${lshost} 2> /dev/null`" ]; then
 	echo "error: ${lshost} not found" >&2
 	exit 1

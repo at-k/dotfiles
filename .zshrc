@@ -274,6 +274,12 @@ if [ -d ~/.anyenv ]; then
             export PATH="$HOME/go/bin:$PATH"
         fi
         export ANYENV_ENABLE=true
+
+        if [ -x "`which terraform 2> /dev/null `" ]; then
+            autoload -U +X bashcompinit && bashcompinit
+            complete -o nospace -C /usr/local/Cellar/terraform/0.11.11/bin/terraform terraform
+            alias tplan="terraform plan | landscape"
+        fi
     }
 else
 	# for python
@@ -373,3 +379,5 @@ if [ "$ZSH_PROFILE_MODE" ]; then
 	  zprof
 	fi
 fi
+
+
