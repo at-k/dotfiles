@@ -76,6 +76,9 @@ repo = 'Shougo/vimshell'
 repo = 'sheerun/vim-wombat-scheme'
 
 [[plugins]]
+repo = 'vim-scripts/wombat256.vim'
+
+[[plugins]]
 repo = 'b4b4r07/solarized.vim'
 
 [[plugins]]
