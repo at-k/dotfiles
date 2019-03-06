@@ -22,8 +22,9 @@ case ${TERM} in
 esac
 
 # -- Plugin
-if [ -d ~/.zplug ]; then
-	source ~/.zplug/init.zsh
+export ZPLUG_HOME=/usr/local/opt/zplug
+if [ -d $ZPLUG_HOME ]; then
+    source $ZPLUG_HOME/init.zsh
 
 	zplug "zsh-users/zsh-completions"  # completion for other command, e.g. git
 	zplug "zsh-users/zsh-syntax-highlighting", defer:3 # enable color cli
@@ -358,8 +359,8 @@ function __set_kube_prompt () {
 }
 
 function __set_aws_prompt () {
-	local mode=$(awslogin -p)
-	AWS_PROMPT="%F{magenta}${mode}"
+#	local mode=$(awslogin -p)
+#	AWS_PROMPT="%F{magenta}${mode}"
 }
 
 function __set_xenv_prompt() {
