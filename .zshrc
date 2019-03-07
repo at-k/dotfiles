@@ -152,7 +152,8 @@ zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
 zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin
 
 # -- Alias
-alias ls='lscolor'
+#alias ls='lscolor'
+alias ls='ls -G'
 alias la='ls -la'
 alias ll='ls -l'
 alias cp='cp -i'
@@ -359,8 +360,8 @@ function __set_kube_prompt () {
 }
 
 function __set_aws_prompt () {
-#	local mode=$(awslogin -p)
-#	AWS_PROMPT="%F{magenta}${mode}"
+	local mode=$(awslogin -p)
+	AWS_PROMPT="%F{magenta}${mode}"
 }
 
 function __set_xenv_prompt() {
