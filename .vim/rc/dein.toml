@@ -6,6 +6,9 @@ repo = 'Shougo/dein.vim'
 #repo = 'osyo-manga/vim-precious'
 #depends = ['context_filetype.vim']
 
+[[plugins]]
+repo = 'vim-scripts/DirDiff.vim'
+
 [[plugins]] # カーソル位置のコンテキストのftを判定するライブラリ
 repo = 'Shougo/context_filetype.vim'
 
