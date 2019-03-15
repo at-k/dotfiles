@@ -373,6 +373,10 @@ nnoremap <silent> [unite]m	 :Unite mark<CR>
 nnoremap <silent> [unite]i	 :Unite colorscheme -auto-preview<CR>
 nnoremap <silent> [winr]     :WinResizerStartResize<CR>
 
+map sa <Plug>(operator-surround-append)
+map sd <Plug>(operator-surround-delete)
+map sr <Plug>(operator-surround-replace)
+
 " <F6>  inserting date
 nnoremap ,tl <ESC>i<C-R>=strftime("%Y/%m/%d (%a) %H:%M")<CR>
 nnoremap ,ts <ESC>i<C-R>=strftime("%y%m%d")<CR>
