@@ -274,6 +274,7 @@ if [ -d ~/.anyenv ]; then
 
         if [ -d ~/go/bin ]; then
             export PATH="$HOME/go/bin:$PATH"
+            export GOPATH=$HOME/go
         fi
         export ANYENV_ENABLE=true
 
