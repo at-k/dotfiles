@@ -348,13 +348,16 @@ function envk () {
     # for helm-secret (issue:https://github.com/futuresimple/helm-secrets/issues/71)
     export PATH="/usr/local/Cellar/gnu-getopt/1.1.6/bin":$PATH
 	alias k='kubectl'
-	alias kns='(){ k config set-context $(kubectl config current-context) --namespace=$1}'
+    alias kc='kubectx'
+    alias kn='kubens'
 	compdef k=kubectl
+	compdef kc=kubectx
+	compdef kn=kubens
 }
 
 function __set_kube_prompt () {
 	local context=$(kubectl config current-context 2> /dev/null)
-	local namespace=$(kubectl config view | grep namespace: | cut -d: -f2 | tr -d ' ' 2> /dev/null)
+    local namespace=$(kubectl config view | yq -r '.contexts[] | select( .name | test("'$context'")) | .context.namespace')
 
 	KUBE_PROMPT="%F{green}${context}:%f%F{red}${namespace}%f"
 	#PROMPT="%F{magenta}${context}:${namespace} "$PROMPT
