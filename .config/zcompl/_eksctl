@@ -17,6 +17,12 @@ case $state in
   ;;
   level2)
     case $words[2] in
+      utils)
+        _arguments '2: :(describe-stacks update-cluster-stack wait-nodes write-kubeconfig)'
+      ;;
+      completion)
+        _arguments '2: :(bash zsh)'
+      ;;
       create)
         _arguments '2: :(cluster nodegroup)'
       ;;
@@ -28,12 +34,6 @@ case $state in
       ;;
       scale)
         _arguments '2: :(nodegroup)'
-      ;;
-      utils)
-        _arguments '2: :(describe-stacks update-cluster-stack wait-nodes write-kubeconfig)'
-      ;;
-      completion)
-        _arguments '2: :(bash zsh)'
       ;;
       *)
         _arguments '*: :_files'

@@ -161,6 +161,7 @@ autocmd BufWritePre * call <SID>remove_dust()
 augroup FtType
   autocmd!
   autocmd BufRead,BufNewFile *.toml setfiletype conf
+  autocmd BufRead,BufNewFile *.yaml.gotmpl setfiletype yaml
 augroup END
 
 "-------------------------------------------------
