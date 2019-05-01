@@ -257,6 +257,9 @@ function cmd_exists() {
 }
 
 # xenv
+if [ -d ~/go/bin ]; then
+    export PATH="$HOME/go/bin:$PATH"
+fi
 if [ -d ~/.anyenv ]; then
     export ANYENV_ENABLE=false
     function enva() {
@@ -273,7 +276,6 @@ if [ -d ~/.anyenv ]; then
         fi
 
         if [ -d ~/go/bin ]; then
-            export PATH="$HOME/go/bin:$PATH"
             export GOPATH=$HOME/go
         fi
         export ANYENV_ENABLE=true
