@@ -93,7 +93,37 @@ else
 fi
 
 # -- Key Bind
-bindkey -e  # -e for Emacs style or -v for vim style
+#bindkey -e  # -e for Emacs style or -v for vim style
+bindkey -v  # -e for Emacs style or -v for vim style
+bindkey -M viins '\er' history-incremental-pattern-search-forward
+bindkey -M viins '^?'  backward-delete-char
+bindkey -M viins '^A'  beginning-of-line
+bindkey -M viins '^B'  backward-char
+bindkey -M viins '^D'  delete-char-or-list
+bindkey -M viins '^E'  end-of-line
+bindkey -M viins '^F'  forward-char
+bindkey -M viins '^G'  send-break
+bindkey -M viins '^H'  backward-delete-char
+bindkey -M viins '^K'  kill-line
+bindkey -M viins '^N'  down-line-or-history
+bindkey -M viins '^P'  up-line-or-history
+bindkey -M viins '^R'  history-incremental-pattern-search-backward
+bindkey -M viins '^U'  backward-kill-line
+bindkey -M viins '^W'  backward-kill-word
+bindkey -M viins '^Y'  yank
+
+function zle-line-init zle-keymap-select {
+#    VIM_NORMAL="%K{208}%F{black}⮀%k%f%K{208}%F{white} % NORMAL %k%f%K{black}%F{208}⮀%k%f"
+#    VIM_INSERT="%K{075}%F{black}⮀%k%f%K{075}%F{white} % INSERT %k%f%K{black}%F{075}⮀%k%f"
+#    RPS1="${${KEYMAP/vicmd/$VIM_NORMAL}/(main|viins)/$VIM_INSERT}"
+#    RPS2=$RPS1
+    zle reset-prompt
+}
+zle -N zle-line-init
+zle -N zle-keymap-select
+#SPACESHIP_VI_MODE_INSERT="%K{075}%F{black}⮀%k%f%K{075}%F{white} % INSERT %k%f%K{black}%F{075}⮀%k%f"
+SPACESHIP_VI_MODE_INSERT="%K{118}%F{white}% [I]%k%f"
+SPACESHIP_VI_MODE_NORMAL="%K{075}%F{white}% [N]%k%f"
 
 # -- History
 HISTSIZE=10000
@@ -206,7 +236,12 @@ function alogin() {
 }
 
 # delimiter definition to split words
-export WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
+# export WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
+
+autoload -Uz select-word-style
+select-word-style default
+zstyle ':zle:*' word-chars " _-./;@"
+zstyle ':zle:*' word-style unspecified
 
 alias bk='cd $OLDPWD'
 s() { pwd > ~/.save_dir ; }
