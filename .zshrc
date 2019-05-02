@@ -30,7 +30,8 @@ if [ -d $ZPLUG_HOME ]; then
 	zplug "zsh-users/zsh-syntax-highlighting", defer:3 # enable color cli
 
 	zplug "mafredri/zsh-async", from:github
-	zplug "sindresorhus/pure", use:pure.zsh, from:github, as:theme
+	# zplug "sindresorhus/pure", use:pure.zsh, from:github, as:theme
+    zplug denysdovhan/spaceship-prompt, use:spaceship.zsh, from:github, as:theme
 
 	zplug "greymd/tmux-xpanes"
 
@@ -45,6 +46,10 @@ local number_of_jobs="%(1j.[%j] .)%"
 #PURE_PROMPT_SYMBOL='>'
 PROMPT="${number_of_jobs} $PROMPT"
 PURE_GIT_UNTRACKED_DIRTY=0
+
+# -- setting for spaceship-prompt
+SPACESHIP_PROMPT_ORDER=(user host dir git kubecontext node exec_time line_sep jobs vi_mode exit_code char)
+SPACESHIP_KUBECONTEXT_SHOW=false
 
 if [ -x "`which vboxmanage 2> /dev/null `" ]; then
 	compdef vboxmanage=VBoxManage  # completion for vboxmanage
@@ -321,15 +326,16 @@ fi
 add-zsh-hook precmd __set_context_prompt
 setopt transientrprompt
 function __set_context_prompt() {
-	if [ "$KPROMPT_AVAILABLE" = 1 ]; then
-		__set_kube_prompt
-	fi
+#	if [ "$KPROMPT_AVAILABLE" = 1 ]; then
+#		__set_kube_prompt
+#	fi
 	__set_aws_prompt
     __set_xenv_prompt
 	RPROMPT="$XENV_PROMPT $AWS_PROMPT $KUBE_PROMPT"
 }
 
 function envk () {
+    SPACESHIP_KUBECONTEXT_SHOW=true
 	if [ -x "`which stern 2> /dev/null `" ]; then
 		source <(stern --completion=zsh)
 	fi
@@ -355,6 +361,9 @@ function envk () {
 	compdef k=kubectl
 	compdef kc=kubectx
 	compdef kn=kubens
+}
+function envk-off () {
+    SPACESHIP_KUBECONTEXT_SHOW=false
 }
 
 function __set_kube_prompt () {
