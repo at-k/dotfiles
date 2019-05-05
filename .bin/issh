@@ -22,7 +22,7 @@ function single_ssh()
 	local tgt_server=${1:-""}
 	local cmd=${2:-""}
 	local instid=$(echo ${tgt_server} | cut -d"," -f 1 | sed 's/ *//g')
-	local ipaddr=$(echo ${tgt_server} | cut -d"," -f 4 | sed 's/ *//g')
+	local ipaddr=$(echo ${tgt_server} | cut -d"," -f 5 | sed 's/ *//g')
 	# local role=$(echo ${tgt_server} | cut -d"," -f 3 | sed 's/ *//g')
 	# local stage=$(echo ${tgt_server} | cut -d"," -f 6 | sed 's/ *//g')
 
@@ -63,7 +63,7 @@ function multi_ssh()
 	fi
 
 	for tgt_server in ${tgt_servers}; do
-		ip_list=${ip_list}" "$(echo ${tgt_server} | cut -d"," -f 4 | sed 's/ *//g')
+		ip_list=${ip_list}" "$(echo ${tgt_server} | cut -d"," -f 5 | sed 's/ *//g')
 	done
 
 	default_shell=$(tmux show-options -g default-shell | cut -d' ' -f2 | tr -d \")
@@ -105,7 +105,7 @@ do
 		"l") hist=1;;
 		"f") update=1;;
 		"n") nossh=1;;
-		"t") sort_key=9;;
+		"t") sort_key=2;;
 		"h") usage ${bname}; exit;;
 		"*") usage ${bname}; exit;;
 	esac
