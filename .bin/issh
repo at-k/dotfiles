@@ -1,6 +1,6 @@
 #!/bin/zsh
 #
-# issh: wrapper for lshost providing interactive ssh
+# issh: wrapper for lshost providing interactive ssh and caching
 #
 
 #set -xeu
