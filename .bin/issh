@@ -22,9 +22,9 @@ function single_ssh()
 	local tgt_server=${1:-""}
 	local cmd=${2:-""}
 	local instid=$(echo ${tgt_server} | cut -d"," -f 1 | sed 's/ *//g')
-	local role=$(echo ${tgt_server} | cut -d"," -f 3 | sed 's/ *//g')
 	local ipaddr=$(echo ${tgt_server} | cut -d"," -f 4 | sed 's/ *//g')
-	local stage=$(echo ${tgt_server} | cut -d"," -f 6 | sed 's/ *//g')
+	# local role=$(echo ${tgt_server} | cut -d"," -f 3 | sed 's/ *//g')
+	# local stage=$(echo ${tgt_server} | cut -d"," -f 6 | sed 's/ *//g')
 
 	if [ "${ipaddr}" != "" ]; then
 		echo "** [${bname}] target: ${tgt_server}"
@@ -32,8 +32,8 @@ function single_ssh()
 		sed -i '' '/^"${instid}"/d' $hfile
 		echo ${tgt_server} >> $hfile
 
-		sed -i '' "s/AWS_ROLE_NAME=.*$/AWS_ROLE_NAME="${role}"/" ${envfile}
-		sed -i '' "s/AWS_STAGE_NAME=.*$/AWS_STAGE_NAME="${stage}"/" ${envfile}
+		# sed -i '' "s/AWS_ROLE_NAME=.*$/AWS_ROLE_NAME="${role}"/" ${envfile}
+		# sed -i '' "s/AWS_STAGE_NAME=.*$/AWS_STAGE_NAME="${stage}"/" ${envfile}
 
 		if [ `wc -l < $hfile` -gt $histsize ]; then
 			sed -i '' '1d' $hfile
@@ -72,7 +72,7 @@ function multi_ssh()
 	tmux set -g default-shell   /bin/bash
 	tmux set -g default-command /bin/bash
 
-	echo $ip_list | xpanes -c "ssh {} -t '$cmd'"
+	echo $ip_list | xpanes -c "sshrc {} -t '$cmd'"
 
 	tmux set -g default-shell   ${default_shell}
 	tmux set -g default-command ${default_cmd}
