@@ -17,7 +17,7 @@ function usage()
 
 update=0
 bname=`basename $0`
-lshost=lshost
+lshost="lsa ec2 list"
 
 while getopts :uh OPT;
 do

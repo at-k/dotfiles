@@ -93,6 +93,7 @@ cmd=
 sort_key=3
 
 lshost=lsaws
+#lshost=lsa
 
 while getopts r:s:p:c:lfnth OPT;
 do
@@ -110,10 +111,10 @@ do
 	esac
 done
 
-if [ "$ANYENV_ENABLE" != "true" ]; then
-    echo "enva is disable"
-    exit
-fi
+#if [ "$ANYENV_ENABLE" != "true" ]; then
+#    echo "enva is disable"
+#    exit
+#fi
 
 if [ ! -x "`which ${lshost} 2> /dev/null`" ]; then
 	echo "error: ${lshost} not found" >&2
@@ -125,15 +126,17 @@ if [ ! -x "`which peco 2> /dev/null`" ]; then
 	exit 1
 fi
 
-if [ ! -z ${role} ]; then filter=${filter}" Role:${role}"; fi
-if [ ! -z ${stage} ]; then filter=${filter}" Stage:${stage}"; fi
-if [ ! -z ${proj} ]; then filter=${filter}" Project:${proj}"; fi
+if [ ! -z ${role} ]; then filter=${filter}" --role=${role}"; fi
+if [ ! -z ${stage} ]; then filter=${filter}" --stage=${stage}"; fi
+if [ ! -z ${proj} ]; then filter=${filter}" --project=${proj}"; fi
 
 if [ $hist = 0 ]; then
 	if [ $update = 1 ]; then
-		tgt_server=$(${lshost} -u -l ${filter} | sort -t, -k${sort_key} | peco)
+		# tgt_server=$(${lshost} -u -l ${filter} | sort -t, -k${sort_key} | peco)
+		tgt_server=$(${lshost} -u ${filter} | sort -t, -k${sort_key} | peco)
 	else
-		tgt_server=$(${lshost} -l ${filter} | sort -t, -k${sort_key} | peco)
+		# tgt_server=$(${lshost} -l ${filter} | sort -t, -k${sort_key} | peco)
+		tgt_server=$(${lshost} ${filter} | sort -t, -k${sort_key} | peco)
 	fi
 else
 	tgt_server=$(cat $hfile | sort -t, -k${sort_key} | peco)
