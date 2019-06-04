@@ -45,3 +45,5 @@ alias ue='cd ../'
 alias psa='ps auxf'
 
 complete -C /usr/local/Cellar/terraform/0.11.11/bin/terraform terraform
+
+complete -C /usr/local/Cellar/terraform/0.11.13/bin/terraform terraform

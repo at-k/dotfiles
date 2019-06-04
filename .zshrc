@@ -465,3 +465,6 @@ if [ "$ZSH_PROFILE_MODE" ]; then
 fi
 
 
+
+autoload -U +X bashcompinit && bashcompinit
+complete -o nospace -C /usr/local/Cellar/terraform/0.11.13/bin/terraform terraform
