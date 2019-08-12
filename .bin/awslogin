@@ -127,35 +127,33 @@ function login_via_onelogin()
   if [ $# = 2 ]; then
     conf=$2
   else
-    conf=$(grep "^\[" ~/.onelogin-aws.config | sed 's/\[\(.*\)\]/\1/'|peco)
+    #conf=$(grep "^\[" ~/.onelogin-aws.config | sed 's/\[\(.*\)\]/\1/'|peco)
+    conf=$(grep "^\[" ~/.saml2aws | sed 's/\[\(.*\)\]/\1/'|peco)
   fi
 
   if [ "$conf" = "" ]; then
     echo "error: get conf"
     exit 1
   fi
-  local duration=$(grep -A6 $conf ~/.onelogin-aws.config | grep duration | head -1 | awk -F'=' '{print $2}')
+  # local duration=$(grep -A6 $conf ~/.onelogin-aws.config | grep duration | head -1 | awk -F'=' '{print $2}')
+  local duration=$(grep -A10 "\[$conf\]" ~/.saml2aws | grep duration | head -1 | awk -F'=' '{print $2}')
+  local profile=$(grep -A10 "\[$conf\]" ~/.saml2aws | grep aws_profile | head -1 | awk -F'=' '{print $2}')
 
-  local output=$(onelogin-aws-login -C $conf | tee /dev/stderr)
-  local check=$(echo $output | grep "profile")
-  if [ "$check" = "" ]; then
+  echo $duration
+  echo $profile
+
+  #local output=$(onelogin-aws-login -C $conf | tee /dev/stderr)
+  saml2aws login --skip-prompt -a ${conf}
+  if [ $? -ne 0 ]; then
     echo "error: fail to login"
     exit 1
   fi
 
-  local profile=$(echo $output | sed 's/^.*profile \(.*\)$/\1/' | sed 's///')
-  local rolename=$(echo $profile | cut -d/ -f2)
+  # local maxduration=$(aws iam get-role --profile $profile --role-name $rolename  | jq -r '.Role.MaxSessionDuration')
+  local expire_time=$(echo $(date +%s) + $duration | bc)
 
-  if [ "$profile" != "" -a "$rolename" != "" ]; then
-    # local maxduration=$(aws iam get-role --profile $profile --role-name $rolename  | jq -r '.Role.MaxSessionDuration')
-    local expire_time=$(echo $(date +%s) + $duration | bc)
-
-    sed "/$conf/d" $histfile > /tmp/awslogin_tmp && mv /tmp/awslogin_tmp $histfile
-    echo ${profile},${expire_time},$conf >> $histfile
-  else
-    echo "error: login error"
-    exit 1
-  fi
+  sed "/$conf/d" $histfile > /tmp/awslogin_tmp && mv /tmp/awslogin_tmp $histfile
+  echo ${profile},${expire_time},$conf >> $histfile
 }
 
 function use_iam()
