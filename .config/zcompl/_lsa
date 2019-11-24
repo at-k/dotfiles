@@ -1,0 +1,64 @@
+#compdef _lsa lsa
+
+function _lsa() {
+    _arguments -C \
+        "-h[Show help information]" \
+        "--h[Show help information]" \
+        "1: :(ec2 asg r53)" \
+        "*::arg:->args"
+
+    case $line[1] in
+        ec2)
+            _lsa_ec2
+        ;;
+        asg)
+            _lsa_asg
+        ;;
+        r53)
+            _lsa_r53
+        ;;
+    esac
+}
+
+function _lsa_ec2 {
+    _arguments -C \
+        "1: :(fetch list)" \
+        "*::arg:->args"
+
+    case $line[1] in
+		list)
+            _lsa_ec2_list
+        ;;
+    esac
+}
+
+function _lsa_ec2_list {
+    _arguments -C \
+        "--project=[project name]: :($(cat ~/.cache/lsaws_ec2_tag_2e7ad577_p))" \
+        "--role=[role name]: :($(cat ~/.cache/lsaws_ec2_tag_2e7ad577_r))" \
+        "--stage=[stage name]: :($(cat ~/.cache/lsaws_ec2_tag_2e7ad577_s))"
+}
+
+function _lsa_asg {
+    _arguments -C \
+        "1: :(fetch list describe)" \
+        "*::arg:->args"
+}
+
+function _lsa_r53 {
+
+    _arguments -C \
+        "1: :(fetch list)" \
+        "*::arg:->args"
+
+    case $line[1] in
+		list)
+            _lsa_r53_list
+        ;;
+    esac
+}
+
+function _lsa_r53_list {
+    _arguments -C \
+        "--zone=[zone id]: :($(cat ~/.cache/lsaws_ec2_tag_2e7ad577_p))"
+}
