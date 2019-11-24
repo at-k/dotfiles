@@ -17,6 +17,9 @@ hook_source = '''
   let g:winresizer_horiz_resize=2
 '''
 
+[[plugins]]
+repo = 'vim-scripts/textutil.vim'
+on_ft = ['rtf']
 
 [[plugins]]
 repo = 'itchyny/lightline.vim'
@@ -127,7 +130,7 @@ on_ft = ['yaml']
 
 [[plugins]]
 repo = 'hashivim/vim-terraform'
-on_ft = ['tf']
+on_ft = ['tf','terraform']
 hook_source = '''
     let g:terraform_align=1
     " let g:terraform_fmt_on_save=1

@@ -44,12 +44,15 @@ fi
 local number_of_jobs="%(1j.[%j] .)%"
 
 #PURE_PROMPT_SYMBOL='>'
-PROMPT="${number_of_jobs} $PROMPT"
-PURE_GIT_UNTRACKED_DIRTY=0
+# PROMPT="${number_of_jobs} $PROMPT"
+# PURE_GIT_UNTRACKED_DIRTY=0
 
 # -- setting for spaceship-prompt
 SPACESHIP_PROMPT_ORDER=(user host dir git kubecontext node exec_time line_sep jobs vi_mode exit_code char)
 SPACESHIP_KUBECONTEXT_SHOW=false
+
+# -- starship prompt
+#eval "$(starship init zsh)"
 
 if [ -x "`which vboxmanage 2> /dev/null `" ]; then
 	compdef vboxmanage=VBoxManage  # completion for vboxmanage
@@ -321,8 +324,9 @@ if [ -d ~/.anyenv ]; then
         export ANYENV_ENABLE=true
 
         if [ -x "`which terraform 2> /dev/null `" ]; then
+
             autoload -U +X bashcompinit && bashcompinit
-            complete -o nospace -C /usr/local/Cellar/terraform/0.11.11/bin/terraform terraform
+            complete -o nospace -C /usr/local/Cellar/terraform/0.11.13/bin/terraform terraform
             alias tplan="terraform plan | landscape"
         fi
     }
@@ -466,5 +470,3 @@ fi
 
 
 
-autoload -U +X bashcompinit && bashcompinit
-complete -o nospace -C /usr/local/Cellar/terraform/0.11.13/bin/terraform terraform
