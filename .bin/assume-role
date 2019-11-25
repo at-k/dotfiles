@@ -1,0 +1,15 @@
+#!/bin/sh
+
+role=$1
+
+if [ -z "$role" ]; then
+    echo "role is empty"
+    exit 1
+fi
+
+tmp_credential=$(aws sts assume-role --role-arn $role --role-session-name "tmp-cred")
+
+
+export AWS_SESSION_TOKEN=$(echo ${tmp_credential} | jq -r '.Credentials.SessionToken')
+export AWS_SECRET_ACCESS_KEY=$(echo ${tmp_credential} | jq -r '.Credentials.SecretAccess
+export AWS_ACCESS_KEY_ID=$(echo ${tmp_credential} | jq -r '.Credentials.AccessKeyId')
