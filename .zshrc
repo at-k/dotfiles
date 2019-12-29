@@ -468,5 +468,3 @@ if [ "$ZSH_PROFILE_MODE" ]; then
 	fi
 fi
 
-
-
