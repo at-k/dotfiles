@@ -17,6 +17,12 @@ case $state in
   ;;
   level2)
     case $words[2] in
+      scale)
+        _arguments '2: :(nodegroup)'
+      ;;
+      drain)
+        _arguments '2: :(nodegroup)'
+      ;;
       utils)
         _arguments '2: :(wait-nodes write-kubeconfig describe-stacks update-cluster-stack update-kube-proxy update-aws-node update-coredns update-cluster-logging associate-iam-oidc-provider)'
       ;;
@@ -34,12 +40,6 @@ case $state in
       ;;
       delete)
         _arguments '2: :(cluster nodegroup iamserviceaccount iamidentitymapping)'
-      ;;
-      scale)
-        _arguments '2: :(nodegroup)'
-      ;;
-      drain)
-        _arguments '2: :(nodegroup)'
       ;;
       *)
         _arguments '*: :_files'

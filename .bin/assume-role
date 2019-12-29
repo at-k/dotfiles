@@ -11,5 +11,5 @@ tmp_credential=$(aws sts assume-role --role-arn $role --role-session-name "tmp-c
 
 
 export AWS_SESSION_TOKEN=$(echo ${tmp_credential} | jq -r '.Credentials.SessionToken')
-export AWS_SECRET_ACCESS_KEY=$(echo ${tmp_credential} | jq -r '.Credentials.SecretAccess
+export AWS_SECRET_ACCESS_KEY=$(echo ${tmp_credential} | jq -r '.Credentials.SecretAccessKey')
 export AWS_ACCESS_KEY_ID=$(echo ${tmp_credential} | jq -r '.Credentials.AccessKeyId')
