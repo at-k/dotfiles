@@ -27,11 +27,12 @@ if [ -d $ZPLUG_HOME ]; then
     source $ZPLUG_HOME/init.zsh
 
 	zplug "zsh-users/zsh-completions"  # completion for other command, e.g. git
+    zplug "zsh-users/zsh-autosuggestions"
 	zplug "zsh-users/zsh-syntax-highlighting", defer:3 # enable color cli
 
 	zplug "mafredri/zsh-async", from:github
 	# zplug "sindresorhus/pure", use:pure.zsh, from:github, as:theme
-    zplug denysdovhan/spaceship-prompt, use:spaceship.zsh, from:github, as:theme
+    # zplug denysdovhan/spaceship-prompt, use:spaceship.zsh, from:github, as:theme
 
 	zplug "greymd/tmux-xpanes"
 
@@ -48,11 +49,11 @@ local number_of_jobs="%(1j.[%j] .)%"
 # PURE_GIT_UNTRACKED_DIRTY=0
 
 # -- setting for spaceship-prompt
-SPACESHIP_PROMPT_ORDER=(user host dir git kubecontext node exec_time line_sep jobs vi_mode exit_code char)
-SPACESHIP_KUBECONTEXT_SHOW=false
+# SPACESHIP_PROMPT_ORDER=(user host dir git kubecontext node exec_time line_sep jobs vi_mode exit_code char)
+# SPACESHIP_KUBECONTEXT_SHOW=false
 
 # -- starship prompt
-#eval "$(starship init zsh)"
+eval "$(starship init zsh)"
 
 if [ -x "`which vboxmanage 2> /dev/null `" ]; then
 	compdef vboxmanage=VBoxManage  # completion for vboxmanage
@@ -125,18 +126,21 @@ function zle-line-init zle-keymap-select {
 zle -N zle-line-init
 zle -N zle-keymap-select
 #SPACESHIP_VI_MODE_INSERT="%K{075}%F{black}⮀%k%f%K{075}%F{white} % INSERT %k%f%K{black}%F{075}⮀%k%f"
-SPACESHIP_VI_MODE_INSERT="%K{118}%F{white}% [I]%k%f"
-SPACESHIP_VI_MODE_NORMAL="%K{075}%F{white}% [N]%k%f"
+# SPACESHIP_VI_MODE_INSERT="%K{118}%F{white}% [I]%k%f"
+# SPACESHIP_VI_MODE_NORMAL="%K{075}%F{white}% [N]%k%f"
 
 # -- History
-HISTSIZE=10000
-SAVEHIST=10000
+HISTSIZE=100000
+SAVEHIST=1000000
 HISTFILE=~/.zsh_history
 
 setopt histignorealldups    # ignore duplicated command
 setopt sharehistory         # share history with different terminal
 setopt appendhistory        # share and append history from different zsh instance
 setopt no_flow_control      # disable flow control to use C-s key stroke for fwd-i-search
+setopt hist_reduce_blanks
+setopt inc_append_history
+setopt hist_verify
 
 # historical backward/forward search. e.g. try `C-p` after typing `ls`
 autoload -Uz history-search-end
