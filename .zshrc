@@ -21,7 +21,7 @@ case ${TERM} in
 		export TERM=xterm-256color;;
 esac
 
-# -- Plugin
+# -- zplug
 #export ZPLUG_HOME=/usr/local/opt/zplug
 #if [ -d $ZPLUG_HOME ]; then
 #    source $ZPLUG_HOME/init.zsh
@@ -51,21 +51,20 @@ fi
 (( ${+_comps} )) && _comps[zplugin]=_zplugin
 
 zplugin light zsh-users/zsh-autosuggestions
+# zplugin ice wait'1' lucid atinit"ZPLGM[COMPINIT_OPTS]=-C; zpcompinit; zpcdreplay"
 zplugin light zdharma/fast-syntax-highlighting
 zplugin light zsh-users/zsh-completions
 zplugin light greymd/tmux-xpanes
 zplugin light mafredri/zsh-async
 
-autoload -U compinit
-compinit
-
-# zplugin --
+zpcompinit
+zpcdreplay
 
 # -- setting for pure
-#local number_of_jobs="%(1j.%F{208} / %f%F{226}%B%j%b%f.)"
-local number_of_jobs="%(1j.[%j] .)%"
+# local number_of_jobs="%(1j.%F{208} / %f%F{226}%B%j%b%f.)"
+# local number_of_jobs="%(1j.[%j] .)%"
 
-#PURE_PROMPT_SYMBOL='>'
+# PURE_PROMPT_SYMBOL='>'
 # PROMPT="${number_of_jobs} $PROMPT"
 # PURE_GIT_UNTRACKED_DIRTY=0
 
