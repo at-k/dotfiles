@@ -22,23 +22,44 @@ case ${TERM} in
 esac
 
 # -- Plugin
-export ZPLUG_HOME=/usr/local/opt/zplug
-if [ -d $ZPLUG_HOME ]; then
-    source $ZPLUG_HOME/init.zsh
+#export ZPLUG_HOME=/usr/local/opt/zplug
+#if [ -d $ZPLUG_HOME ]; then
+#    source $ZPLUG_HOME/init.zsh
+#
+#	zplug "zsh-users/zsh-completions"  # completion for other command, e.g. git
+#    zplug "zsh-users/zsh-autosuggestions"
+#	zplug "zsh-users/zsh-syntax-highlighting", defer:3 # enable color cli
+#
+#	zplug "mafredri/zsh-async", from:github
+#	# zplug "sindresorhus/pure", use:pure.zsh, from:github, as:theme
+#    # zplug denysdovhan/spaceship-prompt, use:spaceship.zsh, from:github, as:theme
+#
+#	zplug "greymd/tmux-xpanes"
+#
+#	#zplug load --verbose
+#	zplug load
+#fi
 
-	zplug "zsh-users/zsh-completions"  # completion for other command, e.g. git
-    zplug "zsh-users/zsh-autosuggestions"
-	zplug "zsh-users/zsh-syntax-highlighting", defer:3 # enable color cli
+# -- zplugin
+source $HOME/.zplugin/bin/zplugin.zsh
+autoload -Uz _zplugin
 
-	zplug "mafredri/zsh-async", from:github
-	# zplug "sindresorhus/pure", use:pure.zsh, from:github, as:theme
-    # zplug denysdovhan/spaceship-prompt, use:spaceship.zsh, from:github, as:theme
-
-	zplug "greymd/tmux-xpanes"
-
-	#zplug load --verbose
-	zplug load
+if [[ ! -f ${HOME}/.zplugin/bin/zplugin.zsh.zwc ]]; then
+    zplugin self-update
 fi
+
+(( ${+_comps} )) && _comps[zplugin]=_zplugin
+
+zplugin light zsh-users/zsh-autosuggestions
+zplugin light zdharma/fast-syntax-highlighting
+zplugin light zsh-users/zsh-completions
+zplugin light greymd/tmux-xpanes
+zplugin light mafredri/zsh-async
+
+autoload -U compinit
+compinit
+
+# zplugin --
 
 # -- setting for pure
 #local number_of_jobs="%(1j.%F{208} / %f%F{226}%B%j%b%f.)"
