@@ -428,7 +428,11 @@ function envk () {
 	# fi
 	if [ -x "`which eksctl 2> /dev/null `" ]; then
         eksctl completion zsh > ~/.config/zcompl/_eksctl
-	fi
+    fi
+
+    if [ -f ~/.config/zsh/kubectlrc ]; then
+        source ~/.config/zsh/kubectlrc
+    fi
 
 	export KPROMPT_AVAILABLE=1
     # for helm-secret (issue:https://github.com/futuresimple/helm-secrets/issues/71)
