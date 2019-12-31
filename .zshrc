@@ -404,9 +404,9 @@ fi
 add-zsh-hook precmd __set_context_prompt
 setopt transientrprompt
 function __set_context_prompt() {
-#	if [ "$KPROMPT_AVAILABLE" = 1 ]; then
-#		__set_kube_prompt
-#	fi
+	if [ "$KPROMPT_AVAILABLE" = 1 ]; then
+		__set_kube_prompt
+	fi
 	__set_aws_prompt
     __set_xenv_prompt
 	RPROMPT="$XENV_PROMPT $AWS_PROMPT $KUBE_PROMPT"
@@ -448,10 +448,11 @@ function envk-off () {
 }
 
 function __set_kube_prompt () {
-	local context=$(kubectl config current-context 2> /dev/null)
-    local namespace=$(kubectl config view | yq -r '.contexts[] | select( .name | test("'$context'")) | .context.namespace')
+	# local context=$(kubectl config current-context 2> /dev/null)
+    # local namespace=$(kubectl config view | yq -r '.contexts[] | select( .name | test("'$context'")) | .context.namespace')
 
-	KUBE_PROMPT="%F{green}${context}:%f%F{red}${namespace}%f"
+	# KUBE_PROMPT="%F{green}${context}:%f%F{red}${namespace}%f"
+    KUBE_PROMPT="%F{green}k8s"
 	#PROMPT="%F{magenta}${context}:${namespace} "$PROMPT
 }
 
