@@ -50,11 +50,18 @@ fi
 
 (( ${+_comps} )) && _comps[zplugin]=_zplugin
 
-zplugin light zsh-users/zsh-autosuggestions
-# zplugin ice wait'1' lucid atinit"ZPLGM[COMPINIT_OPTS]=-C; zpcompinit; zpcdreplay"
-zplugin light zdharma/fast-syntax-highlighting
-zplugin light zsh-users/zsh-completions
 zplugin light greymd/tmux-xpanes
+
+zplugin ice wait'0c' lucid atload'_zsh_autosuggest_start'
+zplugin light zsh-users/zsh-autosuggestions
+
+zplugin ice wait'1' lucid atinit"ZPLGM[COMPINIT_OPTS]=-C; zpcompinit; zpcdreplay"
+zplugin light zdharma/fast-syntax-highlighting
+
+zplugin ice wait'1' lucid
+zplugin light zsh-users/zsh-completions
+
+zplugin ice wait lucid
 zplugin light mafredri/zsh-async
 
 zpcompinit
