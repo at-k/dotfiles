@@ -50,6 +50,8 @@ fi
 
 (( ${+_comps} )) && _comps[zplugin]=_zplugin
 
+zplugin light romkatv/zsh-defer
+
 zplugin light greymd/tmux-xpanes
 
 zplugin ice wait'0c' lucid atload'_zsh_autosuggest_start'

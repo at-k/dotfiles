@@ -1,0 +1,37 @@
+prompt_order = [
+    "username",
+    "hostname",
+    "directory",
+    "git_branch",
+    "git_state",
+    "git_status",
+    "package",
+    "dotnet",
+    "golang",
+    "java",
+    "nodejs",
+    "python",
+    "ruby",
+    "rust",
+    "nix_shell",
+    "conda",
+    "memory_usage",
+    "kubernetes",
+    # "aws",
+    "env_var",
+    "cmd_duration",
+    "line_break",
+    "jobs",
+    "battery",
+    "time",
+    "character",
+]
+[character]
+symbol = "➜"
+error_symbol = "✗"
+use_symbol_for_status = true
+
+[kubernetes]
+symbol = "⛵ "
+style = "dim green"
+disabled = false
