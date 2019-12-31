@@ -101,11 +101,11 @@ fpath=($HOME/.config/zcompl(N-/) $fpath)
 # --- Load OS specific setting
 case ${OSTYPE} in
 	cygwin)
-		source ~/.zshrc.linux;;
+		source ~/.config/zsh/zshrc.linux;;
 	linux*)
-		source ~/.zshrc.linux;;
+		source ~/.config/zsh/zshrc.linux;;
 	darwin*)
-		source ~/.zshrc.mac;;
+		source ~/.config/zsh/zshrc.mac;;
 	*)
 		echo "unknown OS type";;
 esac
