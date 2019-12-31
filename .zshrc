@@ -67,6 +67,9 @@ zplugin light zsh-users/zsh-completions
 zplugin ice wait lucid
 zplugin light mafredri/zsh-async
 
+zplugin ice pick'spaceship.zsh' wait'!0'
+zplugin light 'denysdovhan/spaceship-zsh-theme'
+
 ZPLGM[COMPINIT_OPTS]=-C; zpcompinit; zpcdreplay
 
 # -- setting for pure
@@ -78,11 +81,11 @@ ZPLGM[COMPINIT_OPTS]=-C; zpcompinit; zpcdreplay
 # PURE_GIT_UNTRACKED_DIRTY=0
 
 # -- setting for spaceship-prompt
-# SPACESHIP_PROMPT_ORDER=(user host dir git kubecontext node exec_time line_sep jobs vi_mode exit_code char)
-# SPACESHIP_KUBECONTEXT_SHOW=false
+SPACESHIP_PROMPT_ORDER=(user host dir git kubecontext node exec_time line_sep jobs vi_mode exit_code char)
+SPACESHIP_KUBECONTEXT_SHOW=false
 
 # -- starship prompt
-eval "$(starship init zsh)"
+# eval "$(starship init zsh)"
 
 # -- completion
 if [ -x "`which vboxmanage 2> /dev/null `" ]; then
@@ -146,20 +149,20 @@ bindkey -M viins '^U'  backward-kill-line
 bindkey -M viins '^W'  backward-kill-word
 bindkey -M viins '^Y'  yank
 
-# setting for vim mode to show normal or insert -- starship support this feature
-##function zle-line-init zle-keymap-select {
-###    VIM_NORMAL="%K{208}%F{black}⮀%k%f%K{208}%F{white} % NORMAL %k%f%K{black}%F{208}⮀%k%f"
-###    VIM_INSERT="%K{075}%F{black}⮀%k%f%K{075}%F{white} % INSERT %k%f%K{black}%F{075}⮀%k%f"
-###    RPS1="${${KEYMAP/vicmd/$VIM_NORMAL}/(main|viins)/$VIM_INSERT}"
-###    RPS2=$RPS1
-##    zle reset-prompt
-##}
-##zle -N zle-line-init
-##zle -N zle-keymap-select
+# setting for vim mode to show normal or insert for spaceship
+function zle-line-init zle-keymap-select {
+    # VIM_NORMAL="%K{208}%F{black}⮀%k%f%K{208}%F{white} % NORMAL %k%f%K{black}%F{208}⮀%k%f"
+    # VIM_INSERT="%K{075}%F{black}⮀%k%f%K{075}%F{white} % INSERT %k%f%K{black}%F{075}⮀%k%f"
+    # RPS1="${${KEYMAP/vicmd/$VIM_NORMAL}/(main|viins)/$VIM_INSERT}"
+    # RPS2=$RPS1
+    zle reset-prompt
+}
+zle -N zle-line-init
+zle -N zle-keymap-select
 
 #SPACESHIP_VI_MODE_INSERT="%K{075}%F{black}⮀%k%f%K{075}%F{white} % INSERT %k%f%K{black}%F{075}⮀%k%f"
-# SPACESHIP_VI_MODE_INSERT="%K{118}%F{white}% [I]%k%f"
-# SPACESHIP_VI_MODE_NORMAL="%K{075}%F{white}% [N]%k%f"
+SPACESHIP_VI_MODE_INSERT="%K{118}%F{white}% [I]%k%f"
+SPACESHIP_VI_MODE_NORMAL="%K{075}%F{white}% [N]%k%f"
 
 # -- History
 HISTSIZE=100000
@@ -410,7 +413,7 @@ function __set_context_prompt() {
 }
 
 function envk () {
-    # SPACESHIP_KUBECONTEXT_SHOW=true
+    SPACESHIP_KUBECONTEXT_SHOW=true
 	if [ -x "`which stern 2> /dev/null `" ]; then
 		source <(stern --completion=zsh)
 	fi
@@ -420,9 +423,9 @@ function envk () {
 	if [ -x "`which helm 2> /dev/null `" ]; then
 		source <(helm completion zsh)
 	fi
-	if [ -x "`which minikube 2> /dev/null `" ]; then
-		source <(minikube completion zsh)
-	fi
+	# if [ -x "`which minikube 2> /dev/null `" ]; then
+	# 	source <(minikube completion zsh)
+	# fi
 	if [ -x "`which eksctl 2> /dev/null `" ]; then
         eksctl completion zsh > ~/.config/zcompl/_eksctl
 	fi
@@ -437,6 +440,9 @@ function envk () {
 	compdef kc=kubectx
 	compdef kn=kubens
 }
+
+# zsh-defer -t 2 envk
+
 function envk-off () {
     SPACESHIP_KUBECONTEXT_SHOW=false
 }
