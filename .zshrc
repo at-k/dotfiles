@@ -57,7 +57,8 @@ zplugin light greymd/tmux-xpanes
 zplugin ice wait'0c' lucid atload'_zsh_autosuggest_start'
 zplugin light zsh-users/zsh-autosuggestions
 
-zplugin ice wait'1' lucid atinit"ZPLGM[COMPINIT_OPTS]=-C; zpcompinit; zpcdreplay"
+# zplugin ice wait'1' lucid atinit"ZPLGM[COMPINIT_OPTS]=-C; zpcompinit; zpcdreplay"
+zplugin ice wait'1' lucid
 zplugin light zdharma/fast-syntax-highlighting
 
 zplugin ice wait'1' lucid
@@ -66,8 +67,7 @@ zplugin light zsh-users/zsh-completions
 zplugin ice wait lucid
 zplugin light mafredri/zsh-async
 
-zpcompinit
-zpcdreplay
+ZPLGM[COMPINIT_OPTS]=-C; zpcompinit; zpcdreplay
 
 # -- setting for pure
 # local number_of_jobs="%(1j.%F{208} / %f%F{226}%B%j%b%f.)"
@@ -84,6 +84,7 @@ zpcdreplay
 # -- starship prompt
 eval "$(starship init zsh)"
 
+# -- completion
 if [ -x "`which vboxmanage 2> /dev/null `" ]; then
 	compdef vboxmanage=VBoxManage  # completion for vboxmanage
 fi
@@ -409,7 +410,7 @@ function __set_context_prompt() {
 }
 
 function envk () {
-    SPACESHIP_KUBECONTEXT_SHOW=true
+    # SPACESHIP_KUBECONTEXT_SHOW=true
 	if [ -x "`which stern 2> /dev/null `" ]; then
 		source <(stern --completion=zsh)
 	fi
