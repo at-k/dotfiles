@@ -6,28 +6,50 @@ repo = 'Shougo/dein.vim'
 #repo = 'osyo-manga/vim-precious'
 #depends = ['context_filetype.vim']
 
+# lsp related plugins --
+[[plugins]]
+repo = 'prabirshrestha/async.vim'
+
+[[plugins]]
+repo = 'prabirshrestha/asyncomplete.vim'
+
+[[plugins]]
+repo = 'prabirshrestha/asyncomplete-lsp.vim'
+
+[[plugins]]
+repo = 'prabirshrestha/vim-lsp'
+
+[[plugins]]
+repo = 'mattn/vim-lsp-settings'
+
+[[plugins]]
+repo = 'mattn/vim-lsp-icons'
+
+[[plugins]]
+repo = 'hrsh7th/vim-vsnip'
+
+[[plugins]]
+repo = 'hrsh7th/vim-vsnip-integ'
+# --
+
 [[plugins]]
 repo = 'vim-scripts/DirDiff.vim'
 
-[[plugins]] # カーソル位置のコンテキストのftを判定するライブラリ
-repo = 'Shougo/context_filetype.vim'
+# [[plugins]] # カーソル位置のコンテキストのftを判定するライブラリ
+# repo = 'Shougo/context_filetype.vim'
 
-[[plugins]]
-repo = 'delphinus35/typescript-vim'
-rev  = 'colorize-template-strings'
-
-[[plugins]]
-repo = 'kchmck/vim-coffee-script'
-
-[[plugins]]
-repo = 'Shougo/neosnippet-snippets'
-
-[[plugins]]
-repo = 'elzr/vim-json'
-if   = '''! has('kaoriya')'''
-
-[[plugins]]
-repo = 'Shougo/vinarise'
+# [[plugins]]
+# repo = 'delphinus35/typescript-vim'
+# rev  = 'colorize-template-strings'
+#
+# [[plugins]]
+# repo = 'kchmck/vim-coffee-script'
+#
+# [[plugins]]
+# repo = 'Shougo/neosnippet-snippets'
+#
+# [[plugins]]
+# repo = 'Shougo/vinarise'
 
 [[plugins]]
 repo = 'kshenoy/vim-signature'
@@ -38,8 +60,8 @@ repo = 'majutsushi/tagbar'
 [[plugins]]
 repo = 'kana/vim-operator-user'
 
-[[plugins]]
-repo = 'rhysd/vim-operator-surround'
+# [[plugins]]
+# repo = 'rhysd/vim-operator-surround'
 
 [[plugins]]
 repo = 'tpope/vim-fugitive'
@@ -69,8 +91,8 @@ hook_add = '''
 [[plugins]]
 repo = 'mhinz/vim-signify'
 
-[[plugins]]
-repo = 'Shougo/vimfiler'
+# [[plugins]]
+# repo = 'Shougo/vimfiler'
 
 [[plugins]]
 repo = 'Shougo/vimshell'

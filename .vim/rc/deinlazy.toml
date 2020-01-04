@@ -4,6 +4,11 @@ build = 'make'
 on_source = ['unite.vim', 'vimshell.vim']
 
 [[plugins]]
+repo = 'elzr/vim-json'
+if   = '''! has('kaoriya')'''
+on_ft = ['json']
+
+[[plugins]]
 repo  = 'Quramy/tsuquyomi'
 on_ft = ['typescript']
 
@@ -56,41 +61,41 @@ hook_source = '''
   augroup END
 '''
 
-[[plugins]]
-repo = 'justmao945/vim-clang'
-on_ft = ['cpp', 'c']
-hook_source = '''
-	" disable auto completion for vim-clang
-	let g:clang_auto = 0
-
-	" default 'longest' can not work with neocomplete
-	let g:clang_c_completeopt   = 'menuone'
-	let g:clang_cpp_completeopt = 'menuone'
-
-	if executable('clang-3.6')
-		let g:clang_exec = 'clang-3.6'
-	elseif executable('clang-3.5')
-		let g:clang_exec = 'clang-3.5'
-	elseif executable('clang-3.4')
-		let g:clang_exec = 'clang-3.4'
-	else
-		let g:clang_exec = 'clang'
-	endif
-
-	if executable('clang-format-3.6')
-		let g:clang_format_exec = 'clang-format-3.6'
-	elseif executable('clang-format-3.5')
-		let g:clang_format_exec = 'clang-format-3.5'
-	elseif executable('clang-format-3.4')
-		let g:clang_format_exec = 'clang-format-3.4'
-	else
-		let g:clang_exec = 'clang'
-		"let g:clang_exec = 'clang-format'
-	endif
-
-	let g:clang_cpp_options = '-std=c++11 -stdlib=libc++ -I /usr/include/ -I /usr/include/c++/5/ -I /usr/include/x86_64-linux-gnu/c++/5'
-	"let g:clang_cpp_options = '-std=c++11 -stdlib=libc++'
-'''
+#[[plugins]]
+#repo = 'justmao945/vim-clang'
+#on_ft = ['cpp', 'c']
+#hook_source = '''
+#	" disable auto completion for vim-clang
+#	let g:clang_auto = 0
+#
+#	" default 'longest' can not work with neocomplete
+#	let g:clang_c_completeopt   = 'menuone'
+#	let g:clang_cpp_completeopt = 'menuone'
+#
+#	if executable('clang-3.6')
+#		let g:clang_exec = 'clang-3.6'
+#	elseif executable('clang-3.5')
+#		let g:clang_exec = 'clang-3.5'
+#	elseif executable('clang-3.4')
+#		let g:clang_exec = 'clang-3.4'
+#	else
+#		let g:clang_exec = 'clang'
+#	endif
+#
+#	if executable('clang-format-3.6')
+#		let g:clang_format_exec = 'clang-format-3.6'
+#	elseif executable('clang-format-3.5')
+#		let g:clang_format_exec = 'clang-format-3.5'
+#	elseif executable('clang-format-3.4')
+#		let g:clang_format_exec = 'clang-format-3.4'
+#	else
+#		let g:clang_exec = 'clang'
+#		"let g:clang_exec = 'clang-format'
+#	endif
+#
+#	let g:clang_cpp_options = '-std=c++11 -stdlib=libc++ -I /usr/include/ -I /usr/include/c++/5/ -I /usr/include/x86_64-linux-gnu/c++/5'
+#	"let g:clang_cpp_options = '-std=c++11 -stdlib=libc++'
+#'''
 
 [[plugins]]
 repo = 'mechatroner/rainbow_csv'
@@ -103,6 +108,7 @@ hook_source = '''
     let g:javascript_plugin_ngdoc = 1
 '''
 
+# for markdown --
 [[plugins]]
 repo = 'plasticboy/vim-markdown'
 on_ft = ['markdown']
@@ -119,6 +125,7 @@ depends = ['open-browser.vim']
 
 [[plugins]]
 repo = 'tyru/open-browser.vim'
+# --
 
 [[plugins]]
 repo = 'stephpy/vim-yaml'
@@ -136,161 +143,161 @@ hook_source = '''
     " let g:terraform_fmt_on_save=1
 '''
 
-[[plugins]]
-repo = 'davidhalter/jedi-vim'
-on_ft = ['python', 'python3', 'djangohtml']
-hook_source = '''
-	autocmd FileType python setlocal omnifunc=jedi#completions
-
-	let g:jedi#auto_initialization = 1
-	let g:jedi#auto_vim_configuration = 1
-
-	nnoremap [jedi] <Nop>
-	xnoremap [jedi] <Nop>
-	nmap <Leader>j [jedi]
-	xmap <Leader>j [jedi]
-
-	let g:jedi#completions_command = "<C-Space>"    " 補完キーの設定この場合はCtrl+Space
-	let g:jedi#goto_assignments_command = "<C-g>"   " 変数の宣言場所へジャンプ（Ctrl + g)
-	let g:jedi#goto_definitions_command = "<C-d>"   " クラス、関数定義にジャンプ（Gtrl + d）
-	let g:jedi#documentation_command = "<C-k>"      " Pydocを表示（Ctrl + k）
-	let g:jedi#rename_command = "[jedi]r"
-	let g:jedi#usages_command = "[jedi]n"
-	let g:jedi#popup_select_first = 0
-	let g:jedi#popup_on_dot = 0
-
-	autocmd FileType python setlocal completeopt-=preview
-
-	" for w/ neocomplete
-	" if ! empty(neobundle#get("neocomplete.vim"))
-		autocmd FileType python setlocal omnifunc=jedi#completions
-		let g:jedi#completions_enabled = 0
-		let g:jedi#auto_vim_configuration = 0
-"		let g:neocomplete#force_omni_input_patterns.python =
-"					\ '\%([^. \t]\.\|^\s*@\|^\s*from\s.\+import \|^\s*from \|^\s*import \)\w*'
-	" endif
-
-'''
+#[[plugins]]
+#repo = 'davidhalter/jedi-vim'
+#on_ft = ['python', 'python3', 'djangohtml']
+#hook_source = '''
+#	autocmd FileType python setlocal omnifunc=jedi#completions
+#
+#	let g:jedi#auto_initialization = 1
+#	let g:jedi#auto_vim_configuration = 1
+#
+#	nnoremap [jedi] <Nop>
+#	xnoremap [jedi] <Nop>
+#	nmap <Leader>j [jedi]
+#	xmap <Leader>j [jedi]
+#
+#	let g:jedi#completions_command = "<C-Space>"    " 補完キーの設定この場合はCtrl+Space
+#	let g:jedi#goto_assignments_command = "<C-g>"   " 変数の宣言場所へジャンプ（Ctrl + g)
+#	let g:jedi#goto_definitions_command = "<C-d>"   " クラス、関数定義にジャンプ（Gtrl + d）
+#	let g:jedi#documentation_command = "<C-k>"      " Pydocを表示（Ctrl + k）
+#	let g:jedi#rename_command = "[jedi]r"
+#	let g:jedi#usages_command = "[jedi]n"
+#	let g:jedi#popup_select_first = 0
+#	let g:jedi#popup_on_dot = 0
+#
+#	autocmd FileType python setlocal completeopt-=preview
+#
+#	" for w/ neocomplete
+#	" if ! empty(neobundle#get("neocomplete.vim"))
+#		autocmd FileType python setlocal omnifunc=jedi#completions
+#		let g:jedi#completions_enabled = 0
+#		let g:jedi#auto_vim_configuration = 0
+#"		let g:neocomplete#force_omni_input_patterns.python =
+#"					\ '\%([^. \t]\.\|^\s*@\|^\s*from\s.\+import \|^\s*from \|^\s*import \)\w*'
+#	" endif
+#
+#'''
 
 # [[plugins]]
 # repo = 'andviro/flake8-vim'
 # on_ft = ['python']
 
-[[plugins]]
-repo = 'hynek/vim-python-pep8-indent'
-on_ft = ['python']
+#[[plugins]]
+#repo = 'hynek/vim-python-pep8-indent'
+#on_ft = ['python']
+#
+#[[plugins]]
+#repo = 'tell-k/vim-autopep8'
+#on_ft = ['python']
 
-[[plugins]]
-repo = 'tell-k/vim-autopep8'
-on_ft = ['python']
-
-[[plugins]]
-repo = 'osyo-manga/vim-monster'
-on_ft = ['ruby']
-
-[[plugins]]
-repo = 'marcus/rsense'
-on_ft = ['ruby']
+#[[plugins]]
+#repo = 'osyo-manga/vim-monster'
+#on_ft = ['ruby']
+#
+#[[plugins]]
+#repo = 'marcus/rsense'
+#on_ft = ['ruby']
 
 # now removed from github
 #[[plugins]]
 #repo = 'supermomonga/neocomplete-rsense.vim'
 #on_ft = ['ruby']
 
-[[plugins]]
-repo = 'fatih/vim-go'
-on_ft = ['go']
-hook_source = '''
-	let g:go_highlight_functions = 1
-	let g:go_highlight_methods = 1
-	let g:go_highlight_structs = 1
-  let g:go_highlight_types = 1
-  let g:go_highlight_fields = 1
-  autocmd FileType go :highlight goErr cterm=bold ctermfg=214
-  autocmd FileType go :match goErr /\<err\>/
-'''
-
-[[plugins]]
-repo = 'Shougo/neocomplete.vim'
-on_event = 'InsertEnter'
-if = "has('lua')"
-hook_source = '''
-	let g:acp_enableAtStartup = 0
-	" Use neocomplete.
-	let g:neocomplete#enable_at_startup = 1
-
-	if !exists('g:neocomplete#force_omni_input_patterns')
-	  let g:neocomplete#force_omni_input_patterns = {}
-	endif
-	let g:neocomplete#force_overwrite_completefunc = 1
-	let g:neocomplete#force_omni_input_patterns.c =
-	      \ '[^.[:digit:] *\t]\%(\.\|->\)\w*'
-	let g:neocomplete#force_omni_input_patterns.cpp =
-	      \ '[^.[:digit:] *\t]\%(\.\|->\)\w*\|\h\w*::\w*'
-  let g:neocomplete#force_omni_input_patterns.go =
-        \ '\h\w\.\w*'
-
-	" <TAB>: completion.
-	inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
-
-	"-- for neco look
-	if !exists('g:neocomplete#text_mode_filetypes')
-		let g:neocomplete#text_mode_filetypes = {}
-	endif
-	let g:neocomplete#text_mode_filetypes = {
-				\ 'rst': 1,
-				\ 'markdown': 1,
-				\ 'gitrebase': 1,
-				\ 'gitcommit': 1,
-				\ 'vcs-commit': 1,
-				\ 'hybrid': 1,
-				\ 'text': 1,
-				\ 'help': 1,
-				\ 'tex': 1,
-				\ }
-
-	"-- ruby
-	let g:neocomplete#sources#omni#input_patterns = {
-				\   "ruby" : '[^. *\t]\.\w*\|\h\w*::',
-				\}
-
-  " source ~/.vim/rc/plugins/neocomplete.rc.vim
-'''
-
-[[plugins]]
-repo = 'Shougo/neosnippet.vim'
-depends = ['neosnippet-snippets', 'context_filetype.vim']
-on_event = 'InsertCharPre'
-on_ft = 'snippet'
-hook_source = '''
-  imap <silent><C-k>     <Plug>(neosnippet_jump_or_expand)
-  smap <silent><C-k>     <Plug>(neosnippet_jump_or_expand)
-  xmap <silent><C-k>     <Plug>(neosnippet_expand_target)
-  let g:neosnippet#enable_snipmate_compatibility = 1
-  let g:neosnippet#enable_completed_snippet = 1
-  let g:neosnippet#expand_word_boundary = 1
-  let g:neosnippet#snippets_directory = '~/.vim/snippets'
-'''
-
-[[plugins]]
-repo = 'Shougo/neoinclude.vim'
-on_if = 1
-
-[[plugins]]
-repo   = 'Shougo/unite.vim'
-on_cmd = ['Unite']
-
-[[plugins]]
-repo      = 'Shougo/neomru.vim'
-on_source = ['unite.vim']
-
-[[plugins]]
-repo = 'ujihisa/unite-colorscheme'
-on_source = ['unite.vim']
-
-[[plugins]]
-repo = 'tacroe/unite-mark'
-on_source = ['unite.vim']
+#[[plugins]]
+#repo = 'fatih/vim-go'
+#on_ft = ['go']
+#hook_source = '''
+#	let g:go_highlight_functions = 1
+#	let g:go_highlight_methods = 1
+#	let g:go_highlight_structs = 1
+#  let g:go_highlight_types = 1
+#  let g:go_highlight_fields = 1
+#  autocmd FileType go :highlight goErr cterm=bold ctermfg=214
+#  autocmd FileType go :match goErr /\<err\>/
+#'''
+#
+#[[plugins]]
+#repo = 'Shougo/neocomplete.vim'
+#on_event = 'InsertEnter'
+#if = "has('lua')"
+#hook_source = '''
+#	let g:acp_enableAtStartup = 0
+#	" Use neocomplete.
+#	let g:neocomplete#enable_at_startup = 1
+#
+#	if !exists('g:neocomplete#force_omni_input_patterns')
+#	  let g:neocomplete#force_omni_input_patterns = {}
+#	endif
+#	let g:neocomplete#force_overwrite_completefunc = 1
+#	let g:neocomplete#force_omni_input_patterns.c =
+#	      \ '[^.[:digit:] *\t]\%(\.\|->\)\w*'
+#	let g:neocomplete#force_omni_input_patterns.cpp =
+#	      \ '[^.[:digit:] *\t]\%(\.\|->\)\w*\|\h\w*::\w*'
+#  let g:neocomplete#force_omni_input_patterns.go =
+#        \ '\h\w\.\w*'
+#
+#	" <TAB>: completion.
+#	inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
+#
+#	"-- for neco look
+#	if !exists('g:neocomplete#text_mode_filetypes')
+#		let g:neocomplete#text_mode_filetypes = {}
+#	endif
+#	let g:neocomplete#text_mode_filetypes = {
+#				\ 'rst': 1,
+#				\ 'markdown': 1,
+#				\ 'gitrebase': 1,
+#				\ 'gitcommit': 1,
+#				\ 'vcs-commit': 1,
+#				\ 'hybrid': 1,
+#				\ 'text': 1,
+#				\ 'help': 1,
+#				\ 'tex': 1,
+#				\ }
+#
+#	"-- ruby
+#	let g:neocomplete#sources#omni#input_patterns = {
+#				\   "ruby" : '[^. *\t]\.\w*\|\h\w*::',
+#				\}
+#
+#  " source ~/.vim/rc/plugins/neocomplete.rc.vim
+#'''
+#
+#[[plugins]]
+#repo = 'Shougo/neosnippet.vim'
+#depends = ['neosnippet-snippets', 'context_filetype.vim']
+#on_event = 'InsertCharPre'
+#on_ft = 'snippet'
+#hook_source = '''
+#  imap <silent><C-k>     <Plug>(neosnippet_jump_or_expand)
+#  smap <silent><C-k>     <Plug>(neosnippet_jump_or_expand)
+#  xmap <silent><C-k>     <Plug>(neosnippet_expand_target)
+#  let g:neosnippet#enable_snipmate_compatibility = 1
+#  let g:neosnippet#enable_completed_snippet = 1
+#  let g:neosnippet#expand_word_boundary = 1
+#  let g:neosnippet#snippets_directory = '~/.vim/snippets'
+#'''
+#
+#[[plugins]]
+#repo = 'Shougo/neoinclude.vim'
+#on_if = 1
+#
+#[[plugins]]
+#repo   = 'Shougo/unite.vim'
+#on_cmd = ['Unite']
+#
+#[[plugins]]
+#repo      = 'Shougo/neomru.vim'
+#on_source = ['unite.vim']
+#
+#[[plugins]]
+#repo = 'ujihisa/unite-colorscheme'
+#on_source = ['unite.vim']
+#
+#[[plugins]]
+#repo = 'tacroe/unite-mark'
+#on_source = ['unite.vim']
 
 [[plugins]]
 repo      = 'thinca/vim-prettyprint'
@@ -325,9 +332,9 @@ hook_add = '''
 	endfunction
 '''
 
-[[plugins]]
-repo = 'mrtazz/simplenote.vim'
-on_cmd = ['SimplenoteList']
+# [[plugins]]
+# repo = 'mrtazz/simplenote.vim'
+# on_cmd = ['SimplenoteList']
 
 # only for gvim
 [[plugins]]
