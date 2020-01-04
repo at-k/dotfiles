@@ -6,32 +6,6 @@ repo = 'Shougo/dein.vim'
 #repo = 'osyo-manga/vim-precious'
 #depends = ['context_filetype.vim']
 
-# lsp related plugins --
-[[plugins]]
-repo = 'prabirshrestha/async.vim'
-
-[[plugins]]
-repo = 'prabirshrestha/asyncomplete.vim'
-
-[[plugins]]
-repo = 'prabirshrestha/asyncomplete-lsp.vim'
-
-[[plugins]]
-repo = 'prabirshrestha/vim-lsp'
-
-[[plugins]]
-repo = 'mattn/vim-lsp-settings'
-
-[[plugins]]
-repo = 'mattn/vim-lsp-icons'
-
-[[plugins]]
-repo = 'hrsh7th/vim-vsnip'
-
-[[plugins]]
-repo = 'hrsh7th/vim-vsnip-integ'
-# --
-
 [[plugins]]
 repo = 'vim-scripts/DirDiff.vim'
 
@@ -63,6 +37,7 @@ repo = 'kana/vim-operator-user'
 # [[plugins]]
 # repo = 'rhysd/vim-operator-surround'
 
+# -- git
 [[plugins]]
 repo = 'tpope/vim-fugitive'
 
@@ -89,7 +64,11 @@ hook_add = '''
 '''
 
 [[plugins]]
+repo = 'itchyny/vim-gitbranch'
+
+[[plugins]]
 repo = 'mhinz/vim-signify'
+# --
 
 # [[plugins]]
 # repo = 'Shougo/vimfiler'
@@ -97,6 +76,7 @@ repo = 'mhinz/vim-signify'
 [[plugins]]
 repo = 'Shougo/vimshell'
 
+# -- color scheme
 [[plugins]]
 repo = 'sheerun/vim-wombat-scheme'
 
@@ -105,9 +85,7 @@ repo = 'vim-scripts/wombat256.vim'
 
 [[plugins]]
 repo = 'b4b4r07/solarized.vim'
-
-[[plugins]]
-repo = 'itchyny/vim-gitbranch'
+# --
 
 [[plugins]]
 repo = 'ujihisa/neco-look'

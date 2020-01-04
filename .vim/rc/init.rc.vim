@@ -2,6 +2,11 @@
 " Initialize:
 "
 
+" for completion
+augroup completion
+  autocmd!
+augroup END
+
 let s:is_windows = has('win32') || has('win64')
 
 function! IsWindows() abort

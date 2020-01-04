@@ -108,7 +108,7 @@ hook_source = '''
     let g:javascript_plugin_ngdoc = 1
 '''
 
-# for markdown --
+# -- markdown
 [[plugins]]
 repo = 'plasticboy/vim-markdown'
 on_ft = ['markdown']

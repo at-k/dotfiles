@@ -12,6 +12,7 @@ endif
 call dein#begin(s:path, expand('<sfile>'))
 
 call dein#load_toml('~/.vim/rc/dein.toml', {'lazy': 0})
+call dein#load_toml('~/.vim/rc/dein_completion.toml', {'lazy': 0})
 call dein#load_toml('~/.vim/rc/deinlazy.toml', {'lazy' : 1})
 
 call dein#end()
