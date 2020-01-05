@@ -4,6 +4,9 @@ repo = 'prabirshrestha/async.vim'
 
 [[plugins]]
 repo = 'prabirshrestha/asyncomplete.vim'
+hook_add = '''
+  let g:asyncomplete_log_file = expand('~/.vim/log/asyncomplete.log')
+'''
 # on_ft = ['autohotkey', 'autoit', 'cfg', 'git', 'go', 'groovy', 'java', 'javascript', 'python', 'snippet', 'toml', 'vim', 'vb', 'xsl']
 # hook_add = '''
 #   " let g:asyncomplete_log_file = expand('~/.vim/.asyncomplete/log.log')
@@ -42,22 +45,37 @@ depends = ['asyncomplete.vim', 'vim-lsp']
 
 [[plugins]]
 repo = 'prabirshrestha/vim-lsp'
-# hook_add = '''
-#   if executable('pyls')
-#     autocmd completion User lsp_setup call lsp#register_server({
-#         \ 'name': 'pyls',
-#         \ 'cmd': {server_info->['pyls']},
-#         \ 'whitelist': ['python'],
-#         \ })
-#   endif
-#   if executable('go-langserver')
-#     au User lsp_setup call lsp#register_server({
-#         \ 'name': 'go-langserver',
-#         \ 'cmd': {server_info->['go-langserver', '-gocodecompletion']},
-#         \ 'whitelist': ['go'],
-#         \ })
-#    endif
-# '''
+hook_add = '''
+  let g:lsp_log_verbose = 1
+  let g:lsp_log_file = expand('~/.vim/log/vim-lsp.log')
+
+  let g:lsp_settings_servers_dir = expand('~/.config/vim-lsp')
+  if executable('pyls')
+    autocmd completion User lsp_setup call lsp#register_server({
+        \ 'name': 'pyls',
+        \ 'cmd': {server_info->['pyls']},
+        \ 'whitelist': ['python'],
+        \ })
+  endif
+  if executable('gopls')
+    autocmd completion User lsp_setup call lsp#register_server({
+        \ 'name': 'gopls',
+        \ 'cmd': {server_info->['gopls']},
+        \ 'whitelist': ['go'],
+        \ })
+    autocmd completion FileType go setlocal omnifunc=lsp#complete
+    autocmd completion BufWritePre *.go LspDocumentFormatSync
+  endif
+  if executable('solargraph')
+      " gem install solargraph
+    autocmd completion User lsp_setup call lsp#register_server({
+        \ 'name': 'solargraph',
+        \ 'cmd': {server_info->[&shell, &shellcmdflag, 'solargraph stdio']},
+        \ 'initialization_options': {"diagnostics": "true"},
+        \ 'whitelist': ['ruby'],
+        \ })
+  endif
+'''
 
 [[plugins]]
 repo = 'mattn/vim-lsp-settings'
