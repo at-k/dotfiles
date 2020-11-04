@@ -34,11 +34,12 @@ hook_add = '''
         \ 'colorscheme': 'wombat',
         \ 'active': {
         \   'left': [ [ 'mode', 'paste' ],
-        \             [ 'gitbranch', 'readonly', 'filename', 'modified' ] ]
+        \             [ 'gitbranch', 'readonly', 'filename', 'modified', 'method' ] ]
         \ },
         \ 'component_function': {
         \   'gitbranch': 'fugitive#head',
-		\   'filename':  'LightlineFilename',
+        \   'filename':  'LightlineFilename',
+        \   'method': 'NearestMethodOrFunction'
         \ },
         \ }
   function! LightlineFilename()

@@ -379,8 +379,9 @@ map sd <Plug>(operator-surround-delete)
 map sr <Plug>(operator-surround-replace)
 
 " <F6>  inserting date
-nnoremap ,tl <ESC>i<C-R>=strftime("%Y/%m/%d (%a) %H:%M")<CR>
-nnoremap ,ts <ESC>i<C-R>=strftime("%y%m%d")<CR>
+" nnoremap ,tl <ESC>i<C-R>=strftime("%Y/%m/%d (%a) %H:%M")<CR>
+nnoremap [templ]l <ESC>i<C-R>=PrintCtime("%Y-%m-%d %a")<CR>
+nnoremap [templ]s <ESC>i<C-R>=strftime("%y%m%d")<CR>
 
 "-------------------------------------------------
 " Original commmand
