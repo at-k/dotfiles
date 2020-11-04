@@ -9,6 +9,7 @@ export LANG=ja_JP.UTF-8
 export MANPAGER="less -is"
 export PAGER='less -is'
 export EDITOR='vim'
+export AWS_PAGER=''
 
 typeset -U path PATH
 export PATH="$HOME/.bin:$PATH"
@@ -97,6 +98,9 @@ if [ -x "`which sshrc 2> /dev/null `" ]; then
 fi
 
 fpath=($HOME/.config/zcompl(N-/) $fpath)
+
+autoload bashcompinit && bashcompinit
+complete -C '/usr/local/bin/aws_completer' aws
 
 # --- Load OS specific setting
 case ${OSTYPE} in
@@ -271,6 +275,8 @@ alias diff='diff -Bw'
 alias vimdiff='vimdiff -c "set diffopt+=iwhite"'
 
 alias zbench='time ( zsh -i -c exit)'
+
+alias ecr-login='aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin 057575985710.dkr.ecr.ap-northeast-1.amazonaws.com'
 
 function alogin() {
     awslogin $@
