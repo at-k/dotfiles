@@ -99,7 +99,7 @@ fi
 
 fpath=($HOME/.config/zcompl(N-/) $fpath)
 
-autoload bashcompinit && bashcompinit
+autoload -U +X bashcompinit && bashcompinit
 complete -C '/usr/local/bin/aws_completer' aws
 
 # --- Load OS specific setting
@@ -296,14 +296,14 @@ s() { pwd > ~/.save_dir ; }
 i() { cd "$(cat ~/.save_dir)" ; }
 
 # hook `ls` on `cd` ... it might interrupt shell script. be careful.
-function chpwd() {
-	if [ 50 -gt `ls -1 | wc -l` ]; then
-		case ${OSTYPE} in
-			cygwin|linux*) ls --show-control-chars --color=auto -F ;;
-			darwin*) ls -G ;;
-		esac
-	fi
-}
+#function chpwd() {
+#	if [ 50 -gt `ls -1 | wc -l` ]; then
+#		case ${OSTYPE} in
+#			cygwin|linux*) ls --show-control-chars --color=auto -F ;;
+#			darwin*) ls -G ;;
+#		esac
+#	fi
+#}
 
 function decomp() {
 	case $1 in
@@ -369,10 +369,11 @@ if [ -d ~/.anyenv ]; then
         export ANYENV_ENABLE=true
 
         if [ -x "`which terraform 2> /dev/null `" ]; then
-
-            autoload -U +X bashcompinit && bashcompinit
-            complete -o nospace -C /usr/local/Cellar/terraform/0.11.13/bin/terraform terraform
+            tfenv use 0.13.0
+            complete -C /usr/local/Cellar/tfenv/2.0.0/versions/0.12.20/terraform terraform
             alias tplan="terraform plan | landscape"
+            alias tf='terraform'
+            compdef tf=terraform
         fi
     }
 else
