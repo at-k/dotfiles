@@ -89,6 +89,9 @@ ZPLGM[COMPINIT_OPTS]=-C; zpcompinit; zpcdreplay
 eval "$(starship init zsh)"
 
 # -- completion
+fpath=($HOME/.config/zcompl(N-/) $fpath)
+autoload -U +X bashcompinit && bashcompinit
+
 if [ -x "`which vboxmanage 2> /dev/null `" ]; then
 	compdef vboxmanage=VBoxManage  # completion for vboxmanage
 fi
@@ -97,10 +100,16 @@ if [ -x "`which sshrc 2> /dev/null `" ]; then
 	compdef sshrc=ssh  # completion for sshrc
 fi
 
-fpath=($HOME/.config/zcompl(N-/) $fpath)
+if [ -x "`which terraform 2> /dev/null `" ]; then
+    alias tplan="terraform plan | landscape"
+    alias tf='terraform'
+    complete -C terraform terraform
+    compdef tf=terraform
+fi
 
-autoload -U +X bashcompinit && bashcompinit
-complete -C '/usr/local/bin/aws_completer' aws
+if [ -x "`which aws_completer 2> /dev/null `" ]; then
+    complete -C '/usr/local/bin/aws_completer' aws
+fi
 
 # --- Load OS specific setting
 case ${OSTYPE} in
@@ -352,29 +361,26 @@ if [ -d ~/.anyenv ]; then
     export ANYENV_ENABLE=false
     function enva() {
         export PATH="$HOME/.anyenv/bin:$PATH" && eval "$(anyenv init - --no-rehash)"
-        PY2_VERSION="2.7.14"
-        PY3_VERSION="3.6.3"
-
-        if [ -d ~/.anyenv/envs/pyenv ]; then
-            pyenv global $PY3_VERSION $PY2_VERSION
-            export PATH="$HOME/.anyenv/envs/pyenv/versions/$PY3_VERSION/bin:$PATH"
-            export PATH="$HOME/.anyenv/envs/pyenv/versions/$PY2_VERSION/bin:$PATH"
-            eval "$(pyenv virtualenv-init -)"
-            eval "$(pyenv init -)"
-        fi
-
-        if [ -d ~/go/bin ]; then
-            export GOPATH=$HOME/go
-        fi
         export ANYENV_ENABLE=true
+        # PY2_VERSION="2.7.14"
+        # PY3_VERSION="3.6.3"
 
-        if [ -x "`which terraform 2> /dev/null `" ]; then
-            tfenv use 0.13.0
-            complete -C /usr/local/Cellar/tfenv/2.0.0/versions/0.12.20/terraform terraform
-            alias tplan="terraform plan | landscape"
-            alias tf='terraform'
-            compdef tf=terraform
-        fi
+        # if [ -d ~/.anyenv/envs/pyenv ]; then
+        #     pyenv global $PY3_VERSION $PY2_VERSION
+        #     export PATH="$HOME/.anyenv/envs/pyenv/versions/$PY3_VERSION/bin:$PATH"
+        #     export PATH="$HOME/.anyenv/envs/pyenv/versions/$PY2_VERSION/bin:$PATH"
+        #     eval "$(pyenv virtualenv-init -)"
+        #     eval "$(pyenv init -)"
+        # fi
+
+        # if [ -d ~/go/bin ]; then
+        #     export GOPATH=$HOME/go
+        # fi
+
+        # if [ -x "`which terraform 2> /dev/null `" ]; then
+        #     tfenv use 0.13.0
+        #     complete -C /usr/local/Cellar/tfenv/2.0.0/versions/0.12.20/terraform terraform
+        # fi
     }
 else
 	# for python
