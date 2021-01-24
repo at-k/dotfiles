@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# paste output to ~/.config/starship.toml
+
+set -eu
+
+acc=$(aws sts get-caller-identity | jq -r .Account)
+clusters=$(aws eks list-clusters | jq -r '.clusters[]' | sort)
+
+for c in `echo $clusters`; do
+  arn="arn:aws:eks:ap-northeast-1:${acc}:cluster/$c"
+  echo "\"$arn\" = \"$c\""
+done

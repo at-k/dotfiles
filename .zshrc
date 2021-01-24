@@ -341,13 +341,13 @@ function comp() {
 	fi
 }
 
-function peco-select-history() {
-	BUFFER="$(history -nr 1 | awk '!a[$0]++' | peco --query "$LBUFFER" | sed 's/\\n/;/g')"
-	CURSOR=$#BUFFER             # カーソルを文末に移動
-	zle -R -c                   # refresh
-}
-zle -N peco-select-history
-bindkey '^R' peco-select-history
+# function peco-select-history() {
+# 	BUFFER="$(history -nr 1 | awk '!a[$0]++' | peco --query "$LBUFFER" | sed 's/\\n/;/g')"
+# 	CURSOR=$#BUFFER             # カーソルを文末に移動
+# 	zle -R -c                   # refresh
+# }
+# zle -N peco-select-history
+# bindkey '^R' peco-select-history
 
 function cmd_exists() {
 	test -x "`which $1 2> /dev/null`"
@@ -516,6 +516,7 @@ function zload {
     done
 }
 
+# jq  key completion
 function jq() {
     if [ -f $1 ]; then
         FILE=$1; shift
@@ -545,10 +546,11 @@ function _jq() {
 }
 complete -F _jq jq
 
+# fzf
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
 # local limited
-if [ -f ~/.zshrc.local ]; then
-    source ~/.zshrc.local
-fi
+[ -f ~/.zshrc.local ] && source ~/.zshrc.local
 
 # keep this code end
 if [ "$ZSH_PROFILE_MODE" ]; then
