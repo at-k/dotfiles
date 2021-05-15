@@ -12,7 +12,7 @@ export EDITOR='vim'
 export AWS_PAGER=''
 
 typeset -U path PATH
-export PATH="$HOME/.bin:$PATH"
+export PATH="$HOME/.bin:$HOME/.mybin:$PATH"
 
 export LV="-c -Sh1;36 -Su1;4;32 -Ss7;37;1;33"
 export LESS='-i -M -R'
@@ -241,6 +241,11 @@ zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
 
 zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin
 
+# -- command edit
+autoload -Uz edit-command-line
+zle -N edit-command-line
+bindkey '^xe' edit-command-line
+
 # -- Alias
 #alias ls='lscolor'
 alias ls='ls -G'
@@ -450,6 +455,7 @@ function envk () {
 	export KPROMPT_AVAILABLE=1
     # for helm-secret (issue:https://github.com/futuresimple/helm-secrets/issues/71)
     export PATH="/usr/local/Cellar/gnu-getopt/1.1.6/bin":$PATH
+    export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 	alias k='kubectl'
     alias kc='kubectx'
     alias kn='kubens'

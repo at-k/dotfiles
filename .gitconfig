@@ -18,12 +18,15 @@
     lga = log --graph --all --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
     dt = difftool
     pr = "!sh -c 'git fetch upstream refs/pull/$1/head:pr/$1/head && git checkout pr/$1/head' -"
+    co-upstream = "!sh -c 'git checkout -b $1 upstream/$1' -"
     sync-upstream = !git fetch upstream && git checkout master && git merge upstream/master
     sync-upstreamd = !git fetch upstream && git checkout develop && git merge upstream/develop
     ls-unmerged = branch --list --no-merged
     ls-merged = branch --merged
     rm-merged = !git branch --merged | grep -v \\* | xargs -I % git branch -d %
     print-upstream = "!git remote get-url upstream | sed -e \"s;.*github;https://github;\" | sed \"s;github.com:;github.com/;\""
+    short-recent = "for-each-ref --count=25 --sort=committerdate refs/heads/ --format='%(refname:short)'"
+    fco = "!git short-recent | fzf --print0 | xargs -0 -t git checkout"
 
 [difftool.latex]
 	cmd = latexdiff -e ISO-2022-JP "$LOCAL" "$REMOTE"
