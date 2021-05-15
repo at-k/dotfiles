@@ -1,0 +1,80 @@
+#!/usr/bin/python
+
+from os import environ
+from os.path import isfile
+
+# Public key
+def get_public_key():
+    key = ""
+    keylist = map(lambda x: "{}/.ssh/{}".format(environ['HOME'], x),
+            ["id_ecdsa.pub", "id_rsa.pub"])
+
+    for x in keylist:
+        if isfile(x):
+            key = x
+            print "using key `{}` as public key...".format(x)
+            break
+
+    if key == "":
+        print "Please generate your SSH public key."
+        print "Run something like:"
+        print " $ ssh-keygen -b 4096"
+        exit(1)
+
+    f = open(key)
+    ret = f.read()
+    f.close()
+
+    return ret.rstrip()
+
+# STEP user password
+def create_shadow():
+    try:
+        from passlib.hash import sha512_crypt
+        from getpass import getpass
+    except ImportError:
+        print "Please install passlib. Try something like:"
+        print " $ sudo pip install passlib"
+        exit(2)
+
+    password = getpass("Please input your STEP-User Password: ")
+    shadow = sha512_crypt.encrypt(password, rounds=5000)
+
+    return shadow
+
+def get_groups():
+    print "Please specify groups you wish to be in. (example: web sandbox payroll)"
+    line = raw_input()
+
+    return line.split(" ")
+
+def get_username():
+    from os import getlogin
+    user = getlogin()
+    line = raw_input("Please input your username [{}]: ".format(user))
+    if line != "":
+        user = line
+    return user
+
+def chef_formatter(username, pubkey, shadow, groups):
+    import json
+    j = {}
+    j["id"] = username
+    j["group"] = groups
+    j["passwd"] = shadow
+    j["public_key"] = pubkey
+
+    return json.dumps(j, sort_keys=True, indent=4)
+
+if __name__ == "__main__":
+    username = get_username()
+    pubkey = get_public_key()
+    shadow = create_shadow()
+    groups = get_groups()
+
+    rec = chef_formatter(username, pubkey, shadow, groups)
+    print "===================kokokara====================="
+    print rec
+    print "===================kokomade====================="
+    print
+    print "Please send the upper json to infra@c-fo.com"

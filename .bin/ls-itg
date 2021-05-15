@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# integrationのリスト出すだけ
+
+echo "ardbeg
+chita
+hakushu
+hibiki
+himeama
+koshiaka
+laphroaig
+midori
+nishiiwa
+oboro
+ojiro
+sanshoku
+yoichi
+"

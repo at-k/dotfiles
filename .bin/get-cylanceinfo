@@ -1,0 +1,315 @@
+#!/usr/bin/env bash
+#
+# GetCylanceInfo script
+# v9.8 11/25/2019
+#
+# This script gathers the Cylance Agent Information on macOS platforms.
+# It requires root access (or sudo) and accepts the option 'full'.
+# This will gather the database file even if it's over 100MB in size.
+#
+# If your Cylance Agent installation location does NOT match the default
+# location below, please change.
+
+AGENT_DIR="/Library/Application Support/Cylance"
+
+# Verify if the CylancePROTECT directory exists
+if [[ ! -d "$AGENT_DIR" ]]; then
+	echo "ERROR: Is Cylance Installed?"
+	echo $AGENT_DIR "not found."
+	read -rsp $'Press any key to continue collection.\n' -n1 anykey
+fi
+
+# Verify root permissions and set USER_NAME
+USER_PERMISSIONS=$(whoami)
+if [[ "$USER_PERMISSIONS" != "root" ]]; then
+	echo "You do not have root permissions"
+	echo "Please run this as root or use sudo."
+	exit 1
+fi
+
+USER_NAME=$(echo $SUDO_USER)
+if [[ "$USER_NAME" == "" ]]; then
+	USER_NAME=root
+fi
+
+# If no parameters, skip large database
+DBSIZE_IGNORE="false"
+if [[ $# -eq 1 ]]; then
+	type=${1}
+fi
+
+case $type in
+	full)
+		DBSIZE_IGNORE="true"
+		echo ""
+		echo "Database size limit will be ignored"
+		echo "";;
+	*)
+		echo "";;
+esac
+
+# Define Cylance Collect Log file
+filename="CylanceLogs-`date '+%Y%m%d-%H%M%S'`"
+echo "Archive file name will be: $filename.tgz"
+
+echo "Creating folder structure"
+pushd "$TMPDIR" > /dev/null
+
+mkdir "$filename"
+cd "$filename"
+
+mkdir Logs
+mkdir Driver
+mkdir Service
+mkdir Configuration
+mkdir Certs
+mkdir HostCache
+mkdir Perf
+
+echo "Collecting OS Information"
+sw_vers > osinfo.txt
+uname -s -n -r -v -m -p >> osinfo.txt
+
+echo "Collecting System Information (Please Wait)"
+/usr/sbin/system_profiler -xml 2> /dev/null > profile.spx
+
+echo "Collecting Kernel Extensions"
+kextfind > kernel-extensions-list.txt
+echo "SystemPolicyConfiguration KextPolicy kext_policy" > kernel-extensions-config.txt
+echo "team_id|bundle_id|allowed|developer_name|flags" >> kernel-extensions-config.txt
+sqlite3 /var/db/SystemPolicyConfiguration/KextPolicy 'SELECT * FROM kext_policy;' 2>> kernel-extensions-config.txt >> kernel-extensions-config.txt
+echo -e "\n" >> kernel-extensions-config.txt
+echo "SystemPolicyConfiguration KextPolicy kext_load_history_v3" >> kernel-extensions-config.txt
+echo "path|team_id|bundle_id|boot_uuid|created_at|last_seen|flags" >> kernel-extensions-config.txt
+sqlite3 /var/db/SystemPolicyConfiguration/KextPolicy 'SELECT * FROM kext_load_history_v3;' 2>> kernel-extensions-config.txt >> kernel-extensions-config.txt
+echo -e "\n" >> kernel-extensions-config.txt
+echo "SystemPolicyConfiguration KextPolicy kext_policy_mdm" >> kernel-extensions-config.txt
+echo "team_id|bundle_id|allowed|payload_uuid" >> kernel-extensions-config.txt
+sqlite3 /var/db/SystemPolicyConfiguration/KextPolicy 'SELECT * FROM kext_policy_mdm;' 2>> kernel-extensions-config.txt >> kernel-extensions-config.txt
+echo -e "\n" >> kernel-extensions-config.txt
+echo "SystemPolicyConfiguration KextPolicy settings" >> kernel-extensions-config.txt
+echo "name|value" >> kernel-extensions-config.txt
+sqlite3 /var/db/SystemPolicyConfiguration/KextPolicy 'SELECT * FROM settings;' 2>> kernel-extensions-config.txt >> kernel-extensions-config.txt
+echo -e "\n" >> kernel-extensions-config.txt
+echo "kext-consent list" >> kernel-extensions-config.txt
+spctl kext-consent list 2>> kernel-extensions-config.txt >> kernel-extensions-config.txt
+echo -e "\n" >> kernel-extensions-config.txt
+echo "kextstat CYLANCE ONLY" >> kernel-extensions-config.txt
+kextstat | grep "com.Cylance" 2>> kernel-extensions-config.txt >> kernel-extensions-config.txt
+echo -e "\n" >> kernel-extensions-config.txt
+echo "kextstat ALL" >> kernel-extensions-config.txt
+kextstat 2>> kernel-extensions-config.txt >> kernel-extensions-config.txt
+
+echo "Collecting System Messages (Please Wait)"
+log show --debug > system-messages.txt
+
+echo "Collecting install log"
+find /var/log -iname install.log -exec cp "{}" Configuration \; 2> /dev/null || :
+
+echo "Collecting launchd Jobs"
+launchctl list > launchd-jobs.txt
+
+echo "Collecting System Roots"
+SYS_KEYCHAIN="/System/Library/Keychains/SystemRootCertificates.keychain"
+security find-certificate -c "thawte Primary Root CA" -a -Z "$SYS_KEYCHAIN" > Certs/thawte.txt
+security find-certificate -c "GeoTrust Global CA" -a -Z "$SYS_KEYCHAIN" > Certs/GeoTrust.txt
+security find-certificate -c "VeriSign Class 3 Public Primary Certification Authority - G5" -a -Z "$SYS_KEYCHAIN" > Certs/VeriSign.txt
+security find-certificate -c "DigiCert Global Root CA" -a -Z "$SYS_KEYCHAIN" > Certs/DigiCert.txt
+
+echo "Collecting Performance Data (Please Wait)"
+top -c n -s 1 -l 10 > Perf/top.txt
+iostat 1 10 > Perf/iostat.txt
+vm_stat > Perf/vmstat.txt
+vm_stat -c 10 1 > Perf/vmstat-10samples.txt
+vmmap $(pgrep CylanceSvc) 1> Perf/vmmap-CylanceSvc.txt 2> /dev/null || :
+vmmap $(pgrep CylanceUI) 1> Perf/vmmap-CylanceUI.txt 2> /dev/null || :
+
+echo "Collecting syslog Output"
+syslog 2> /dev/null > syslog.txt
+
+echo "Collecting Mount Points"
+df 1> mounts.txt 2> /dev/null || :
+
+echo "Collecting System Process List"
+ps aux > tasklist.txt
+
+echo "Copying System Logs"
+find /var/log -iname system.log* -exec cp "{}" Driver \; 2> /dev/null || :
+ARCHIVED_SYSLOG_FOUND=$(ls /var/log/system.log*.gz 2> /dev/null | wc -l | tr -d ' ')
+if [[ "$ARCHIVED_SYSLOG_FOUND" != "0" ]]; then
+    cd Driver && gunzip -q *.gz && cd ..
+fi
+echo ""
+
+#Determine if there are any Cylance PROTECT crash logs
+PROTECT_CRASH_PATH=/Library/Logs/DiagnosticReports
+PROTECT_CRASHES_FOUND=$(ls "$PROTECT_CRASH_PATH"/CylanceSvc*.crash 2> /dev/null | wc -l | tr -d ' ')
+
+echo "Collecting Cylance PROTECT Driver Information"
+if [[ -d /Library/Extensions/CyProtectDrvOSX.kext ]]; then
+	kextfind -b com.Cylance.CyProtectDrvOSX > Driver/CyProtectDrvOSX.txt
+	defaults read /Library/Extensions/CyProtectDrvOSX.kext/Contents/Info.plist CFBundleShortVersionString 1>> Driver/CyProtectDrvOSX.txt 2> /dev/null || :
+elif [[ -d /System/Library/Extensions/CyProtectDrvOSX.kext ]]; then
+	kextfind -b com.Cylance.CyProtectDrvOSX > Driver/CyProtectDrvOSX.txt
+	defaults read /System/Library/Extensions/CyProtectDrvOSX.kext/Contents/Info.plist CFBundleShortVersionString 1>> Driver/CyProtectDrvOSX.txt 2> /dev/null || :
+else
+	echo "CyProtectDrvOSX.kext not found in /Library/Extensions or /System/Library/Extensions" > Driver/CyProtectDrvOSX.txt
+fi
+
+echo "Collecting Cylance PROTECT Service Information"
+if [[ -d "$AGENT_DIR"/Desktop/CylanceSvc.app ]]; then
+	echo ""$AGENT_DIR"/Desktop/CylanceSvc.app" 1> Service/CylanceSvc.txt 2> /dev/null || :
+	defaults read "$AGENT_DIR"/Desktop/CylanceSvc.app/Contents/Info.plist CFBundleShortVersionString 1>> Service/CylanceSvc.txt 2> /dev/null || :
+else
+	echo "CylanceSvc.app not found in "$AGENT_DIR"/Desktop" > Service/CylanceSvc.txt
+fi
+if [[ -d "$AGENT_DIR"/Desktop/CyUpdate.app ]]; then
+	echo ""$AGENT_DIR"/Desktop/CyUpdate.app" 1> Service/CyUpdate.txt 2> /dev/null || :
+	defaults read "$AGENT_DIR"/Desktop/CyUpdate.app/Contents/Info.plist CFBundleShortVersionString 1>> Service/CyUpdate.txt 2> /dev/null || :
+else
+	echo "CyUpdate.app not found in "$AGENT_DIR"/Desktop" > Service/CyUpdate.txt
+fi
+if [[ -d "$AGENT_DIR"/Desktop/CylanceLocalInfinityMachO.app ]]; then
+	echo ""$AGENT_DIR"/Desktop/CylanceLocalInfinityMachO.app" 1> Service/CylanceLocalInfinityMachO.txt 2> /dev/null || :
+	defaults read "$AGENT_DIR"/Desktop/CylanceLocalInfinityMachO.app/Contents/Info.plist CFBundleShortVersionString 1>> Service/CylanceLocalInfinityMachO.txt 2> /dev/null || :
+else
+	echo "CylanceLocalInfinityMachO.app not found in "$AGENT_DIR"/Desktop" > Service/CylanceLocalInfinityMachO.txt
+fi
+
+echo "Copying Cylance PROTECT Application Logs"
+find "$AGENT_DIR"/Desktop/log -iname *.log -exec cp "{}" Logs \; 2> /dev/null || :
+
+echo "Copying Cylance PROTECT Service Logs"
+find /var/log -iname CylanceSvc.log -exec cp "{}" Service \; 2> /dev/null || :
+
+if [[ "$PROTECT_CRASHES_FOUND" != "0" ]]; then
+		echo "Copying Cylance PROTECT Crash Logs"
+		cp "$PROTECT_CRASH_PATH"/CylanceSvc*.crash Logs
+	fi
+
+echo "Copying Cylance PROTECT Configuration"
+find "$AGENT_DIR"/Desktop/registry/LocalMachine/Software/Cylance/Desktop -iname values.xml -exec cp "{}" Configuration \; 2> /dev/null || :
+find "$AGENT_DIR"/Desktop -iname CyProtect.cache -exec cp "{}" Configuration \; 2> /dev/null || :
+find "$AGENT_DIR"/Desktop -iname LastUpdateRuntime.txt -exec cp "{}" Configuration \; 2> /dev/null || :
+find "$AGENT_DIR"/Desktop -iname Logs.hst -exec cp "{}" Configuration \; 2> /dev/null || :
+find "$AGENT_DIR"/Desktop -iname Status.json -exec cp "{}" Configuration \; 2> /dev/null || :
+find "$AGENT_DIR"/Desktop -iname chp.db* -exec cp "{}" Configuration \; 2> /dev/null || :
+find "$AGENT_DIR"/HostCache -iname *.log -exec cp "{}" HostCache \; 2> /dev/null || :
+chmod -R a+=rw *
+
+# Determine is Optics is installed
+if [[ -d "$AGENT_DIR"/Optics/CyOptics.app ]]; then
+	# Define Optics Temporary folder
+	OPTICS_DIR="Optics"
+
+	# Determine Processed DB Size
+	PVLT_FILE="$AGENT_DIR"/Optics/DataStore/Databases/Processed/Optics.pvlt
+	PVLT_SIZE=$( stat -f "%z" "$PVLT_FILE")
+
+	# Skip Database if too big and full option not used
+	MAX_PVLT_SIZE=100000000
+	if [[ $PVLT_SIZE -ge $MAX_PVLT_SIZE ]]; then
+		if [[ $DBSIZE_IGNORE == "true" ]]; then
+			mkdir -p "$OPTICS_DIR"/Database
+			p "$PVLT_FILE" "$OPTICS_DIR"/Database
+		else
+			echo ""
+			echo "Your Processed Database is bigger then 100MB."
+			echo "To include the database, use the 'full' option"
+			echo "i.e sudo bash GetCylanceInfo.sh full"
+			echo ""
+			sleep 5
+		fi
+	else
+		mkdir -p "$OPTICS_DIR"/Database
+		cp "$PVLT_FILE" "$OPTICS_DIR"/Database
+	fi
+
+	# Define important Optics directories
+	OPTICS_CONFIG_PATH="$AGENT_DIR"/Optics/Configuration
+	OPTICS_REGISTRY_PATH="$AGENT_DIR"/Optics/registry
+	OPTICS_LOG_PATH="$AGENT_DIR"/Optics/Log
+	OPTICS_CRASH_PATH=/Library/Logs/DiagnosticReports
+
+	#Determine if there are any Cylance OPTICS crash logs
+	OPTICS_CRASHES_FOUND=$(ls "$OPTICS_CRASH_PATH"/CyOptics*.crash 2> /dev/null | wc -l | tr -d ' ')
+
+	# Add important files to Optics Collection directory
+	echo "Collecting Cylance OPTICS Driver Information"
+	if [[ -d /Library/Extensions/CyOpticsMacOSDriver.kext ]]; then
+		kextfind -b com.Cylance.CyOpticsMacOSDriver > "$OPTICS_DIR"/CyOpticsMacOSDriver.txt
+		defaults read /Library/Extensions/CyOpticsMacOSDriver.kext/Contents/Info.plist CFBundleShortVersionString 1>> "$OPTICS_DIR"/CyOpticsMacOSDriver.txt 2> /dev/null || :
+	elif [[ -d /System/Library/Extensions/CyOpticsMacOSDriver.kext ]]; then
+		kextfind -b com.Cylance.CyOpticsMacOSDriver > "$OPTICS_DIR"/CyOpticsMacOSDriver.txt
+		defaults read /System/Library/Extensions/CyOpticsMacOSDriver.kext/Contents/Info.plist CFBundleShortVersionString 1>> "$OPTICS_DIR"/CyOpticsMacOSDriver.txt 2> /dev/null || :
+	else
+		echo "CyOpticsMacOSDriver.kext not found in /Library/Extensions or /System/Library/Extensions" > "$OPTICS_DIR"/CyOpticsMacOSDriver.txt
+	fi
+
+	echo "Collecting Cylance OPTICS Service Information"
+	if [[ -d "$AGENT_DIR"/Optics/CyOptics.app ]]; then
+		echo ""$AGENT_DIR"/Optics/CyOptics.app" 1> "$OPTICS_DIR"/CyOptics.txt 2> /dev/null || :
+		defaults read "$AGENT_DIR"/Optics/CyOptics.app/Contents/Info.plist CFBundleShortVersionString 1>> "$OPTICS_DIR"/CyOptics.txt 2> /dev/null || :
+	else
+		echo "CyOptics.app not found in "$AGENT_DIR"/Optics" > "$OPTICS_DIR"/CyOptics.txt
+	fi
+
+	echo "Copying Cylance OPTICS Application Logs"
+	cp -r "$OPTICS_LOG_PATH" "$OPTICS_DIR"
+	echo "Copying Cylance OPTICS Service Logs"
+	find /var/log -iname CyOptics.log -exec cp "{}" Optics/Log \; 2> /dev/null || :
+	echo "Copying Cylance OPTICS Configuration"
+	if [[ -f "$OPTICS_CONFIG_PATH"/OpticsConfiguration.xml ]]; then
+		cp -r "$OPTICS_CONFIG_PATH" "$OPTICS_DIR"
+	fi
+	cp -r "$OPTICS_REGISTRY_PATH" "$OPTICS_DIR"
+	if [[ "$OPTICS_CRASHES_FOUND" != "0" ]]; then
+		echo "Copying Cylance OPTICS Crash Logs"
+		cp "$OPTICS_CRASH_PATH"/CyOptics*.crash "$OPTICS_DIR"/Log
+	fi
+	chmod 777 "$OPTICS_DIR"
+fi
+
+# Export Version
+echo "macOS Support Collection Tool v9.8" > '!Version!.txt'
+
+# Fix all the file owner and permissions
+echo ""
+echo "Fixing permissions on collected data"
+chmod 777 Logs
+chmod 777 Driver
+chmod 777 Service
+chmod 777 Configuration
+chmod 777 Certs
+chmod 777 HostCache
+chmod 777 Perf
+chown -R "$USER_NAME" *
+
+cd ..
+
+echo "Creating archive file"
+tar -czf "$filename.tgz" "$filename"
+chown "$USER_NAME" "$filename.tgz"
+
+echo "Cleaning up"
+if [[ "$USER_NAME" != "root" ]]; then
+	if [[ ! -f ~/Desktop/"$filename.tgz" ]] ;then
+		mv "$filename.tgz" ~/Desktop/
+	fi
+elif [[ -d ~/Desktop ]]; then
+	if [[ ! -f ~/Desktop/"$filename.tgz" ]] ;then
+		mv "$filename.tgz" ~/Desktop/
+	fi
+else
+	mv "$filename.tgz" ~/
+fi
+rm -rf "$filename"
+popd > /dev/null
+
+if [[ -d ~/Desktop ]]; then
+	echo "Finished! - Archive file: '$filename.tgz' is on your Desktop"
+else
+	echo "Finished! - Archive file: '$filename.tgz' is in your home directory"
+fi
+
+exit

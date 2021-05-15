@@ -1,0 +1,43 @@
+#!/bin/sh
+#
+# awslogin: aws login utility, which provides a method to switch between onelogin and iam
+#
+
+#set -xeu
+
+function usage()
+{
+	echo "usage: $1 [options]"
+	echo "	-h         print this usage and exit"
+	echo "	-n         switch to normal"
+	echo "	-s         switch to staging"
+	echo "	-p         print current env"
+}
+
+bname=`basename $0`
+
+mode=NORMAL
+
+while getopts nsph OPT;
+do
+	case $OPT in
+		"n") mode=NORMAL;;
+		"s") mode=STAGE;;
+		"p") mode=PRINT;;
+		"h") usage ${bname}; exit;;
+	esac
+done
+
+ipaddr=$(dig +short www.freee.co.jp-v1.edgekey-staging.net | sed -n '2p')
+match=$(sed -n '/www.freee.co.jp/p')
+
+if [ ${mode} = PRINT ]; then
+	if [ ${match} != "" ]; then
+		echo "www.freee points to different address"
+	else
+		echo "www.freee points to normal address"
+	fi
+	exit 0
+fi
+
+

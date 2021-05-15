@@ -1,0 +1,25 @@
+#!/usr/bin/env variant
+
+parameters:
+  - name: cachedir
+    type: string
+    default: "~/.cache"
+
+mixins:
+  get_cache_path: &get_cache_path |
+    cachedir={{ get "cachedir" }}
+    hash=$(aws configure list | md5 | head -c8)
+    cachepath=$cachedir/lsaws_cb_list_$hash
+
+tasks:
+  fetch:
+    script:
+      - *get_cache_path
+      - |
+        aws codebuild list-builds-for-project --project-name=AMI_Builder --sort-order DESCENDING --max-items 100 > "$cachepath"
+  list:
+    script:
+      - *get_cache_path
+      - |
+        ids=$(cat $cachepath | jq -r ".ids | @csv" | sed 's/,/ /g' | sed 's/\"//'g)
+        eval aws codebuild batch-get-builds --ids ${ids} | jq -r ".builds[] | [.id, .sourceVersion, .initiator, .buildStatus] |@csv"

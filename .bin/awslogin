@@ -178,7 +178,7 @@ ONELOGIN_EXPIRED_SEC=10800
 while getopts iorspluh OPT;
 do
 	case $OPT in
-		"i") use_iam $rcfile; exit;;
+		# "i") use_iam $rcfile; exit;;
 		"s") switch_profile $cache $rcfile; exit;;
 		"r")
       login_via_onelogin $cache
@@ -187,6 +187,7 @@ do
 		"p") get_current $cache; exit;;
     'l') list_profile $cache; exit;;
     'u') clear_env; exit;;
+    'o') saml2aws login --skip-prompt --force; exit;;
 		"h") usage ${bname}; exit;;
     '?') usage ${bname}; exit;;
 	esac
