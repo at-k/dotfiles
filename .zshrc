@@ -285,6 +285,10 @@ alias iro-e='for i in {0..255} ; do; echo -e "\e[${i}m ${i}"; done'
 alias g='git'
 compdef g=git
 
+alias vim='nvim'
+alias v='nvim'
+compdef v=nvim
+
 alias diff='diff -Bw'
 alias vimdiff='vimdiff -c "set diffopt+=iwhite"'
 
