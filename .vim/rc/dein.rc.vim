@@ -30,14 +30,14 @@ else
   call dein#begin(s:path, expand('<sfile>'))
 
   call dein#load_toml(g:dein_toml_dir . '/dein.toml', {'lazy': 0})
-  call dein#load_toml(g:dein_toml_dir . '/dein_completion.toml', {'lazy': 0})
   call dein#load_toml(g:dein_toml_dir . '/deinlazy.toml', {'lazy': 1})
 
-  "if has('nvim')
+  if has('nvim')
+    call dein#load_toml(g:dein_toml_dir . '/lsp.toml', {'lazy': 0})
   "  call dein#load_toml(g:dein_toml_dir . '/neovim.toml', {'lazy': 0})
-  "endif
+  else
+    call dein#load_toml(g:dein_toml_dir . '/dein_completion.toml', {'lazy': 0})
 
-  if !has('nvim')
     call dein#add('roxma/nvim-yarp')
     call dein#add('roxma/vim-hug-neovim-rpc')
   endif
