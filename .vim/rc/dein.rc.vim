@@ -2,7 +2,7 @@
 
 let g:dein#install_progress_type = 'title'
 let g:dein#enable_notification = 1
-let g:dein#install_log_filename = '~/.dein.log'
+let g:dein#install_log_filename = $DEINLOG_PATH
 
 let s:path = expand('$CACHE/dein')
 if !dein#load_state(s:path)

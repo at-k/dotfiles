@@ -84,7 +84,11 @@ augroup END
 set clipboard&
 
 " save text selected on visual mode into clipboard
-set clipboard+=autoselect
+if has('nvim')
+  set clipboard^=unnamedplus
+else
+  set clipboard+=autoselect
+endif
 
 " [caution] this option might have an effect upon yank function
 if has('unix') && !has('win32unix') && !has('mac')
