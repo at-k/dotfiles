@@ -79,42 +79,7 @@ hook_source = '''
 repo = 'cespare/vim-toml'
 on_ft = ['toml']
 
-#[[plugins]]
-#repo = 'davidhalter/jedi-vim'
-#on_ft = ['python', 'python3', 'djangohtml']
-#hook_source = '''
-#	autocmd FileType python setlocal omnifunc=jedi#completions
-#
-#	let g:jedi#auto_initialization = 1
-#	let g:jedi#auto_vim_configuration = 1
-#
-#	nnoremap [jedi] <Nop>
-#	xnoremap [jedi] <Nop>
-#	nmap <Leader>j [jedi]
-#	xmap <Leader>j [jedi]
-#
-#	let g:jedi#completions_command = "<C-Space>"    " 補完キーの設定この場合はCtrl+Space
-#	let g:jedi#goto_assignments_command = "<C-g>"   " 変数の宣言場所へジャンプ（Ctrl + g)
-#	let g:jedi#goto_definitions_command = "<C-d>"   " クラス、関数定義にジャンプ（Gtrl + d）
-#	let g:jedi#documentation_command = "<C-k>"      " Pydocを表示（Ctrl + k）
-#	let g:jedi#rename_command = "[jedi]r"
-#	let g:jedi#usages_command = "[jedi]n"
-#	let g:jedi#popup_select_first = 0
-#	let g:jedi#popup_on_dot = 0
-#
-#	autocmd FileType python setlocal completeopt-=preview
-#
-#	" for w/ neocomplete
-#	" if ! empty(neobundle#get("neocomplete.vim"))
-#		autocmd FileType python setlocal omnifunc=jedi#completions
-#		let g:jedi#completions_enabled = 0
-#		let g:jedi#auto_vim_configuration = 0
-#"		let g:neocomplete#force_omni_input_patterns.python =
-#"					\ '\%([^. \t]\.\|^\s*@\|^\s*from\s.\+import \|^\s*from \|^\s*import \)\w*'
-#	" endif
-#
-#'''
-
+# {{ python
 # [[plugins]]
 # repo = 'andviro/flake8-vim'
 # on_ft = ['python']
@@ -126,7 +91,9 @@ on_ft = ['toml']
 #[[plugins]]
 #repo = 'tell-k/vim-autopep8'
 #on_ft = ['python']
+# }}
 
+# {{ ruby
 #[[plugins]]
 #repo = 'osyo-manga/vim-monster'
 #on_ft = ['ruby']
@@ -134,11 +101,7 @@ on_ft = ['toml']
 #[[plugins]]
 #repo = 'marcus/rsense'
 #on_ft = ['ruby']
-
-# now removed from github
-#[[plugins]]
-#repo = 'supermomonga/neocomplete-rsense.vim'
-#on_ft = ['ruby']
+# }}
 
 #[[plugins]]
 #repo = 'fatih/vim-go'
@@ -152,121 +115,20 @@ on_ft = ['toml']
 #  autocmd FileType go :highlight goErr cterm=bold ctermfg=214
 #  autocmd FileType go :match goErr /\<err\>/
 #'''
+
+# {{ ts
+# [[plugins]]
+# repo = 'delphinus35/typescript-vim'
+# rev  = 'colorize-template-strings'
 #
-#[[plugins]]
-#repo = 'Shougo/neocomplete.vim'
-#on_event = 'InsertEnter'
-#if = "has('lua')"
-#hook_source = '''
-#	let g:acp_enableAtStartup = 0
-#	" Use neocomplete.
-#	let g:neocomplete#enable_at_startup = 1
+# [[plugins]]
+# repo = 'kchmck/vim-coffee-script'
 #
-#	if !exists('g:neocomplete#force_omni_input_patterns')
-#	  let g:neocomplete#force_omni_input_patterns = {}
-#	endif
-#	let g:neocomplete#force_overwrite_completefunc = 1
-#	let g:neocomplete#force_omni_input_patterns.c =
-#	      \ '[^.[:digit:] *\t]\%(\.\|->\)\w*'
-#	let g:neocomplete#force_omni_input_patterns.cpp =
-#	      \ '[^.[:digit:] *\t]\%(\.\|->\)\w*\|\h\w*::\w*'
-#  let g:neocomplete#force_omni_input_patterns.go =
-#        \ '\h\w\.\w*'
-#
-#	" <TAB>: completion.
-#	inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
-#
-#	"-- for neco look
-#	if !exists('g:neocomplete#text_mode_filetypes')
-#		let g:neocomplete#text_mode_filetypes = {}
-#	endif
-#	let g:neocomplete#text_mode_filetypes = {
-#				\ 'rst': 1,
-#				\ 'markdown': 1,
-#				\ 'gitrebase': 1,
-#				\ 'gitcommit': 1,
-#				\ 'vcs-commit': 1,
-#				\ 'hybrid': 1,
-#				\ 'text': 1,
-#				\ 'help': 1,
-#				\ 'tex': 1,
-#				\ }
-#
-#	"-- ruby
-#	let g:neocomplete#sources#omni#input_patterns = {
-#				\   "ruby" : '[^. *\t]\.\w*\|\h\w*::',
-#				\}
-#
-#  " source ~/.vim/rc/plugins/neocomplete.rc.vim
-#'''
-#
-#[[plugins]]
-#repo = 'Shougo/neosnippet.vim'
-#depends = ['neosnippet-snippets', 'context_filetype.vim']
-#on_event = 'InsertCharPre'
-#on_ft = 'snippet'
-#hook_source = '''
-#  imap <silent><C-k>     <Plug>(neosnippet_jump_or_expand)
-#  smap <silent><C-k>     <Plug>(neosnippet_jump_or_expand)
-#  xmap <silent><C-k>     <Plug>(neosnippet_expand_target)
-#  let g:neosnippet#enable_snipmate_compatibility = 1
-#  let g:neosnippet#enable_completed_snippet = 1
-#  let g:neosnippet#expand_word_boundary = 1
-#  let g:neosnippet#snippets_directory = '~/.vim/snippets'
-#'''
-#
-#[[plugins]]
-#repo = 'Shougo/neoinclude.vim'
-#on_if = 1
-#
-#[[plugins]]
-#repo   = 'Shougo/unite.vim'
-#on_cmd = ['Unite']
-#
-#[[plugins]]
-#repo      = 'Shougo/neomru.vim'
-#on_source = ['unite.vim']
-#
-#[[plugins]]
-#repo = 'ujihisa/unite-colorscheme'
-#on_source = ['unite.vim']
-#
-#[[plugins]]
-#repo = 'tacroe/unite-mark'
-#on_source = ['unite.vim']
+# }}
 
 [[plugins]]
 repo      = 'thinca/vim-prettyprint'
 on_cmd    = ['PP', 'PrettyPrint']
-
-[[plugins]]
-repo = 'scrooloose/nerdtree'
-on_cmd = ['NERDTree']
-hook_add = '''
-	let NERDTreeShowHidden = 1
-	function! ExecuteNERDTree()
-		"b:nerdstatus = 1 : NERDTree 表示中
-		"b:nerdstatus = 2 : NERDTree 非表示中
-
-		if !exists('g:nerdstatus')
-			execute 'NERDTree ./'
-			let g:windowWidth = winwidth(winnr())
-			let g:nerdtreebuf = bufnr('')
-			let g:nerdstatus = 1
-
-		elseif g:nerdstatus == 1
-			execute 'wincmd t'
-			execute 'vertical resize' 0
-			execute 'wincmd p'
-			let g:nerdstatus = 2
-		elseif g:nerdstatus == 2
-			execute 'wincmd t'
-			execute 'vertical resize' g:windowWidth
-			let g:nerdstatus = 1
-
-		endif
-	endfunction
-'''
 
 # [[plugins]]
 # repo = 'mrtazz/simplenote.vim'
@@ -279,11 +141,3 @@ on_cmd = ['Fontzoom']
 on_map = ['<Plug>(fontzoom-']
 gui    = 1
 
-
-# [[plugins]]
-# repo = 'delphinus35/typescript-vim'
-# rev  = 'colorize-template-strings'
-#
-# [[plugins]]
-# repo = 'kchmck/vim-coffee-script'
-#

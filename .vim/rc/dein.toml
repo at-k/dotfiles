@@ -30,7 +30,6 @@ repo = 'kshenoy/vim-signature'
 [[plugins]]
 repo = 'majutsushi/tagbar'
 
-# View and search LSP symbols, tags in Vim/NeoVim.
 [[plugins]]
 repo = 'liuchengxu/vista.vim'
 hook_add = '''
@@ -176,4 +175,32 @@ repo = 'Konfekt/FastFold'
 
 [[plugins]]
 repo = 'b4b4r07/vim-ansible-vault'
+
+[[plugins]]
+repo = 'scrooloose/nerdtree'
+# on_cmd = ['NERDTree']
+hook_add = '''
+	let NERDTreeShowHidden = 1
+	function! ExecuteNERDTree()
+		"b:nerdstatus = 1 : NERDTree 表示中
+		"b:nerdstatus = 2 : NERDTree 非表示中
+
+		if !exists('g:nerdstatus')
+			execute 'NERDTree ./'
+			let g:windowWidth = winwidth(winnr())
+			let g:nerdtreebuf = bufnr('')
+			let g:nerdstatus = 1
+
+		elseif g:nerdstatus == 1
+			execute 'wincmd t'
+			execute 'vertical resize' 0
+			execute 'wincmd p'
+			let g:nerdstatus = 2
+		elseif g:nerdstatus == 2
+			execute 'wincmd t'
+			execute 'vertical resize' g:windowWidth
+			let g:nerdstatus = 1
+		endif
+	endfunction
+'''
 
