@@ -142,7 +142,7 @@ autocmd colorscheme * hi TabLineSel ctermfg=Red ctermbg=Yellow
 "-------------------------------------------------
 
 " show number
-set number
+set number relativenumber
 
 " disable color column
 set cc=
