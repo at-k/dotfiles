@@ -1,24 +1,23 @@
 [[plugins]]
 repo = 'Shougo/dein.vim'
 
-# カーソル位置のコンテキストに合わせてftを切り替える -- 重すぎるので無効化
-#[[plugins]]
-#repo = 'osyo-manga/vim-precious'
-#depends = ['context_filetype.vim']
+[[plugins]]
+repo = 'osyo-manga/vim-precious'
+depends = ['context_filetype.vim']
+hook_add = '''
+let g:precious_enable_switchers = {
+  \	"vue" : {
+  \		"setfiletype" : 0
+  \	},
+  \}
+'''
+
+[[plugins]] # カーソル位置のコンテキストのftを判定するライブラリ
+repo = 'Shougo/context_filetype.vim'
 
 [[plugins]]
 repo = 'vim-scripts/DirDiff.vim'
 
-# [[plugins]] # カーソル位置のコンテキストのftを判定するライブラリ
-# repo = 'Shougo/context_filetype.vim'
-
-# [[plugins]]
-# repo = 'delphinus35/typescript-vim'
-# rev  = 'colorize-template-strings'
-#
-# [[plugins]]
-# repo = 'kchmck/vim-coffee-script'
-#
 # [[plugins]]
 # repo = 'Shougo/neosnippet-snippets'
 #
@@ -35,18 +34,57 @@ repo = 'majutsushi/tagbar'
 [[plugins]]
 repo = 'liuchengxu/vista.vim'
 hook_add = '''
-    let g:vista_default_executive = 'vim_lsp'
-    function! NearestMethodOrFunction() abort
-      return get(b:, 'vista_nearest_method_or_function', '')
-    endfunction
+let g:vista_default_executive = 'vim_lsp'
+let g:vista_sidebar_width = 40
+let g:vista_echo_cursor_strategy = 'both'
+let g:vista_stay_on_open = 0
 
-    set statusline+=%{NearestMethodOrFunction()}
+function! NearestMethodOrFunction() abort
+    return get(b:, 'vista_nearest_method_or_function', '')
+endfunction
 
-    " By default vista.vim never run if you don't call it explicitly.
-    "
-    " If you want to show the nearest function in your statusline automatically,
-    " you can add the following line to your vimrc
-    autocmd VimEnter * call vista#RunForNearestMethodOrFunction()
+set statusline+=%{NearestMethodOrFunction()}
+
+autocmd VimEnter * call vista#RunForNearestMethodOrFunction()
+'''
+
+[[plugins]]
+repo = 'itchyny/lightline.vim'
+depends_on = ['vim-fugitive', 'vista.nvim']
+hook_add = '''
+let g:lightline = {
+    \ 'colorscheme': 'wombat',
+    \ 'active': {
+        \   'left': [ [ 'mode', 'paste' ],
+        \             [ 'gitbranch', 'readonly', 'filename', 'modified', 'method' ] ],
+        \   'right': [
+        \       [ 'lineinfo' ],
+        \       [ 'percent' ],
+        \       [ 'fileformat', 'fileencoding', 'filetype' ] ]
+    \ },
+    \ 'component_function': {
+        \   'gitbranch': 'fugitive#head',
+        \   'filename':  'LightlineFilename',
+        \   'method': 'NearestMethodOrFunction'
+    \ },
+    \ }
+function! LightlineFilename()
+    let l:ap = expand("%:p")
+    let l:p = substitute(ap, $HOME, "~", "")
+
+    let l:wid = winwidth(winnr()) / 3
+
+    if strlen(p) > wid
+        let p = strcharpart(p, 0, wid).".../".expand("%:t")
+    endif
+
+    return p
+endfunction
+'''
+hook_source = '''
+  augroup ReloadLightLine
+    autocmd BufRead,BufNewFile * call lightline#colorscheme()
+  augroup END
 '''
 
 [[plugins]]
@@ -70,7 +108,7 @@ repo = 'kana/vim-operator-user'
 # [[plugins]]
 # repo = 'rhysd/vim-operator-surround'
 
-# -- git
+# {{ git
 [[plugins]]
 repo = 'tpope/vim-fugitive'
 
@@ -101,7 +139,7 @@ repo = 'itchyny/vim-gitbranch'
 
 [[plugins]]
 repo = 'mhinz/vim-signify'
-# --
+# }}
 
 # [[plugins]]
 # repo = 'Shougo/vimfiler'
@@ -109,7 +147,7 @@ repo = 'mhinz/vim-signify'
 [[plugins]]
 repo = 'Shougo/vimshell'
 
-# -- color scheme
+# {{ color scheme
 [[plugins]]
 repo = 'sheerun/vim-wombat-scheme'
 
@@ -118,7 +156,17 @@ repo = 'vim-scripts/wombat256.vim'
 
 [[plugins]]
 repo = 'b4b4r07/solarized.vim'
-# --
+
+#[[plugins]]
+#repo = 'cocopon/iceberg.vim'
+#hook_add = '''
+#  if (has("termguicolors"))
+#   set termguicolors
+#  endif
+#  let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+#  au MyAutoCmd VimEnter * nested colorscheme iceberg
+#'''
+# }}
 
 [[plugins]]
 repo = 'ujihisa/neco-look'

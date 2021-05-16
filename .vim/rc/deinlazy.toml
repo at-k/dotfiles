@@ -7,6 +7,9 @@ on_source = ['unite.vim', 'vimshell.vim']
 repo = 'elzr/vim-json'
 if   = '''! has('kaoriya')'''
 on_ft = ['json']
+hook_add = '''
+let g:vim_json_syntax_conceal = 0
+'''
 
 [[plugins]]
 repo  = 'Quramy/tsuquyomi'
@@ -27,78 +30,6 @@ repo = 'vim-scripts/textutil.vim'
 on_ft = ['rtf']
 
 [[plugins]]
-repo = 'itchyny/lightline.vim'
-on_event = 'VimEnter'
-hook_add = '''
-  let g:lightline = {
-        \ 'colorscheme': 'wombat',
-        \ 'active': {
-        \   'left': [ [ 'mode', 'paste' ],
-        \             [ 'gitbranch', 'readonly', 'filename', 'modified', 'method' ] ]
-        \ },
-        \ 'component_function': {
-        \   'gitbranch': 'fugitive#head',
-        \   'filename':  'LightlineFilename',
-        \   'method': 'NearestMethodOrFunction'
-        \ },
-        \ }
-  function! LightlineFilename()
-    let l:ap = expand("%:p")
-    let l:p = substitute(ap, $HOME, "~", "")
-
-    let l:wid = winwidth(winnr()) / 3
-
-    if strlen(p) > wid
-      let p = strcharpart(p, 0, wid).".../".expand("%:t")
-    endif
-
-    return p
-  endfunction
-
-'''
-hook_source = '''
-  augroup ReloadLightLine
-    autocmd BufRead,BufNewFile * call lightline#colorscheme()
-  augroup END
-'''
-
-#[[plugins]]
-#repo = 'justmao945/vim-clang'
-#on_ft = ['cpp', 'c']
-#hook_source = '''
-#	" disable auto completion for vim-clang
-#	let g:clang_auto = 0
-#
-#	" default 'longest' can not work with neocomplete
-#	let g:clang_c_completeopt   = 'menuone'
-#	let g:clang_cpp_completeopt = 'menuone'
-#
-#	if executable('clang-3.6')
-#		let g:clang_exec = 'clang-3.6'
-#	elseif executable('clang-3.5')
-#		let g:clang_exec = 'clang-3.5'
-#	elseif executable('clang-3.4')
-#		let g:clang_exec = 'clang-3.4'
-#	else
-#		let g:clang_exec = 'clang'
-#	endif
-#
-#	if executable('clang-format-3.6')
-#		let g:clang_format_exec = 'clang-format-3.6'
-#	elseif executable('clang-format-3.5')
-#		let g:clang_format_exec = 'clang-format-3.5'
-#	elseif executable('clang-format-3.4')
-#		let g:clang_format_exec = 'clang-format-3.4'
-#	else
-#		let g:clang_exec = 'clang'
-#		"let g:clang_exec = 'clang-format'
-#	endif
-#
-#	let g:clang_cpp_options = '-std=c++11 -stdlib=libc++ -I /usr/include/ -I /usr/include/c++/5/ -I /usr/include/x86_64-linux-gnu/c++/5'
-#	"let g:clang_cpp_options = '-std=c++11 -stdlib=libc++'
-#'''
-
-[[plugins]]
 repo = 'mechatroner/rainbow_csv'
 on_ft= ['csv']
 
@@ -109,7 +40,7 @@ hook_source = '''
     let g:javascript_plugin_ngdoc = 1
 '''
 
-# -- markdown
+# {{ markdown
 [[plugins]]
 repo = 'plasticboy/vim-markdown'
 on_ft = ['markdown']
@@ -126,7 +57,7 @@ depends = ['open-browser.vim']
 
 [[plugins]]
 repo = 'tyru/open-browser.vim'
-# --
+# }}
 
 [[plugins]]
 repo = 'stephpy/vim-yaml'
@@ -141,8 +72,12 @@ repo = 'hashivim/vim-terraform'
 on_ft = ['tf','terraform']
 hook_source = '''
     let g:terraform_align=1
-    " let g:terraform_fmt_on_save=1
+    let g:terraform_fmt_on_save=1
 '''
+
+[[plugins]]
+repo = 'cespare/vim-toml'
+on_ft = ['toml']
 
 #[[plugins]]
 #repo = 'davidhalter/jedi-vim'
@@ -343,3 +278,12 @@ repo   = 'thinca/vim-fontzoom'
 on_cmd = ['Fontzoom']
 on_map = ['<Plug>(fontzoom-']
 gui    = 1
+
+
+# [[plugins]]
+# repo = 'delphinus35/typescript-vim'
+# rev  = 'colorize-template-strings'
+#
+# [[plugins]]
+# repo = 'kchmck/vim-coffee-script'
+#
