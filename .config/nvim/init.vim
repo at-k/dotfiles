@@ -1,3 +1,7 @@
+if filereadable(expand('~/.vimrc.local'))
+  source ~/.vimrc.local
+endif
+
 if &compatible
   set nocompatible " Be iMproved
 endif
@@ -17,7 +21,5 @@ endif
 hi MatchParen term=standout ctermbg=White ctermfg=White guibg=White guifg=White
 
 source ~/.vim/rc/dein.rc.vim
-
 source ~/.vim/rc/encoding.rc.vim
 source ~/.vim/rc/basic.vim
-"}}

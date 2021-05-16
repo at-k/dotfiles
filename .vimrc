@@ -16,13 +16,8 @@ if has('vim_starting')
   source ~/.vim/rc/init.rc.vim
 endif
 
+hi MatchParen term=standout ctermbg=White ctermfg=White guibg=White guifg=White
+
 source ~/.vim/rc/dein.rc.vim
-
-augroup MyAutoCmd
-  autocmd FileType,Syntax,BufNewFile,BufNew,BufRead *?
-        \ call vimrc#on_filetype()
-  autocmd CursorHold *.toml syntax sync minlines=300
-augroup END
-
 source ~/.vim/rc/encoding.rc.vim
 source ~/.vim/rc/basic.vim
