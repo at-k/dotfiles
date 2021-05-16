@@ -2,6 +2,8 @@
 
 let g:dein#install_progress_type = 'title'
 let g:dein#enable_notification = 1
+let g:dein#install_max_processes = 16
+let g:dein#install_message_type = 'none'
 let g:dein#install_log_filename = g:dein_log_path
 
 let s:path =  g:cache_home . '/dein'
@@ -24,16 +26,21 @@ endif
 
 if !dein#load_state(s:path)
 	finish
+else
+  call dein#begin(s:path, expand('<sfile>'))
+
+  call dein#load_toml(g:dein_toml_dir . '/dein.toml', {'lazy': 0})
+  call dein#load_toml(g:dein_toml_dir . '/dein_completion.toml', {'lazy': 0})
+  call dein#load_toml(g:dein_toml_dir . '/deinlazy.toml', {'lazy': 1})
+
+  if !has('nvim')
+    call dein#add('roxma/nvim-yarp')
+    call dein#add('roxma/vim-hug-neovim-rpc')
+  endif
+
+  call dein#end()
+  call dein#save_state()
 endif
-
-call dein#begin(s:path, expand('<sfile>'))
-
-call dein#load_toml(g:dein_toml_dir . '/dein.toml', {'lazy': 0})
-call dein#load_toml(g:dein_toml_dir . '/dein_completion.toml', {'lazy': 0})
-call dein#load_toml(g:dein_toml_dir . '/deinlazy.toml', {'lazy': 1})
-
-call dein#end()
-call dein#save_state()
 
 if has('vim_starting') && dein#check_install()
 	call dein#install()

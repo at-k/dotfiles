@@ -8,9 +8,9 @@ endif
 
 let g:cache_home = empty($XDG_CACHE_HOME) ? expand('$HOME/.cache') : $XDG_CACHE_HOME
 let g:config_home = empty($XDG_CONFIG_HOME) ? expand('$HOME/.config') : $XDG_CONFIG_HOME
-let g:toml_path = empty($XDG_CONFIG_HOME) ? expand('$HOME/.config') : $XDG_CONFIG_HOME
 let g:dein_toml_dir = expand('$HOME/.vim/rc')
 let g:dein_log_path = expand('$HOME/.dein.log')
+let g:toml_path = empty($XDG_CONFIG_HOME) ? expand('$HOME/.config') : $XDG_CONFIG_HOME
 
 if has('vim_starting')
   source ~/.vim/rc/init.rc.vim
