@@ -2,8 +2,6 @@ if &compatible
   set nocompatible " Be iMproved
 endif
 
-" let g:python3_host_prog = '/usr/bin/python3'
-"let g:ruby_host_prog = expand('/usr/lib/ruby/gems/2.5.0/gems/neovim-0.7.1/bin/neovim-ruby-host')
 let g:deoplete#enable_at_startup = 1
 
 let g:cache_home = empty($XDG_CACHE_HOME) ? expand('$HOME/.cache/nvim') : $XDG_CACHE_HOME
@@ -15,11 +13,6 @@ endif
 
 " dein {{{
 let s:dein_cache_dir = g:cache_home . '/dein'
-
-" reset augroup
-augroup MyAutoCmd
-  autocmd!
-augroup END
 
 if &runtimepath !~# '/dein.vim'
   let s:dein_repo_dir = s:dein_cache_dir . '/repos/github.com/Shougo/dein.vim'
@@ -44,7 +37,7 @@ if dein#load_state(s:dein_cache_dir)
   call dein#begin(s:dein_cache_dir)
 
   " let s:toml_dir = g:config_home . '/dein'
-  let s:toml_dir = '~/.vim/rc'
+  let s:toml_dir = expand('$HOME/.vim/rc')
 
   call dein#load_toml(s:toml_dir . '/dein.toml', {'lazy': 0})
   call dein#load_toml(s:toml_dir . '/dein_completion.toml', {'lazy': 0})
@@ -68,8 +61,6 @@ endif
 " }}}
 
 "{{
-"source ~/.vim/rc/dein.rc.vim
-
 if has('vim_starting') && !empty(argv())
   call vimrc#on_filetype()
 endif

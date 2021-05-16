@@ -6,6 +6,9 @@
 augroup completion
   autocmd!
 augroup END
+augroup MyAutoCmd
+  autocmd!
+augroup END
 
 let s:is_windows = has('win32') || has('win64')
 
@@ -60,14 +63,6 @@ nnoremap ,  <Nop>
 if IsWindows()
   " Exchange path separator.
    set shellslash
-endif
-
-if !isdirectory(expand($CACHE))
-  call mkdir(expand($CACHE), 'p')
-endif
-
-if filereadable(expand('~/.secret_vimrc'))
-  execute 'source' expand('~/.secret_vimrc')
 endif
 
 " Disable packpath
