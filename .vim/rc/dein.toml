@@ -18,6 +18,9 @@ repo = 'Shougo/context_filetype.vim'
 [[plugins]]
 repo = 'vim-scripts/DirDiff.vim'
 
+[[plugins]]
+repo = 'tyru/open-browser.vim'
+
 # [[plugins]]
 # repo = 'Shougo/neosnippet-snippets'
 #
@@ -138,6 +141,11 @@ repo = 'itchyny/vim-gitbranch'
 
 [[plugins]]
 repo = 'mhinz/vim-signify'
+
+
+[[plugins]]
+repo = 'tyru/open-browser-github.vim'
+depends = ['open-browser.vim']
 # }}
 
 # [[plugins]]
@@ -203,4 +211,3 @@ hook_add = '''
 		endif
 	endfunction
 '''
-

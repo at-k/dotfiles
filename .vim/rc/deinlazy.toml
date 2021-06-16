@@ -54,9 +54,6 @@ depends = ['vim-markdown']
 repo = 'kannokanno/previm'
 on_cmd = ['PrevimOpen']
 depends = ['open-browser.vim']
-
-[[plugins]]
-repo = 'tyru/open-browser.vim'
 # }}
 
 [[plugins]]

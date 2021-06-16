@@ -296,6 +296,13 @@ alias zbench='time ( zsh -i -c exit)'
 
 alias ecr-login='aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin 057575985710.dkr.ecr.ap-northeast-1.amazonaws.com'
 
+alias k='kubectl'
+alias kc='kubectx'
+alias kn='kubens'
+compdef k=kubectl
+compdef kc=kubectx
+compdef kn=kubens
+
 function alogin() {
     awslogin $@
     source ~/.zshrc.local
@@ -460,12 +467,6 @@ function envk () {
     # for helm-secret (issue:https://github.com/futuresimple/helm-secrets/issues/71)
     export PATH="/usr/local/Cellar/gnu-getopt/1.1.6/bin":$PATH
     export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
-	alias k='kubectl'
-    alias kc='kubectx'
-    alias kn='kubens'
-	compdef k=kubectl
-	compdef kc=kubectx
-	compdef kn=kubens
 }
 
 # zsh-defer -t 2 envk
@@ -568,4 +569,7 @@ if [ "$ZSH_PROFILE_MODE" ]; then
 	  zprof
 	fi
 fi
+
+
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 

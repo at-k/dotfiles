@@ -27,7 +27,7 @@
     print-upstream = "!git remote get-url upstream | sed -e \"s;.*github;https://github;\" | sed \"s;github.com:;github.com/;\""
     short-recent = "for-each-ref --count=25 --sort=committerdate refs/heads/ --format='%(refname:short)'"
     fco = "!git short-recent | fzf --print0 | xargs -0 -t git checkout"
-    open = "!f() { REPO_URL=$(git config remote.origin.url | sed 's/git/https/'); open ${REPO_URL%%.git}; }; f"
+    open = "!f() { REPO_URL=$(git config remote.origin.url | sed -e 's%git://%https://%' -e 's%git@github.com:%https://github.com/%'); open ${REPO_URL%%.git}; }; f"
     browse = !git open
 
 [difftool.latex]
