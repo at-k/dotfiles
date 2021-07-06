@@ -264,6 +264,8 @@ alias dec2hex="printf '%x\n'"
 alias dec2bin='(){ echo "obase=2; ibase=10; ${1}" | bc }'
 alias tox='(){ echo "obase=${2}; ibase=${1}; ${3}" | bc }'
 
+alias docker-sweep='(){ docker rmi $(docker images -q) && docker rm -v $(docker ps -qa)}'
+
 alias gcc='gcc -Wall'
 alias g++='g++ -Wall'
 
@@ -295,6 +297,7 @@ alias vimdiff='vimdiff -c "set diffopt+=iwhite"'
 alias zbench='time ( zsh -i -c exit)'
 
 alias ecr-login='aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin 057575985710.dkr.ecr.ap-northeast-1.amazonaws.com'
+alias tf-search='gh repo list C-FO -l hcl --limit 1000 | fzf | cut -f1 | xargs -I{} gh repo view {}'
 
 alias k='kubectl'
 alias kc='kubectx'

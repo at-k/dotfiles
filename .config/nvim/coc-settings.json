@@ -1,6 +1,8 @@
 {
   "markdownlint": {
-    "onOpen": false
+    "onOpen": false,
+    "onChange" : false,
+    "onSave" : false
   },
   "languageserver": {
     "terraform": {
