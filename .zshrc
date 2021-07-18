@@ -286,6 +286,7 @@ alias iro-e='for i in {0..255} ; do; echo -e "\e[${i}m ${i}"; done'
 
 alias g='git'
 compdef g=git
+alias cdroot='cd $(git root)'
 
 alias vim='nvim'
 alias v='nvim'
@@ -305,6 +306,8 @@ alias kn='kubens'
 compdef k=kubectl
 compdef kc=kubectx
 compdef kn=kubens
+
+alias step='~/freee-work/clusterops/bin/ssh2step -u akawamura -k ~/.ssh/freee_key'
 
 function alogin() {
     awslogin $@
