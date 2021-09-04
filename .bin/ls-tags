@@ -1,0 +1,53 @@
+#!/bin/sh
+
+refresh=false
+cachefile=${HOME}/.cache/aws_ec2_tags
+target_tag=""
+
+function parse_args() {
+  args=$(getopt t:r "$@")
+
+  set -- $args
+  for OPT in "$@"
+  do
+      case $OPT in
+          -t) target_tag=$2
+              shift 2
+              ;;
+          -r) refresh=true
+              shift 2
+              ;;
+          --) shift
+              break
+              ;;
+      esac
+  done
+}
+
+parse_args $@
+
+
+if [ "$target_tag" == "r" -o "$target_tag" == "Role" ]; then
+  target_tag="Role"
+elif [ "$target_tag" == "p" ]; then
+  target_tag="Project"
+elif [ "$target_tag" == "s" ]; then
+  target_tag="Stage"
+else
+  echo "tag ${target_tag} is not supported yet"
+  exit 0
+fi
+
+if [ "$refresh" == "true" ]; then
+  aws ec2 describe-instances |
+    jq -r '.Reservations[].Instances[] | .Tags[]? | select(.Key == "Project" or .Key == "Role" or .Key == "Stage") | [.Key, .Value] | @csv' |
+    sort -k1,2 | uniq | sed 's/"//g' > $cachefile
+fi
+
+if [ "$target_tag" == "" ]; then
+  cat $cachefile
+else
+  grep $target_tag $cachefile | cut -d, -f2
+fi
+
+

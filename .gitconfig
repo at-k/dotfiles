@@ -14,15 +14,18 @@
     s = status
     b = branch
     co = checkout
+    cm = commit
     l = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
     lga = log --graph --all --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
     dt = difftool
     pr = "!sh -c 'git fetch upstream refs/pull/$1/head:pr/$1/head && git checkout pr/$1/head' -"
     co-upstream = "!sh -c 'git checkout -b $1 upstream/$1' -"
     co-origin = "!sh -c 'git checkout -b $1 origin/$1' -"
-    sync-upstream = !git fetch upstream && git checkout master && git merge upstream/master
-    sync-upstreamd = !git fetch upstream && git checkout develop && git merge upstream/develop
-    sync-origin = !git fetch origin && git checkout master && git merge origin/master
+
+    sync-remote = "!f() { remote=$1; branch=$(git default-bn); git fetch $remote; git checkout $branch; git merge $remote/$branch;}; f $1"
+    sync-remoteu = "!git sync-remote upstream"
+    sync-remoteo = "!git sync-remote origin"
+
     ls-unmerged = branch --list --no-merged
     ls-merged = branch --merged
     rm-merged = !git branch --merged | grep -v \\* | xargs -I % git branch -d %
@@ -31,7 +34,9 @@
     fco = "!git short-recent | fzf --print0 | xargs -0 -t git checkout"
     open = "!f() { REPO_URL=$(git config remote.origin.url | sed -e 's%git://%https://%' -e 's%git@github.com:%https://github.com/%'); open ${REPO_URL%%.git}; }; f"
     browse = !git open
-	root = rev-parse --show-toplevel
+    root = rev-parse --show-toplevel
+    bn = rev-parse --abbrev-ref HEAD
+    default-bn = "!git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@'"
 
 [difftool.latex]
 	cmd = latexdiff -e ISO-2022-JP "$LOCAL" "$REMOTE"

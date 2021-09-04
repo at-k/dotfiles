@@ -62,7 +62,7 @@ zplugin light zsh-users/zsh-autosuggestions
 zplugin ice wait'1' lucid
 zplugin light zdharma/fast-syntax-highlighting
 
-zplugin ice wait'1' lucid
+zplugin ice wait'1' lucid blockf
 zplugin light zsh-users/zsh-completions
 
 zplugin ice wait lucid
@@ -103,7 +103,8 @@ fi
 if [ -x "`which terraform 2> /dev/null `" ]; then
     alias tplan="terraform plan | landscape"
     alias tf='terraform'
-    complete -C terraform terraform
+    complete -o nospace -C /usr/local/Cellar/tfenv/2.0.0/versions/1.0.0/terraform terraform
+    # complete -C terraform terraform
     compdef tf=terraform
 fi
 
@@ -306,6 +307,7 @@ alias kn='kubens'
 compdef k=kubectl
 compdef kc=kubectx
 compdef kn=kubens
+export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
 alias step='~/freee-work/clusterops/bin/ssh2step -u akawamura -k ~/.ssh/freee_key'
 
@@ -578,4 +580,3 @@ fi
 
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
-
