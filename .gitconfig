@@ -22,7 +22,7 @@
     co-upstream = "!sh -c 'git checkout -b $1 upstream/$1' -"
     co-origin = "!sh -c 'git checkout -b $1 origin/$1' -"
 
-    sync-remote = "!f() { remote=$1; branch=$(git default-bn); git fetch $remote; git checkout $branch; git merge $remote/$branch;}; f $1"
+    sync-remote = "!f() { remote=${1:-$(git default-rm)}; branch=$(git default-bn); git fetch $remote; git checkout $branch; git merge $remote/$branch;}; f $1"
     sync-remoteu = "!git sync-remote upstream"
     sync-remoteo = "!git sync-remote origin"
 
@@ -37,6 +37,7 @@
     root = rev-parse --show-toplevel
     bn = rev-parse --abbrev-ref HEAD
     default-bn = "!git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@'"
+    default-rm = "!f() { if git remote | grep upstream; then echo upstream;else echo origin;fi;}; f"
 
 [difftool.latex]
 	cmd = latexdiff -e ISO-2022-JP "$LOCAL" "$REMOTE"
