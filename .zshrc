@@ -22,56 +22,42 @@ case ${TERM} in
 		export TERM=xterm-256color;;
 esac
 
-# -- zplug
-#export ZPLUG_HOME=/usr/local/opt/zplug
-#if [ -d $ZPLUG_HOME ]; then
-#    source $ZPLUG_HOME/init.zsh
-#
-#	zplug "zsh-users/zsh-completions"  # completion for other command, e.g. git
-#    zplug "zsh-users/zsh-autosuggestions"
-#	zplug "zsh-users/zsh-syntax-highlighting", defer:3 # enable color cli
-#
-#	zplug "mafredri/zsh-async", from:github
-#	# zplug "sindresorhus/pure", use:pure.zsh, from:github, as:theme
-#    # zplug denysdovhan/spaceship-prompt, use:spaceship.zsh, from:github, as:theme
-#
-#	zplug "greymd/tmux-xpanes"
-#
-#	#zplug load --verbose
-#	zplug load
-#fi
-
-# -- zplugin
-source $HOME/.zplugin/bin/zplugin.zsh
-autoload -Uz _zplugin
-
-if [[ ! -f ${HOME}/.zplugin/bin/zplugin.zsh.zwc ]]; then
-    zplugin self-update
+# -- zinit
+# {{
+# installation sh -c "$(curl -fsSL https://git.io/zinit-install)"
+if [[ ! -f $HOME/.local/share/zinit/zinit.git/zinit.zsh ]]; then
+    print -P "%F{33} %F{220}Installing %F{33}ZDHARMA-CONTINUUM%F{220} Initiative Plugin Manager (%F{33}zdharma-continuum/zinit%F{220})…%f"
+    command mkdir -p "$HOME/.local/share/zinit" && command chmod g-rwX "$HOME/.local/share/zinit"
+    command git clone https://github.com/zdharma-continuum/zinit "$HOME/.local/share/zinit/zinit.git" && \
+        print -P "%F{33} %F{34}Installation successful.%f%b" || \
+        print -P "%F{160} The clone has failed.%f%b"
 fi
 
-(( ${+_comps} )) && _comps[zplugin]=_zplugin
+source "$HOME/.local/share/zinit/zinit.git/zinit.zsh"
+autoload -Uz _zinit
+(( ${+_comps} )) && _comps[zinit]=_zinit
 
-zplugin light romkatv/zsh-defer
+zinit light romkatv/zsh-defer
 
-zplugin light greymd/tmux-xpanes
+zinit light greymd/tmux-xpanes
 
-zplugin ice wait'0c' lucid atload'_zsh_autosuggest_start'
-zplugin light zsh-users/zsh-autosuggestions
+zinit ice wait'0c' lucid atload'_zsh_autosuggest_start'
+zinit light zsh-users/zsh-autosuggestions
 
-# zplugin ice wait'1' lucid atinit"ZPLGM[COMPINIT_OPTS]=-C; zpcompinit; zpcdreplay"
-zplugin ice wait'1' lucid
-zplugin light zdharma/fast-syntax-highlighting
+zinit ice wait'1' lucid
+zinit light zdharma-continuum/fast-syntax-highlighting
 
-zplugin ice wait'1' lucid blockf
-zplugin light zsh-users/zsh-completions
+zinit ice wait'1' lucid blockf
+zinit light zsh-users/zsh-completions
 
-zplugin ice wait lucid
-zplugin light mafredri/zsh-async
+zinit ice wait lucid
+zinit light mafredri/zsh-async
 
-# zplugin ice pick'spaceship.zsh' wait'!0'
-# zplugin light 'denysdovhan/spaceship-zsh-theme'
+# zinit ice pick'spaceship.zsh' wait'!0'
+# zinit light 'denysdovhan/spaceship-zsh-theme'
 
-ZPLGM[COMPINIT_OPTS]=-C; zpcompinit; zpcdreplay
+ZINIT[COMPINIT_OPTS]=-C; zpcompinit; zpcdreplay
+# }}
 
 # -- setting for pure
 # local number_of_jobs="%(1j.%F{208} / %f%F{226}%B%j%b%f.)"
@@ -309,9 +295,9 @@ compdef kc=kubectx
 compdef kn=kubens
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
-alias step='~/freee-work/clusterops/bin/ssh2step -u akawamura -k ~/.ssh/freee_key'
+# alias step='~/freee-work/clusterops/bin/ssh2step -u akawamura -k ~/.ssh/freee_key'
 
-function step2() {
+function step() {
     cluster_name=$(aws eks list-clusters | jq -r '.clusters[]' | sort | peco --prompt="select target cluster")
 
     token=""
