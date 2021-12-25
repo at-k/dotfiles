@@ -268,6 +268,7 @@ alias tf-search='gh repo list C-FO -l hcl --limit 1000 | fzf | cut -f1 | xargs -
 alias k='kubectl'
 alias kc='kubectx'
 alias kn='kubens'
+
 compdef k=kubectl
 compdef kc=kubectx
 compdef kn=kubens
@@ -431,6 +432,10 @@ fi
 #add-zsh-hook precmd __set_context_prompt
 #setopt transientrprompt
 #function __set_context_prompt() {
+#    if [ "$DISABLE_CXT_PROMPT" = "true" ]; then
+#        return
+#    fi
+#
 #	if [ "$KPROMPT_AVAILABLE" = 1 ]; then
 #		__set_kube_prompt
 #	fi
