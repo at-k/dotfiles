@@ -1,3 +1,10 @@
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
 # -- Compile zshrc
 if [ ! -f ~/.zshrc.zwc -o ~/.zshrc -nt ~/.zshrc.zwc ]; then
 	echo "zshrc is updated. generating zshrc.zwc..."
@@ -8,7 +15,7 @@ fi
 export LANG=ja_JP.UTF-8
 export MANPAGER="less -is"
 export PAGER='less -is'
-export EDITOR='vim'
+export EDITOR='nvim'
 export AWS_PAGER=''
 
 typeset -U path PATH
@@ -22,8 +29,7 @@ case ${TERM} in
 		export TERM=xterm-256color;;
 esac
 
-# -- zinit
-# {{
+# {{ -- zinit
 # installation sh -c "$(curl -fsSL https://git.io/zinit-install)"
 if [[ ! -f $HOME/.local/share/zinit/zinit.git/zinit.zsh ]]; then
     print -P "%F{33} %F{220}Installing %F{33}ZDHARMA-CONTINUUM%F{220} Initiative Plugin Manager (%F{33}zdharma-continuum/zinit%F{220})…%f"
@@ -36,6 +42,8 @@ fi
 source "$HOME/.local/share/zinit/zinit.git/zinit.zsh"
 autoload -Uz _zinit
 (( ${+_comps} )) && _comps[zinit]=_zinit
+
+zinit ice depth=1; zinit light romkatv/powerlevel10k
 
 zinit light romkatv/zsh-defer
 
@@ -53,26 +61,11 @@ zinit light zsh-users/zsh-completions
 zinit ice wait lucid
 zinit light mafredri/zsh-async
 
-# zinit ice pick'spaceship.zsh' wait'!0'
-# zinit light 'denysdovhan/spaceship-zsh-theme'
-
 ZINIT[COMPINIT_OPTS]=-C; zpcompinit; zpcdreplay
-# }}
-
-# -- setting for pure
-# local number_of_jobs="%(1j.%F{208} / %f%F{226}%B%j%b%f.)"
-# local number_of_jobs="%(1j.[%j] .)%"
-
-# PURE_PROMPT_SYMBOL='>'
-# PROMPT="${number_of_jobs} $PROMPT"
-# PURE_GIT_UNTRACKED_DIRTY=0
-
-# -- setting for spaceship-prompt
-# SPACESHIP_PROMPT_ORDER=(user host dir git kubecontext node exec_time line_sep jobs vi_mode exit_code char)
-# SPACESHIP_KUBECONTEXT_SHOW=false
+# zinit }}
 
 # -- starship prompt
-eval "$(starship init zsh)"
+# eval "$(starship init zsh)"
 
 # -- completion
 fpath=($HOME/.config/zcompl(N-/) $fpath)
@@ -148,21 +141,6 @@ bindkey -M viins '^R'  history-incremental-pattern-search-backward
 bindkey -M viins '^U'  backward-kill-line
 bindkey -M viins '^W'  backward-kill-word
 bindkey -M viins '^Y'  yank
-
-# setting for vim mode to show normal or insert for spaceship
-#function zle-line-init zle-keymap-select {
-#    # VIM_NORMAL="%K{208}%F{black}⮀%k%f%K{208}%F{white} % NORMAL %k%f%K{black}%F{208}⮀%k%f"
-#    # VIM_INSERT="%K{075}%F{black}⮀%k%f%K{075}%F{white} % INSERT %k%f%K{black}%F{075}⮀%k%f"
-#    # RPS1="${${KEYMAP/vicmd/$VIM_NORMAL}/(main|viins)/$VIM_INSERT}"
-#    # RPS2=$RPS1
-#    zle reset-prompt
-#}
-#zle -N zle-line-init
-#zle -N zle-keymap-select
-#
-##SPACESHIP_VI_MODE_INSERT="%K{075}%F{black}⮀%k%f%K{075}%F{white} % INSERT %k%f%K{black}%F{075}⮀%k%f"
-#SPACESHIP_VI_MODE_INSERT="%K{118}%F{white}% [I]%k%f"
-#SPACESHIP_VI_MODE_NORMAL="%K{075}%F{white}% [N]%k%f"
 
 # -- History
 HISTSIZE=100000
@@ -295,7 +273,7 @@ compdef kc=kubectx
 compdef kn=kubens
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
-# alias step='~/freee-work/clusterops/bin/ssh2step -u akawamura -k ~/.ssh/freee_key'
+alias dstep='~/freee-work/clusterops/bin/ssh2step -u akawamura -k ~/.ssh/freee_key'
 
 function step() {
     cluster_name=$(aws eks list-clusters | jq -r '.clusters[]' | sort | peco --prompt="select target cluster")
@@ -383,8 +361,10 @@ function comp() {
 # zle -N peco-select-history
 # bindkey '^R' peco-select-history
 
+# ref. https://helpful.wiki/zsh
 function cmd_exists() {
-	test -x "`which $1 2> /dev/null`"
+	# test -x "`which $1 2> /dev/null`"
+    (( ${+commands[$1]} ))
 }
 
 # xenv
@@ -448,70 +428,70 @@ if [ -x "`which direnv 2> /dev/null `" ]; then
 fi
 
 # rprompt setting
-add-zsh-hook precmd __set_context_prompt
-setopt transientrprompt
-function __set_context_prompt() {
-	if [ "$KPROMPT_AVAILABLE" = 1 ]; then
-		__set_kube_prompt
-	fi
-	__set_aws_prompt
-    __set_xenv_prompt
-	RPROMPT="$XENV_PROMPT $AWS_PROMPT $KUBE_PROMPT"
-}
-
-function envk () {
-    #SPACESHIP_KUBECONTEXT_SHOW=true
-	if [ -x "`which stern 2> /dev/null `" ]; then
-		source <(stern --completion=zsh)
-	fi
-	if [ -x "`which kubectl 2> /dev/null `" ]; then
-		source <(kubectl completion zsh)
-	fi
-	if [ -x "`which helm 2> /dev/null `" ]; then
-		source <(helm completion zsh)
-	fi
-	# if [ -x "`which minikube 2> /dev/null `" ]; then
-	# 	source <(minikube completion zsh)
-	# fi
-	if [ -x "`which eksctl 2> /dev/null `" ]; then
-        eksctl completion zsh > ~/.config/zcompl/_eksctl
-    fi
-
-    if [ -f ~/.config/zsh/kubectlrc ]; then
-        source ~/.config/zsh/kubectlrc
-    fi
-
-	export KPROMPT_AVAILABLE=1
-    # for helm-secret (issue:https://github.com/futuresimple/helm-secrets/issues/71)
-    export PATH="/usr/local/Cellar/gnu-getopt/1.1.6/bin":$PATH
-    export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
-}
+#add-zsh-hook precmd __set_context_prompt
+#setopt transientrprompt
+#function __set_context_prompt() {
+#	if [ "$KPROMPT_AVAILABLE" = 1 ]; then
+#		__set_kube_prompt
+#	fi
+#	__set_aws_prompt
+#    __set_xenv_prompt
+#	RPROMPT="$XENV_PROMPT $AWS_PROMPT $KUBE_PROMPT"
+#}
+#
+#function envk () {
+#    #SPACESHIP_KUBECONTEXT_SHOW=true
+#	if [ -x "`which stern 2> /dev/null `" ]; then
+#		source <(stern --completion=zsh)
+#	fi
+#	if [ -x "`which kubectl 2> /dev/null `" ]; then
+#		source <(kubectl completion zsh)
+#	fi
+#	if [ -x "`which helm 2> /dev/null `" ]; then
+#		source <(helm completion zsh)
+#	fi
+#	# if [ -x "`which minikube 2> /dev/null `" ]; then
+#	# 	source <(minikube completion zsh)
+#	# fi
+#	if [ -x "`which eksctl 2> /dev/null `" ]; then
+#        eksctl completion zsh > ~/.config/zcompl/_eksctl
+#    fi
+#
+#    if [ -f ~/.config/zsh/kubectlrc ]; then
+#        source ~/.config/zsh/kubectlrc
+#    fi
+#
+#	export KPROMPT_AVAILABLE=1
+#    # for helm-secret (issue:https://github.com/futuresimple/helm-secrets/issues/71)
+#    export PATH="/usr/local/Cellar/gnu-getopt/1.1.6/bin":$PATH
+#    export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+#}
 
 # zsh-defer -t 2 envk
 
-function envk-off () {
-    SPACESHIP_KUBECONTEXT_SHOW=false
-}
+#function envk-off () {
+#    SPACESHIP_KUBECONTEXT_SHOW=false
+#}
 
-function __set_kube_prompt () {
-	# local context=$(kubectl config current-context 2> /dev/null)
-    # local namespace=$(kubectl config view | yq -r '.contexts[] | select( .name | test("'$context'")) | .context.namespace')
-
-	# KUBE_PROMPT="%F{green}${context}:%f%F{red}${namespace}%f"
-    KUBE_PROMPT="%F{green}k8s"
-	#PROMPT="%F{magenta}${context}:${namespace} "$PROMPT
-}
-
-function __set_aws_prompt () {
-	local mode=$(awslogin -p)
-	AWS_PROMPT="%F{magenta}${mode}"
-}
-
-function __set_xenv_prompt() {
-    if [ $ANYENV_ENABLE = true ]; then
-        XENV_PROMPT="%F{yellow}any"
-    fi
-}
+#function __set_kube_prompt () {
+#	# local context=$(kubectl config current-context 2> /dev/null)
+#    # local namespace=$(kubectl config view | yq -r '.contexts[] | select( .name | test("'$context'")) | .context.namespace')
+#
+#	# KUBE_PROMPT="%F{green}${context}:%f%F{red}${namespace}%f"
+#    KUBE_PROMPT="%F{green}k8s"
+#	#PROMPT="%F{magenta}${context}:${namespace} "$PROMPT
+#}
+#
+#function __set_aws_prompt () {
+#	local mode=$(awslogin -p)
+#	AWS_PROMPT="%F{magenta}${mode}"
+#}
+#
+#function __set_xenv_prompt() {
+#    if [ $ANYENV_ENABLE = true ]; then
+#        XENV_PROMPT="%F{yellow}any"
+#    fi
+#}
 
 function zload {
     if [[ "${#}" -le 0 ]]; then
@@ -545,7 +525,7 @@ function zload {
     done
 }
 
-# jq  key completion
+# jq key completion
 function jq() {
     if [ -f $1 ]; then
         FILE=$1; shift
@@ -575,11 +555,9 @@ function _jq() {
 }
 complete -F _jq jq
 
-# fzf
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+[[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
 
-# local limited
-[ -f ~/.zshrc.local ] && source ~/.zshrc.local
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 
 # keep this code end
 if [ "$ZSH_PROFILE_MODE" ]; then
@@ -589,4 +567,7 @@ if [ "$ZSH_PROFILE_MODE" ]; then
 fi
 
 
-test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+[[ -f ~/.iterm2_shell_integration.zsh ]] && source ~/.iterm2_shell_integration.zsh
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
