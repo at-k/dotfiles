@@ -1,36 +1,44 @@
+# {{ -- p10k cocnfiguraiton, added automatically
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
+# }}
 
-# -- Compile zshrc
+# {{ -- internal function
+# ref. https://helpful.wiki/zsh
+function cmd_exists() {
+	# test -x "`which $1 2> /dev/null`"
+    (( ${+commands[$1]} ))
+}
+# }}
+
+# {{ -- compile zshrc
 if [ ! -f ~/.zshrc.zwc -o ~/.zshrc -nt ~/.zshrc.zwc ]; then
 	echo "zshrc is updated. generating zshrc.zwc..."
 	zcompile ~/.zshrc
 fi
+# }}
 
-# -- Environment Variables
+# {{ -- env vars
 export LANG=ja_JP.UTF-8
 export MANPAGER="less -is"
 export PAGER='less -is'
 export EDITOR='nvim'
 export AWS_PAGER=''
-
-typeset -U path PATH
-export PATH="$HOME/.bin:$HOME/.mybin:$PATH"
-
 export LV="-c -Sh1;36 -Su1;4;32 -Ss7;37;1;33"
 export LESS='-i -M -R'
-
+typeset -U path PATH; export PATH="$HOME/.bin:$HOME/.mybin:$PATH"
 case ${TERM} in
 	xterm*)
 		export TERM=xterm-256color;;
 esac
+# }}
 
-# {{ -- zinit
-# installation sh -c "$(curl -fsSL https://git.io/zinit-install)"
+# {{ -- zinit config
+# memo: sh -c "$(curl -fsSL https://git.io/zinit-install)"
 if [[ ! -f $HOME/.local/share/zinit/zinit.git/zinit.zsh ]]; then
     print -P "%F{33} %F{220}Installing %F{33}ZDHARMA-CONTINUUM%F{220} Initiative Plugin Manager (%F{33}zdharma-continuum/zinit%F{220})…%f"
     command mkdir -p "$HOME/.local/share/zinit" && command chmod g-rwX "$HOME/.local/share/zinit"
@@ -42,7 +50,9 @@ fi
 source "$HOME/.local/share/zinit/zinit.git/zinit.zsh"
 autoload -Uz _zinit
 (( ${+_comps} )) && _comps[zinit]=_zinit
+# }}
 
+# {{ -- plugin
 zinit ice depth=1; zinit light romkatv/powerlevel10k
 
 zinit light romkatv/zsh-defer
@@ -62,22 +72,14 @@ zinit ice wait lucid
 zinit light mafredri/zsh-async
 
 ZINIT[COMPINIT_OPTS]=-C; zpcompinit; zpcdreplay
-# zinit }}
+# }}
 
-# -- starship prompt
-# eval "$(starship init zsh)"
-
-# -- completion
+# {{ -- completion
 fpath=($HOME/.config/zcompl(N-/) $fpath)
 autoload -U +X bashcompinit && bashcompinit
 
-if [ -x "`which vboxmanage 2> /dev/null `" ]; then
-	compdef vboxmanage=VBoxManage  # completion for vboxmanage
-fi
-
-if [ -x "`which sshrc 2> /dev/null `" ]; then
-	compdef sshrc=ssh  # completion for sshrc
-fi
+[[ cmd_exists(vboxmanage) ]] && compdef vboxmanage=VBoxManage
+[[ cmd_exists(sshrc) ]] && compdef sshrc=ssh
 
 if [ -x "`which terraform 2> /dev/null `" ]; then
     alias tplan="terraform plan | landscape"
@@ -87,11 +89,10 @@ if [ -x "`which terraform 2> /dev/null `" ]; then
     compdef tf=terraform
 fi
 
-if [ -x "`which aws_completer 2> /dev/null `" ]; then
-    complete -C '/usr/local/bin/aws_completer' aws
-fi
+[[ cmd_exists(aws_completer) ]] && complete -C '/usr/local/bin/aws_completer' aws
+# }}
 
-# --- Load OS specific setting
+# {{ -- OS specific setting
 case ${OSTYPE} in
 	cygwin)
 		source ~/.config/zsh/zshrc.linux;;
@@ -102,14 +103,16 @@ case ${OSTYPE} in
 	*)
 		echo "unknown OS type";;
 esac
+# }}
 
-# --- Mouse setting w/ tmux
+# {{ -- Mouse setting w/ tmux
 if [ -f ~/.bin/mouse.zsh ]; then
     source ~/.bin/mouse.zsh
     zle-toggle-mouse
 fi
+# }}
 
-# --- Color
+# {{ -- color
 if [ -f ~/.zsh/dircolors-solarized/dircolors.ansi-dark ]; then
 	if type dircolors > /dev/null 2>&1; then
 		eval $(dircolors ~/.zsh/dircolors-solarized/dircolors.ansi-dark)
@@ -121,9 +124,9 @@ else
 		eval $(dircolors -b)  # setup LS_COLORS
 	fi
 fi
+# }}
 
-# -- Key Bind
-#bindkey -e  # -e for Emacs style or -v for vim style
+# {{ -- key bind
 bindkey -v  # -e for Emacs style or -v for vim style
 bindkey -M viins '\er' history-incremental-pattern-search-forward
 bindkey -M viins '^?'  backward-delete-char
@@ -141,8 +144,9 @@ bindkey -M viins '^R'  history-incremental-pattern-search-backward
 bindkey -M viins '^U'  backward-kill-line
 bindkey -M viins '^W'  backward-kill-word
 bindkey -M viins '^Y'  yank
+# }}
 
-# -- History
+# {{ -- history setting
 HISTSIZE=100000
 SAVEHIST=1000000
 HISTFILE=~/.zsh_history
@@ -161,17 +165,20 @@ zle -N history-beginning-search-backward-end history-search-end
 zle -N history-beginning-search-forward-end history-search-end
 bindkey "^P" history-beginning-search-backward-end
 bindkey "^N" history-beginning-search-forward-end
+# }}
 
-# -- Glob (pattern matching for file name. wild card is a kind of glob)
+# {{ -- glob
 setopt extendedglob # enable extended file pattern mattching
 setopt nomatch      # stop to make `not-found` warning on judging a character as file name
+# }}
 
-# -- Change directory
+# {{ -- cd behavior
 setopt auto_pushd
 setopt pushd_ignore_dups
 setopt auto_cd
+# }}
 
-# -- Completion
+# {{ -- completion config
 #autoload -Uz compinit; compinit # zplug call it earlier
 
 setopt complete_in_word     # run completion at cursor position
@@ -205,13 +212,15 @@ zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
 zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
 
 zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin
+# }}
 
-# -- command edit
+# {{ -- command edit
 autoload -Uz edit-command-line
 zle -N edit-command-line
 bindkey '^xe' edit-command-line
+# }}
 
-# -- Alias
+# {{ -- alias
 #alias ls='lscolor'
 alias ls='ls -G'
 alias la='ls -la'
@@ -274,31 +283,7 @@ compdef kc=kubectx
 compdef kn=kubens
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
-alias dstep='~/freee-work/clusterops/bin/ssh2step -u akawamura -k ~/.ssh/freee_key'
-
-function step() {
-    cluster_name=$(aws eks list-clusters | jq -r '.clusters[]' | sort | peco --prompt="select target cluster")
-
-    token=""
-    alllist=""
-
-    while true; do
-        json=$(aws ssm describe-instance-information --max-items 50 --filters "Key=tag:alpha.eksctl.io/cluster-name,Values=$cluster_name" --starting-token "$token")
-        token=$(echo $json | jq -r '.NextToken')
-
-        list=$(echo $json | jq -r '.InstanceInformationList[] | [.InstanceId, .IPAddress, .PingStatus, .LastPingDateTime, .ComputerName] | @csv' | sed 's/"//g')
-        alllist="${alllist}\n${list}"
-
-        if [ -z "$token" -o "$token" = "null" ]; then
-            break
-        fi
-    done
-
-    inst=$(echo $alllist | grep ssm-agent-r2 | column -t -s, | peco)
-    id=$(echo $inst | awk '{print $1}')
-
-    ONELOGIN_USERNAME=akawamura@c-fo.com ssh $id
-}
+[[ -f ~/.config/zsh/utils.zsh ]] && source ~/.config/zsh/utils.zsh
 
 function alogin() {
     awslogin $@
@@ -327,33 +312,6 @@ i() { cd "$(cat ~/.save_dir)" ; }
 #	fi
 #}
 
-function decomp() {
-	case $1 in
-		*.tar.gz|*.tgz) tar xzvf $1;;
-		*.tar.xz) tar Jxvf $1;;
-		*.zip) unzip $1;;
-		*.lzh) lha e $1;;
-		*.tar.bz2|*.tbz) tar xjvf $1;;
-		*.tar.Z) tar zxvf $1;;
-		*.gz) gzip -d $1;;
-		*.bz2) bzip2 -dc $1;;
-		*.Z) uncompress $1;;
-		*.tar) tar xvf $1;;
-		*.arj) unarj $1;;
-	esac
-}
-alias -s {gz,tgz,zip,lzh,bz2,tbz,Z,tar,arj,xz}=decomp
-
-function comp() {
-	if [ $# = 0 ]; then
-		echo "no input"
-	else
-		local aname
-		aname=$1.tgz
-		tar cfvz $aname $@
-	fi
-}
-
 # function peco-select-history() {
 # 	BUFFER="$(history -nr 1 | awk '!a[$0]++' | peco --query "$LBUFFER" | sed 's/\\n/;/g')"
 # 	CURSOR=$#BUFFER             # カーソルを文末に移動
@@ -361,12 +319,6 @@ function comp() {
 # }
 # zle -N peco-select-history
 # bindkey '^R' peco-select-history
-
-# ref. https://helpful.wiki/zsh
-function cmd_exists() {
-	# test -x "`which $1 2> /dev/null`"
-    (( ${+commands[$1]} ))
-}
 
 # xenv
 if [ -d ~/go/bin ]; then
