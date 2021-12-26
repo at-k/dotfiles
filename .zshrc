@@ -68,17 +68,17 @@ zinit ice wait lucid atload"zicompinit; zicdreplay" blockf for zsh-users/zsh-com
 zinit ice wait lucid
 zinit light mafredri/zsh-async
 
-# zsh-defer -t 1 -c 'autoload -Uz compinit && compinit && zinit cdreplay -q'
-ZINIT[COMPINIT_OPTS]=-C; zpcompinit; zpcdreplay
+zsh-defer -t 1 -c 'autoload -Uz compinit && compinit && zinit cdreplay -q'
+# ZINIT[COMPINIT_OPTS]=-C; zpcompinit; zpcdreplay
 # }}
 
 # {{ -- completion
 fpath=($HOME/.config/zcompl(N-/) $fpath)
-autoload -U +X bashcompinit && bashcompinit
+# autoload -U +X bashcompinit && bashcompinit
 
-[[ $commands[vboxmanage] ]] && compdef vboxmanage=VBoxManage
-[[ $commands[sshrc] ]] && compdef sshrc=ssh
-[[ $commands[aws_completer] ]] && complete -C '/usr/local/bin/aws_completer' aws
+[[ $commands[vboxmanage] ]] && zsh-defer -t 1 -c 'compdef vboxmanage=VBoxManage'
+[[ $commands[sshrc] ]] && zsh-defer -t 1 -c 'compdef sshrc=ssh'
+#[[ $commands[aws_completer] ]] && complete -C '/usr/local/bin/aws_completer' aws
 # }}
 
 # {{ -- OS specific setting
@@ -234,12 +234,12 @@ alias iro='for i in {0..255} ; do; printf "\x1b[38;5;${i}m%03d " ${i}; done'
 alias iro-e='for i in {0..255} ; do; echo -e "\e[${i}m ${i}"; done'
 
 alias g='git'
-compdef g=git
+zsh-defer -t 2 -c 'compdef g=git'
 alias cdroot='cd $(git root)'
 
 alias vim='nvim'
 alias v='nvim'
-compdef v=nvim
+zsh-defer -t 2 -c 'compdef v=nvim'
 
 alias diff='diff -Bw'
 alias vimdiff='vimdiff -c "set diffopt+=iwhite"'
@@ -285,6 +285,16 @@ zstyle ':zle:*' word-style unspecified
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
+# }}
+
+# {{ zinit
+# Load a few important annexes, without Turbo
+# (this is currently required for annexes)
+zinit light-mode for \
+    zdharma-continuum/zinit-annex-as-monitor \
+    zdharma-continuum/zinit-annex-bin-gem-node \
+    zdharma-continuum/zinit-annex-patch-dl \
+    zdharma-continuum/zinit-annex-rust
 # }}
 
 # keep this code end
