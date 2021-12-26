@@ -7,14 +7,6 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
 fi
 # }}
 
-# {{ -- internal function
-# ref. https://helpful.wiki/zsh
-function cmd_exists() {
-	# test -x "`which $1 2> /dev/null`"
-    (( ${+commands[$1]} ))
-}
-# }}
-
 # {{ -- compile zshrc
 if [ ! -f ~/.zshrc.zwc -o ~/.zshrc -nt ~/.zshrc.zwc ]; then
 	zcompile ~/.zshrc
@@ -77,18 +69,10 @@ ZINIT[COMPINIT_OPTS]=-C; zpcompinit; zpcdreplay
 fpath=($HOME/.config/zcompl(N-/) $fpath)
 autoload -U +X bashcompinit && bashcompinit
 
-[[ cmd_exists(vboxmanage) ]] && compdef vboxmanage=VBoxManage
-[[ cmd_exists(sshrc) ]] && compdef sshrc=ssh
+[[ $commands[vboxmanage] ]] && compdef vboxmanage=VBoxManage
+[[ $commands[sshrc] ]] && compdef sshrc=ssh
+[[ $commands[aws_completer] ]] && complete -C '/usr/local/bin/aws_completer' aws
 
-if [ -x "`which terraform 2> /dev/null `" ]; then
-    alias tplan="terraform plan | landscape"
-    alias tf='terraform'
-    complete -o nospace -C /usr/local/Cellar/tfenv/2.0.0/versions/1.0.0/terraform terraform
-    # complete -C terraform terraform
-    compdef tf=terraform
-fi
-
-[[ cmd_exists(aws_completer) ]] && complete -C '/usr/local/bin/aws_completer' aws
 # }}
 
 # {{ -- OS specific setting
@@ -277,11 +261,11 @@ alias k='kubectl'
 alias kc='kubectx'
 alias kn='kubens'
 
-compdef k=kubectl
-compdef kc=kubectx
-compdef kn=kubens
-export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+alias tplan="terraform plan | landscape"
+alias tf='terraform'
 
+export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+export PATH="/usr/local/Cellar/gnu-getopt/1.1.6/bin":$PATH
 
 function alogin() {
     awslogin $@
@@ -300,109 +284,16 @@ alias bk='cd $OLDPWD'
 s() { pwd > ~/.save_dir ; }
 i() { cd "$(cat ~/.save_dir)" ; }
 
-[[ cmd_exists(direnv) ]] && eval "$(direnv hook zsh)"
+[[ $commands[direnv] ]] && eval "$(direnv hook zsh)"
 
-# rprompt setting
-#add-zsh-hook precmd __set_context_prompt
-#setopt transientrprompt
-#function __set_context_prompt() {
-#    if [ "$DISABLE_CXT_PROMPT" = "true" ]; then
-#        return
-#    fi
-#
-#	if [ "$KPROMPT_AVAILABLE" = 1 ]; then
-#		__set_kube_prompt
-#	fi
-#	__set_aws_prompt
-#    __set_xenv_prompt
-#	RPROMPT="$XENV_PROMPT $AWS_PROMPT $KUBE_PROMPT"
-#}
-#
-#function envk () {
-#    #SPACESHIP_KUBECONTEXT_SHOW=true
-#	if [ -x "`which stern 2> /dev/null `" ]; then
-#		source <(stern --completion=zsh)
-#	fi
-#	if [ -x "`which kubectl 2> /dev/null `" ]; then
-#		source <(kubectl completion zsh)
-#	fi
-#	if [ -x "`which helm 2> /dev/null `" ]; then
-#		source <(helm completion zsh)
-#	fi
-#	# if [ -x "`which minikube 2> /dev/null `" ]; then
-#	# 	source <(minikube completion zsh)
-#	# fi
-#	if [ -x "`which eksctl 2> /dev/null `" ]; then
-#        eksctl completion zsh > ~/.config/zcompl/_eksctl
-#    fi
-#
-#    if [ -f ~/.config/zsh/kubectlrc ]; then
-#        source ~/.config/zsh/kubectlrc
-#    fi
-#
-#	export KPROMPT_AVAILABLE=1
-#    # for helm-secret (issue:https://github.com/futuresimple/helm-secrets/issues/71)
-#    export PATH="/usr/local/Cellar/gnu-getopt/1.1.6/bin":$PATH
-#    export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
-#}
-
-# zsh-defer -t 2 envk
-
-#function __set_kube_prompt () {
-#	# local context=$(kubectl config current-context 2> /dev/null)
-#    # local namespace=$(kubectl config view | yq -r '.contexts[] | select( .name | test("'$context'")) | .context.namespace')
-#
-#	# KUBE_PROMPT="%F{green}${context}:%f%F{red}${namespace}%f"
-#    KUBE_PROMPT="%F{green}k8s"
-#	#PROMPT="%F{magenta}${context}:${namespace} "$PROMPT
-#}
-#
-#function __set_aws_prompt () {
-#	local mode=$(awslogin -p)
-#	AWS_PROMPT="%F{magenta}${mode}"
-#}
-#
-#function __set_xenv_prompt() {
-#    if [ $ANYENV_ENABLE = true ]; then
-#        XENV_PROMPT="%F{yellow}any"
-#    fi
-#}
-
-# jq key completion
-function jq() {
-    if [ -f $1 ]; then
-        FILE=$1; shift
-        # Move FILE at the end as expected by native jq
-        command jq "$@" "$FILE"
-    else
-        command jq "$@"
-    fi
-}
-
-function _jq() {
-    COMPREPLY=()
-    local curr prev
-    curr=$2
-    prev=$3
-    #set -x
-    case $COMP_CWORD in
-        1)
-            COMPREPLY=( $(compgen -f -- $curr) )
-            ;;
-        2)
-            keys=$(command jq -c 'paths | map(.|tostring)|join(".")' $prev  | tr -d '"' | sed 's=^=\.=')
-
-            COMPREPLY=( $(compgen -W "$keys" -- $curr ) )
-            ;;
-    esac
-}
-complete -F _jq jq
-
+# {{ -- load file
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 
 [[ -f ~/.fzf.zsh ]] && zsh-defer source ~/.fzf.zsh
 
-[[ -f ~/.config/zsh/anyenv.zsh ]] && zsh-defer source ~/.config/zsh/anyenv.zsh
+[[ -f ~/.config/zsh/completion.zsh ]] && zsh-defer source ~/.config/zsh/completion.zsh
+
+[[ -f ~/.config/zsh/anyenv.zsh ]] && zsh-defer source ~/.config/zsh/anyenv.zsh # too slow
 
 [[ -f ~/.config/zsh/utils.zsh ]] && zsh-defer source ~/.config/zsh/utils.zsh
 
@@ -411,5 +302,7 @@ complete -F _jq jq
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
+# }}
+
 # keep this code end
-[[ "$ZSH_PROFILE_MODE" && cmd_exists(zprof) ]] && zprof
+[[ "$ZSH_PROFILE_MODE" && $commands[zprof] ]] && zprof
