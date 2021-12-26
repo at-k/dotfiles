@@ -23,7 +23,8 @@ function print_prof()
 
     acc=$(echo $arn | cut -d':' -f 5)
     role=$(echo $arn | cut -d'/' -f 2)
-    echo "$prof,$acc/$role,$exp" | column -t -s,
+    # echo "$prof,$acc/$role,$exp" | column -t -s,
+    echo "$prof,$acc/$role,$exp"
 }
 
 function get_from_credfile()
@@ -65,4 +66,5 @@ function get_from_api()
     done
 }
 
+# get_from_api
 get_from_credfile
