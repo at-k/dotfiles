@@ -1,0 +1,68 @@
+#!/bin/zsh
+# ls-prof
+#   list all aws profiles
+
+# clear profile
+# echo > ~/.aws/credentials
+
+function is_expired()
+{
+    expired_at=$1
+    if [ $(gdate +"%s") -ge $(gdate --date $expired_at +"%s") ]; then
+        expired_at="expired"
+    fi
+    echo $expired_at
+}
+
+function print_prof()
+{
+    prof=$1
+    arn=$2
+    expired_at=$3
+    exp=$(is_expired $expired_at)
+
+    acc=$(echo $arn | cut -d':' -f 5)
+    role=$(echo $arn | cut -d'/' -f 2)
+    echo "$prof,$acc/$role,$exp" | column -t -s,
+}
+
+function get_from_credfile()
+{
+    cred=~/.aws/credentials
+
+    if [[ ! -f $cred ]]; then
+        echo "no cred file"; exit 0
+    fi
+
+    prof=""; arn=""; exp=""
+
+    while IFS=' = ' read var val; do
+        if [[ $var == \[*] ]]; then
+            if [[ "$prof" != "" ]]; then
+                print_prof $prof $arn $exp
+                arn="";exp="";
+            fi
+            prof=$(echo $var | sed 's/\[\(.*\)\]/\1/')
+        elif [[ $var == x_principal_arn ]]; then
+            arn=$val
+        elif [[ $var == x_security_token_expires ]]; then
+            exp=$val
+        fi
+    done < $cred
+
+    print_prof $prof $arn $exp
+}
+
+function get_from_api()
+{
+    for prof in `aws configure list-profiles`; do
+        exp=$(aws configure get x_security_token_expires --profile $prof)
+        [[ -z $exp ]] && continue
+
+        arn=$(aws configure get x_principal_arn --profile $prof)
+
+        print_prof $prof $arn $exp
+    done
+}
+
+get_from_credfile
