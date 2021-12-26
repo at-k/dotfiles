@@ -69,7 +69,7 @@ zinit ice wait lucid
 zinit light mafredri/zsh-async
 
 zsh-defer -t 1 -c 'autoload -Uz compinit && compinit && zinit cdreplay -q'
-# ZINIT[COMPINIT_OPTS]=-C; zpcompinit; zpcdreplay
+zsh-defer -t 1 -c 'autoload -U +X bashcompinit && bashcompinit' # for aws-cli
 # }}
 
 # {{ -- completion
@@ -78,7 +78,7 @@ fpath=($HOME/.config/zcompl(N-/) $fpath)
 
 [[ $commands[vboxmanage] ]] && zsh-defer -t 1 -c 'compdef vboxmanage=VBoxManage'
 [[ $commands[sshrc] ]] && zsh-defer -t 1 -c 'compdef sshrc=ssh'
-#[[ $commands[aws_completer] ]] && complete -C '/usr/local/bin/aws_completer' aws
+[[ $commands[aws_completer] ]] && zsh-defer -t 1 -c "complete -C '/usr/local/bin/aws_completer' aws"
 # }}
 
 # {{ -- OS specific setting
@@ -155,7 +155,6 @@ setopt auto_cd
 
 # {{ -- completion config
 #autoload -Uz compinit; compinit # zplug call it earlier
-
 setopt complete_in_word     # run completion at cursor position
 setopt correct              # command correct before each completion attempt
 setopt list_packed          # compacked complete list display
@@ -255,7 +254,9 @@ alias kn='kubens'
 
 alias tplan="terraform plan | landscape"
 alias tf='terraform'
+# }}
 
+# {{ -- misc
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 export PATH="/usr/local/Cellar/gnu-getopt/1.1.6/bin":$PATH
 
@@ -268,17 +269,18 @@ zstyle ':zle:*' word-chars " _-./;@"
 zstyle ':zle:*' word-style unspecified
 
 [[ $commands[direnv] ]] && eval "$(direnv hook zsh)"
+# }}
 
 # {{ -- load file
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 
 [[ -f ~/.fzf.zsh ]] && zsh-defer source ~/.fzf.zsh
 
-[[ -f ~/.config/zsh/completion.zsh ]] && zsh-defer source ~/.config/zsh/completion.zsh
+[[ -f ~/.config/zsh/completion.zsh ]] && zsh-defer -t 2 source ~/.config/zsh/completion.zsh
 
-[[ -f ~/.config/zsh/anyenv.zsh ]] && zsh-defer source ~/.config/zsh/anyenv.zsh # too slow
+[[ -f ~/.config/zsh/anyenv.zsh ]] && zsh-defer -t 2 source ~/.config/zsh/anyenv.zsh # too slow
 
-[[ -f ~/.config/zsh/utils.zsh ]] && zsh-defer source ~/.config/zsh/utils.zsh
+[[ -f ~/.config/zsh/utils.zsh ]] && zsh-defer -t 2 source ~/.config/zsh/utils.zsh
 
 [[ -f ~/.iterm2_shell_integration.zsh ]] && source ~/.iterm2_shell_integration.zsh
 
