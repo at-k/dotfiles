@@ -117,4 +117,8 @@ function _jq() {
 }
 complete -F _jq jq
 
+function alogin() {
+    awslogin $@
+    source ~/.zshrc.local
+}
 

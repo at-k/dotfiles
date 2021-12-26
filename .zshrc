@@ -1,3 +1,6 @@
+# enable for profiling
+# zmodload zsh/zprof && zprof
+
 # {{ -- p10k cocnfiguraiton, added automatically
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
@@ -50,18 +53,22 @@ zinit light romkatv/zsh-defer
 
 zinit light greymd/tmux-xpanes
 
+DIRCOLORS_SOLARIZED_ZSH_THEME="ansi-light"
+zinit ice wait lucid
+zinit light pinelibg/dircolors-solarized-zsh
+
 zinit ice wait'0c' lucid atload'_zsh_autosuggest_start'
 zinit light zsh-users/zsh-autosuggestions
 
 zinit ice wait'1' lucid
 zinit light zdharma-continuum/fast-syntax-highlighting
 
-zinit ice wait'1' lucid blockf
-zinit light zsh-users/zsh-completions
+zinit ice wait lucid atload"zicompinit; zicdreplay" blockf for zsh-users/zsh-completions
 
 zinit ice wait lucid
 zinit light mafredri/zsh-async
 
+# zsh-defer -t 1 -c 'autoload -Uz compinit && compinit && zinit cdreplay -q'
 ZINIT[COMPINIT_OPTS]=-C; zpcompinit; zpcdreplay
 # }}
 
@@ -72,7 +79,6 @@ autoload -U +X bashcompinit && bashcompinit
 [[ $commands[vboxmanage] ]] && compdef vboxmanage=VBoxManage
 [[ $commands[sshrc] ]] && compdef sshrc=ssh
 [[ $commands[aws_completer] ]] && complete -C '/usr/local/bin/aws_completer' aws
-
 # }}
 
 # {{ -- OS specific setting
@@ -92,20 +98,6 @@ esac
 if [ -f ~/.bin/mouse.zsh ]; then
     source ~/.bin/mouse.zsh
     zle-toggle-mouse
-fi
-# }}
-
-# {{ -- color
-if [ -f ~/.zsh/dircolors-solarized/dircolors.ansi-dark ]; then
-	if type dircolors > /dev/null 2>&1; then
-		eval $(dircolors ~/.zsh/dircolors-solarized/dircolors.ansi-dark)
-	elif type gdircolors > /dev/null 2>&1; then
-		eval $(gdircolors ~/.zsh/dircolors-solarized/dircolors.ansi-dark )
-	fi
-else
-	if type dircolors > /dev/null 2>&1; then
-		eval $(dircolors -b)  # setup LS_COLORS
-	fi
 fi
 # }}
 
@@ -267,11 +259,6 @@ alias tf='terraform'
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 export PATH="/usr/local/Cellar/gnu-getopt/1.1.6/bin":$PATH
 
-function alogin() {
-    awslogin $@
-    source ~/.zshrc.local
-}
-
 # delimiter definition to split words
 # export WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
 
@@ -279,10 +266,6 @@ autoload -Uz select-word-style
 select-word-style default
 zstyle ':zle:*' word-chars " _-./;@"
 zstyle ':zle:*' word-style unspecified
-
-alias bk='cd $OLDPWD'
-s() { pwd > ~/.save_dir ; }
-i() { cd "$(cat ~/.save_dir)" ; }
 
 [[ $commands[direnv] ]] && eval "$(direnv hook zsh)"
 
@@ -305,4 +288,6 @@ i() { cd "$(cat ~/.save_dir)" ; }
 # }}
 
 # keep this code end
-[[ "$ZSH_PROFILE_MODE" && $commands[zprof] ]] && zprof
+if (which zprof > /dev/null 2>&1) ;then
+  zprof
+fi
