@@ -17,7 +17,6 @@ function cmd_exists() {
 
 # {{ -- compile zshrc
 if [ ! -f ~/.zshrc.zwc -o ~/.zshrc -nt ~/.zshrc.zwc ]; then
-	echo "zshrc is updated. generating zshrc.zwc..."
 	zcompile ~/.zshrc
 fi
 # }}
@@ -283,7 +282,6 @@ compdef kc=kubectx
 compdef kn=kubens
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
-[[ -f ~/.config/zsh/utils.zsh ]] && source ~/.config/zsh/utils.zsh
 
 function alogin() {
     awslogin $@
@@ -302,83 +300,7 @@ alias bk='cd $OLDPWD'
 s() { pwd > ~/.save_dir ; }
 i() { cd "$(cat ~/.save_dir)" ; }
 
-# hook `ls` on `cd` ... it might interrupt shell script. be careful.
-#function chpwd() {
-#	if [ 50 -gt `ls -1 | wc -l` ]; then
-#		case ${OSTYPE} in
-#			cygwin|linux*) ls --show-control-chars --color=auto -F ;;
-#			darwin*) ls -G ;;
-#		esac
-#	fi
-#}
-
-# function peco-select-history() {
-# 	BUFFER="$(history -nr 1 | awk '!a[$0]++' | peco --query "$LBUFFER" | sed 's/\\n/;/g')"
-# 	CURSOR=$#BUFFER             # カーソルを文末に移動
-# 	zle -R -c                   # refresh
-# }
-# zle -N peco-select-history
-# bindkey '^R' peco-select-history
-
-# xenv
-if [ -d ~/go/bin ]; then
-    export PATH="$HOME/go/bin:$PATH"
-fi
-if [ -d ~/.anyenv ]; then
-    export ANYENV_ENABLE=false
-    function enva() {
-        export PATH="$HOME/.anyenv/bin:$PATH" && eval "$(anyenv init - --no-rehash)"
-        export ANYENV_ENABLE=true
-        # PY2_VERSION="2.7.14"
-        # PY3_VERSION="3.6.3"
-
-        # if [ -d ~/.anyenv/envs/pyenv ]; then
-        #     pyenv global $PY3_VERSION $PY2_VERSION
-        #     export PATH="$HOME/.anyenv/envs/pyenv/versions/$PY3_VERSION/bin:$PATH"
-        #     export PATH="$HOME/.anyenv/envs/pyenv/versions/$PY2_VERSION/bin:$PATH"
-        #     eval "$(pyenv virtualenv-init -)"
-        #     eval "$(pyenv init -)"
-        # fi
-
-        # if [ -d ~/go/bin ]; then
-        #     export GOPATH=$HOME/go
-        # fi
-
-        # if [ -x "`which terraform 2> /dev/null `" ]; then
-        #     tfenv use 0.13.0
-        #     complete -C /usr/local/Cellar/tfenv/2.0.0/versions/0.12.20/terraform terraform
-        # fi
-    }
-else
-	# for python
-	if [ -d ~/.pyenv ]; then
-		export PYENV_ROOT="$HOME/.pyenv"
-		export PATH="$PYENV_ROOT/bin:$PATH" && eval "$(pyenv init - --no-rehash)"
-
-		if [ -d $PYENV_ROOT/versions/anaconda3-4.2.0/bin/ ]; then
-			export PATH="$PYENV_ROOT/versions/anaconda3-4.2.0/bin/:$PATH"
-		fi
-	fi
-
-	# for ruby
-	if [ -d ~/.rbenv ]; then
-		eval "$(rbenv init - --no-rehash)"
-	fi
-
-	# for node.js
-	if [ -d ~/.ndenv ]; then
-		export PATH="$HOME/.ndenv/bin:$PATH" && eval "$(ndenv init -)"
-	fi
-
-	# for golang
-	if [ -d ~/.go ]; then
-		export GOPATH=$HOME/.go
-		export PATH=$PATH:$GOPATH/bin
-	fi
-fi
-if [ -x "`which direnv 2> /dev/null `" ]; then
-	eval "$(direnv hook zsh)"
-fi
+[[ cmd_exists(direnv) ]] && eval "$(direnv hook zsh)"
 
 # rprompt setting
 #add-zsh-hook precmd __set_context_prompt
@@ -426,10 +348,6 @@ fi
 
 # zsh-defer -t 2 envk
 
-#function envk-off () {
-#    SPACESHIP_KUBECONTEXT_SHOW=false
-#}
-
 #function __set_kube_prompt () {
 #	# local context=$(kubectl config current-context 2> /dev/null)
 #    # local namespace=$(kubectl config view | yq -r '.contexts[] | select( .name | test("'$context'")) | .context.namespace')
@@ -449,38 +367,6 @@ fi
 #        XENV_PROMPT="%F{yellow}any"
 #    fi
 #}
-
-function zload {
-    if [[ "${#}" -le 0 ]]; then
-        echo "Usage: $0 PATH..."
-        echo 'Load specified files as an autoloading function'
-        return 1
-    fi
-
-    local file function_path function_name
-    for file in "$@"; do
-        if [[ -z "$file" ]]; then
-            continue
-        fi
-
-        function_path="${file:h}"
-        function_name="${file:t}"
-
-        if (( $+functions[$function_name] )) ; then
-            # "function_name" is defined
-            unfunction "$function_name"
-        fi
-        FPATH="$function_path" autoload -Uz +X "$function_name"
-
-        if [[ "$function_name" == _* ]]; then
-            # "function_name" is a completion script
-
-            # fpath requires absolute path
-            # convert relative path to absolute path with :a modifier
-            fpath=("${function_path:a}" $fpath) compinit
-        fi
-    done
-}
 
 # jq key completion
 function jq() {
@@ -512,19 +398,18 @@ function _jq() {
 }
 complete -F _jq jq
 
-[[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
-
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 
-# keep this code end
-if [ "$ZSH_PROFILE_MODE" ]; then
-	if (which zprof > /dev/null 2>&1) ;then
-	  zprof
-	fi
-fi
+[[ -f ~/.fzf.zsh ]] && zsh-defer source ~/.fzf.zsh
 
+[[ -f ~/.config/zsh/anyenv.zsh ]] && zsh-defer source ~/.config/zsh/anyenv.zsh
+
+[[ -f ~/.config/zsh/utils.zsh ]] && zsh-defer source ~/.config/zsh/utils.zsh
 
 [[ -f ~/.iterm2_shell_integration.zsh ]] && source ~/.iterm2_shell_integration.zsh
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# keep this code end
+[[ "$ZSH_PROFILE_MODE" && cmd_exists(zprof) ]] && zprof
