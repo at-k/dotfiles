@@ -1,214 +1,93 @@
-#!/bin/sh
+#!/bin/zsh
 #
 # awslogin: aws login utility, which provides a method to switch between onelogin and iam
 #
 
 #set -xeu
 
-function usage()
+cred_file=~/.aws/credentials
+prof_file=~/.zshrc.aws.local
+
+function gen_prof_name()
 {
-	echo "usage: $1 [options]"
-	echo "	-h       print this usage and exit"
-	echo "	-i       use iam"
-	echo "	-o       use onelogin"
-	echo "	-r       relogin to onelogin"
-	echo "	-p       print current env"
-	echo "  -s		   switch role"
+    arn=$1
+    acc=$(echo $arn | cut -d: -f5)
+    role=$(echo $arn | cut -d/ -f 2)
+    h=$(echo $acc | head -c3)
+    t=$(echo $acc | tail -c2)
+    echo "${h}*${t}:$role"
 }
 
-function print_lastmode()
+function create_new_prof()
 {
-  echo "test"
-}
-
-function list_profile()
-{
-  if [ $# != 1 -a ! -f "$1" ]; then
-    echo "error list_profile: history file not found"
-  else
-    local hist_file=$1
-    local ctime=$(date +%s)
-    while read line; do
-      local prof=$(echo $line | cut -d, -f 1)
-
-      if [ "$prof" = "" ]; then
-        continue
-      fi
-
-      local expire=$(echo $line | cut -d, -f 2)
-      local remain=$(($expire - $ctime))
-      if [ $remain -lt 0 ]; then
-        remain="x"
-      else
-        # second to minitus
-        remain=$(($remain/60))m
-      fi
-
-      echo ${line},${remain}
-
-    done < $hist_file
-  fi
-}
-
-function update_profile()
-{
-  if [ $# -lt 3 ]; then
-    echo 'error'
-  else
-    local prof_file=$1
-    local prof=$2
-    local alias=$3
-
-    echo > $prof_file
-
-    echo "unset AWS_ACCESS_KEY_ID" >> $prof_file
-    echo "unset AWS_SECRET_ACCESS_KEY" >> $prof_file
-    echo "export AWS_ENABLE_USER=0" >> $prof_file
-    echo "export AWS_DEFAULT_PROFILE=$prof" >> $prof_file
-    echo "export AWS_PROFILE=$prof" >> $prof_file
-    echo "export AWS_DEFAULT_REGION=ap-northeast-1" >> $prof_file
-    echo "export AWS_PROFILE_ALIAS=$alias" >> $prof_file
-  fi
-}
-
-function switch_profile()
-{
-  if [ $# -lt 2 ]; then
-    echo 'error switch_profile: invalid arg'
-  else
-    local hist_file=$1
-    local prof_file=$2
-    local prof_item=""
-    if [ $# = 3 ]; then
-      # use latest
-      prof_item=$(tail -1 $hist_file)
+    if saml2aws login --skip-prompt --profile=tmp-prof; then
+        arn=$(aws sts get-caller-identity --profile tmp-prof | jq -r .Arn)
+        prof=$(gen_prof_name $arn)
+        gsed -i "s/tmp-prof/$prof/" $cred_file
+        update_prof_file $prof_file $prof
     else
-      # select from hist file
-      prof_item=$(list_profile $hist_file | peco)
+        echo "fail to login"
     fi
+}
 
-    if [ "${prof_item}" != "" ]; then
-      local prof=$(echo $prof_item | cut -d, -f1)
-      local alias=$(echo $prof_item | cut -d, -f3)
-      local remain=$(echo $prof_item | cut -d, -f4)
+function switch_prof()
+{
+    prof=$1
+    update_prof_file $prof_file $prof
+}
 
-      if [ "$remain" = 'x' ]; then
-        echo "session expired! relogin to $alias"
-        login_via_onelogin $hist_file $alias
-        switch_profile $hist_file $prof_file 1
-      else
-        update_profile $prof_file $prof $alias
-      fi
+function update_prof()
+{
+    prof=$1
+    if saml2aws login --skip-prompt --profile=$prof; then
+        arn=$(aws sts get-caller-identity --profile $prof | jq -r .Arn)
+        update_prof_file $prof_file $prof
+    else
+        echo "fail to login"
     fi
-  fi
 }
 
-function get_current()
+function update_prof_file()
 {
-  if [ "$AWS_ENABLE_USER" = 1 ]; then
-    echo "iam"
-  else
-    remain="none"
-    if [ $# -gt 0 ]; then
-      hist_file=$1
-      remain=$(list_profile $hist_file | grep $AWS_PROFILE_ALIAS | cut -d, -f4)
+    if [ $# -lt 2 ]; then
+        echo 'error'
+    else
+        local prof_file=$1
+        local prof=$2
+        local alias=$2
+
+        echo > $prof_file
+
+        echo "unset AWS_ACCESS_KEY_ID" >> $prof_file
+        echo "unset AWS_SECRET_ACCESS_KEY" >> $prof_file
+        echo "export AWS_ENABLE_USER=0" >> $prof_file
+        echo "export AWS_DEFAULT_PROFILE=$prof" >> $prof_file
+        echo "export AWS_PROFILE=$prof" >> $prof_file
+        echo "export AWS_DEFAULT_REGION=ap-northeast-1" >> $prof_file
+        echo "export AWS_PROFILE_ALIAS=$alias" >> $prof_file
     fi
-    echo $AWS_PROFILE_ALIAS.$remain
-  fi
 }
 
-function clear_env()
-{
-  for fn in `env | grep AWS`;do
-    key=$(echo $fn | cut -d= -f1) && unset $key
-  done
-}
+curdir=$(cd $(dirname $0);pwd)
 
-function login_via_onelogin()
-{
-  if [ $# -lt 1 ]; then
-    echo 'error login_via_onelogin: invalid arg'
-    exit
-  fi
+profs=$(${curdir}/awsprof-utils/ls-prof)
 
-  local histfile=$1
+select=$(echo "NewProf\n$profs" | column -t -s, | peco)
 
-  unset AWS_DEFAULT_PROFILE
-  unset AWS_PROFILE
+if [[ -z $select ]]; then
+    exit 0
+fi
 
-  local conf=""
-  if [ $# = 2 ]; then
-    conf=$2
-  else
-    #conf=$(grep "^\[" ~/.onelogin-aws.config | sed 's/\[\(.*\)\]/\1/'|peco)
-    conf=$(grep "^\[" ~/.saml2aws | sed 's/\[\(.*\)\]/\1/'|peco)
-  fi
+if [[ $select == "NewProf" ]]; then
+    create_new_prof
+else
+    expired_at=$(echo $select | awk '{print $3}')
+    prof_name=$(echo $select | awk '{print $1}')
 
-  if [ "$conf" = "" ]; then
-    echo "error: get conf"
-    exit 1
-  fi
-  # local duration=$(grep -A6 $conf ~/.onelogin-aws.config | grep duration | head -1 | awk -F'=' '{print $2}')
-  local duration=$(grep -A10 "\[$conf\]" ~/.saml2aws | grep duration | head -1 | awk -F'=' '{print $2}')
-  local profile=$(grep -A10 "\[$conf\]" ~/.saml2aws | grep aws_profile | head -1 | awk -F'=' '{print $2}')
-
-  echo $duration
-  echo $profile
-
-  #local output=$(onelogin-aws-login -C $conf | tee /dev/stderr)
-  saml2aws login --skip-prompt -a ${conf}
-  if [ $? -ne 0 ]; then
-    echo "error: fail to login"
-    exit 1
-  fi
-
-  # local maxduration=$(aws iam get-role --profile $profile --role-name $rolename  | jq -r '.Role.MaxSessionDuration')
-  local expire_time=$(echo $(date +%s) + $duration | bc)
-
-  sed "/$conf/d" $histfile > /tmp/awslogin_tmp && mv /tmp/awslogin_tmp $histfile
-  echo ${profile},${expire_time},$conf >> $histfile
-}
-
-function use_iam()
-{
-   if [ $# -lt 1 ]; then
-    echo 'error use_iam: invalid arg'
-    exit
-  fi
-
-  local aws_prof_file=$1
-
-  echo "export AWS_ENABLE_USER=1" > $aws_prof_file
-}
-
-
-
-bname=`basename $0`
-rcfile=~/.zshrc.aws.local
-cache=~/.cache/aws_profiles
-ONELOGIN_EXPIRED_SEC=10800
-
-while getopts iorspluh OPT;
-do
-	case $OPT in
-		# "i") use_iam $rcfile; exit;;
-		"s") switch_profile $cache $rcfile; exit;;
-		"r")
-      login_via_onelogin $cache
-      switch_profile $cache $rcfile 1
-      exit;;
-		"p") get_current $cache; exit;;
-    'l') list_profile $cache; exit;;
-    'u') clear_env; exit;;
-    'o')
-      saml2aws login --skip-prompt --force
-      update_profile $rcfile saml saml
-      exit;;
-		"h") usage ${bname}; exit;;
-    '?') usage ${bname}; exit;;
-	esac
-done
-
-# default action
-switch_profile $cache $rcfile
-
+    if [[ $expired_at != "expired" ]]; then
+        switch_prof $prof_name
+    else
+        ${curdir}/awsprof-utils/clean-prof $prof_name
+        update_prof $prof_name
+    fi
+fi

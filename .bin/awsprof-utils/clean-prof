@@ -1,0 +1,38 @@
+#!/bin/zsh
+# clean-prof
+#   remove expired profiles
+
+cred=~/.aws/credentials
+cred_tmp=~/.aws/credentials_tmp
+
+function filter_prof()
+{
+    if [[ ! -f $cred ]]; then
+        echo "no cred file"; exit 0
+    fi
+
+    tgt_prof=$1
+    toggle=0
+
+    while read line; do
+        if [[ $line == \[*] ]]; then
+            prof=$(echo $line | sed 's/\[\(.*\)\]/\1/')
+            if [[ $prof == $tgt_prof ]]; then
+                toggle=1
+            else
+                toggle=0
+            fi
+        fi
+
+        if [[ $toggle == 0 ]]; then
+            echo $line
+        fi
+    done < $cred
+}
+
+if [[ $# != 1 ]]; then
+    exit 0
+fi
+
+filter_prof $1 > $cred_tmp
+mv $cred_tmp $cred

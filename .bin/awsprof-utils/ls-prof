@@ -16,6 +16,10 @@ function is_expired()
 
 function print_prof()
 {
+    if [[ $# != 3 ]]; then
+        echo "no prof"
+        return
+    fi
     prof=$1
     arn=$2
     expired_at=$3
@@ -50,7 +54,6 @@ function get_from_credfile()
             exp=$val
         fi
     done < $cred
-
     print_prof $prof $arn $exp
 }
 
