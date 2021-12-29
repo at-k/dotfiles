@@ -5,13 +5,20 @@
 # clear profile
 # echo > ~/.aws/credentials
 
-function is_expired()
+function remain_sec()
 {
-    expired_at=$1
-    if [ $(gdate +"%s") -ge $(gdate --date $expired_at +"%s") ]; then
-        expired_at="expired"
+    local expired_at=$(gdate --date $1 +"%s")
+    local current=$(gdate +"%s")
+    local remain_sec=$(($expired_at - $current))
+    if [ $remain_sec -lt 0 ]; then
+        # remain_sec="\e[31mexpired\e[m"
+        remain_sec="expired"
+    elif [ $remain_sec -lt 600 ]; then
+        # remain_sec="\e[33m$remain_sec\e[m"
+    else
+        # remain_sec="\e[32m$remain_sec\e[m"
     fi
-    echo $expired_at
+    echo $remain_sec
 }
 
 function print_prof()
@@ -20,26 +27,26 @@ function print_prof()
         echo "no prof"
         return
     fi
-    prof=$1
-    arn=$2
-    expired_at=$3
-    exp=$(is_expired $expired_at)
+    local prof=$1
+    local arn=$2
+    local expired_at=$3
+    local exp=$(remain_sec $expired_at)
 
-    acc=$(echo $arn | cut -d':' -f 5)
-    role=$(echo $arn | cut -d'/' -f 2)
+    local acc=$(echo $arn | cut -d':' -f 5)
+    local role=$(echo $arn | cut -d'/' -f 2)
     # echo "$prof,$acc/$role,$exp" | column -t -s,
     echo "$prof,$acc/$role,$exp"
 }
 
 function get_from_credfile()
 {
-    cred=~/.aws/credentials
+    local cred=~/.aws/credentials
 
     if [[ ! -f $cred ]]; then
         echo "no cred file"; exit 0
     fi
 
-    prof=""; arn=""; exp=""
+    local prof=""; local arn=""; local exp=""
 
     while IFS=' = ' read var val; do
         if [[ $var == \[*] ]]; then
@@ -59,6 +66,8 @@ function get_from_credfile()
 
 function get_from_api()
 {
+    local exp=""
+    local arn=""
     for prof in `aws configure list-profiles`; do
         exp=$(aws configure get x_security_token_expires --profile $prof)
         [[ -z $exp ]] && continue
@@ -69,5 +78,17 @@ function get_from_api()
     done
 }
 
-# get_from_api
-get_from_credfile
+print_current=0
+while getopts r:c OPT;
+do
+	case $OPT in
+		"c") print_current=1;;
+	esac
+done
+
+if [[ $print_current == 0 ]]; then
+    # get_from_api
+    get_from_credfile
+else
+    get_from_credfile | grep -F $AWS_PROFILE
+fi

@@ -23,6 +23,7 @@ function create_new_prof()
     if saml2aws login --skip-prompt --profile=tmp-prof; then
         arn=$(aws sts get-caller-identity --profile tmp-prof | jq -r .Arn)
         prof=$(gen_prof_name $arn)
+        ${curdir}/awsprof-utils/clean-prof $prof # rm old prof if exists
         gsed -i "s/tmp-prof/$prof/" $cred_file
         update_prof_file $prof_file $prof
     else
