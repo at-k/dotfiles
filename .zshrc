@@ -252,6 +252,9 @@ alias k='kubectl'
 alias kc='kubectx'
 alias kn='kubens'
 
+alias a='aws'
+zsh-defer -t 2 -c 'compdef a=aws'
+
 alias tplan="terraform plan | landscape"
 alias tf='terraform'
 # }}
