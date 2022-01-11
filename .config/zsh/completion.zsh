@@ -2,6 +2,13 @@
 # lazy loading
 # ref: https://frederic-hemberger.de/notes/shell/speed-up-initial-zsh-startup-with-lazy-loading/
 
+[[ $commands[vboxmanage] ]] && compdef vboxmanage=VBoxManage
+[[ $commands[sshrc] ]] && compdef sshrc=ssh
+[[ $commands[aws_completer] ]] && complete -C '/usr/local/bin/aws_completer' aws
+[[ $commands[git] ]] && compdef g=git
+[[ $commands[nvim] ]] && compdef v=nvim
+[[ $commands[aws] ]] && compdef a=aws
+
 if [ $commands[kubectl] ]; then
     kubectl() {
         unfunction "$0"

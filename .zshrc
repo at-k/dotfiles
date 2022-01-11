@@ -76,9 +76,6 @@ zsh-defer -t 1 -c 'autoload -U +X bashcompinit && bashcompinit' # for aws-cli
 fpath=($HOME/.config/zcompl(N-/) $fpath)
 # autoload -U +X bashcompinit && bashcompinit
 
-[[ $commands[vboxmanage] ]] && zsh-defer -t 1 -c 'compdef vboxmanage=VBoxManage'
-[[ $commands[sshrc] ]] && zsh-defer -t 1 -c 'compdef sshrc=ssh'
-[[ $commands[aws_completer] ]] && zsh-defer -t 1 -c "complete -C '/usr/local/bin/aws_completer' aws"
 # }}
 
 # {{ -- OS specific setting
@@ -233,12 +230,10 @@ alias iro='for i in {0..255} ; do; printf "\x1b[38;5;${i}m%03d " ${i}; done'
 alias iro-e='for i in {0..255} ; do; echo -e "\e[${i}m ${i}"; done'
 
 alias g='git'
-zsh-defer -t 2 -c 'compdef g=git'
 alias cdroot='cd $(git root)'
 
 alias vim='nvim'
 alias v='nvim'
-zsh-defer -t 2 -c 'compdef v=nvim'
 
 alias diff='diff -Bw'
 alias vimdiff='vimdiff -c "set diffopt+=iwhite"'
@@ -253,7 +248,6 @@ alias kc='kubectx'
 alias kn='kubens'
 
 alias a='aws'
-zsh-defer -t 2 -c 'compdef a=aws'
 
 alias tplan="terraform plan | landscape"
 alias tf='terraform'
@@ -279,11 +273,11 @@ zstyle ':zle:*' word-style unspecified
 
 [[ -f ~/.fzf.zsh ]] && zsh-defer source ~/.fzf.zsh
 
-[[ -f ~/.config/zsh/completion.zsh ]] && zsh-defer -t 2 source ~/.config/zsh/completion.zsh
+[[ -f ~/.config/zsh/completion.zsh ]] && zsh-defer -t 1 source ~/.config/zsh/completion.zsh
 
-[[ -f ~/.config/zsh/anyenv.zsh ]] && zsh-defer -t 2 source ~/.config/zsh/anyenv.zsh # too slow
+[[ -f ~/.config/zsh/anyenv.zsh ]] && zsh-defer -t 1 source ~/.config/zsh/anyenv.zsh # too slow
 
-[[ -f ~/.config/zsh/utils.zsh ]] && zsh-defer -t 2 source ~/.config/zsh/utils.zsh
+[[ -f ~/.config/zsh/utils.zsh ]] && zsh-defer -t 1 source ~/.config/zsh/utils.zsh
 
 [[ -f ~/.iterm2_shell_integration.zsh ]] && source ~/.iterm2_shell_integration.zsh
 
