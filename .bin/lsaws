@@ -32,11 +32,13 @@ opt=$(echo $@ | sed 's/-u//')
 
 source ~/.zshrc.local
 
-if [ $(awslogin -p) = "iam" ]; then
-	sum=$(md5 -r -s "${opt}" | cut -d" " -f1)
-else
-	sum=$(md5 -r -s "${AWS_DEFAULT_PROFILE}${AWS_DEFAULT_REGION}${opt}" | cut -d" " -f1)
-fi
+# if [ $(awslogin -p) = "iam" ]; then
+# 	sum=$(md5 -r -s "${opt}" | cut -d" " -f1)
+# else
+#	sum=$(md5 -r -s "${AWS_DEFAULT_PROFILE}${AWS_DEFAULT_REGION}${opt}" | cut -d" " -f1)
+# fi
+
+sum=$(md5 -r -s "${AWS_DEFAULT_PROFILE}${AWS_DEFAULT_REGION}${opt}" | cut -d" " -f1)
 
 hosts=${hosts_base}_${sum}
 
