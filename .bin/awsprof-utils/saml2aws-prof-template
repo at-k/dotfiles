@@ -1,0 +1,15 @@
+[TEMPLATE_PROF_NAME]
+app_id               = 698140
+url                  = https://api.us.onelogin.com/
+username             = akawamura@c-fo.com
+provider             = OneLogin
+mfa                  = OLP
+subdomain            = freee
+skip_verify          = false
+timeout              = 0
+aws_urn              = urn:amazon:webservices
+aws_session_duration = TEMPLATE_DURATION
+aws_profile          = TEMPLATE_AWS_PROF_NAME
+resource_id          =
+role_arn             = TEMPLATE_ROLE_ARN
+region               =

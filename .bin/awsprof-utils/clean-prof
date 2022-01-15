@@ -7,12 +7,14 @@ cred_tmp=~/.aws/credentials_tmp
 
 function filter_prof()
 {
-    if [[ ! -f $cred ]]; then
+    local tgt_prof=$1
+    local crd_file=$2
+    local toggle=0
+
+    if [[ ! -f $crd_file ]]; then
         echo "no cred file"; exit 0
     fi
 
-    tgt_prof=$1
-    toggle=0
 
     while read line; do
         if [[ $line == \[*] ]]; then
@@ -27,12 +29,12 @@ function filter_prof()
         if [[ $toggle == 0 ]]; then
             echo $line
         fi
-    done < $cred
+    done < $crd_file
 }
 
 if [[ $# != 1 ]]; then
     exit 0
 fi
 
-filter_prof $1 > $cred_tmp
+filter_prof $1 $cred > $cred_tmp
 mv $cred_tmp $cred

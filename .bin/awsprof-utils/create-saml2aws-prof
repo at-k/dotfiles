@@ -1,0 +1,60 @@
+#!/bin/zsh
+
+prof_file=~/.saml2aws
+prof_tmp_file=~/.saml2aws_tmp
+curdir=$(cd $(dirname $0);pwd)
+template_file=${curdir}/saml2aws-prof-template
+
+function filter_prof()
+{
+    local tgt_prof=$1
+    local tgt_prof_file=$2
+    local toggle=0
+
+    if [[ ! -f $tgt_prof_file ]]; then
+        echo "no prof file"; exit 0
+    fi
+
+
+    while read line; do
+        if [[ $line == \[*] ]]; then
+            local prof=$(echo $line | sed 's/\[\(.*\)\]/\1/')
+            if [[ $prof == $tgt_prof ]]; then
+                toggle=1
+            else
+                toggle=0
+            fi
+        fi
+
+        if [[ $toggle == 0 ]]; then
+            echo $line
+        fi
+    done < $tgt_prof_file
+}
+
+if [[ $# != 1 ]]; then
+    exit 0
+fi
+
+profname=$1
+role_arn=$(aws --profile $profname sts get-caller-identity | jq -r .Arn | sed -e 's/sts/iam/' -e 's/assumed-//' | cut -d/ -f1-2)
+
+if [[ -z "$role_arn" ]]; then
+  echo "fail to get role arn"; exit 0
+fi
+
+role_name=$(echo $role_arn | cut -d/ -f2)
+max_duration=$(aws --profile $profname iam get-role --role-name $role_name | jq .Role.MaxSessionDuration)
+
+if [[ -z "$max_duration" ]]; then
+  echo "fail to get max_duration"; exit 0
+fi
+
+filter_prof $profname $prof_file > $prof_tmp_file
+mv $prof_tmp_file $prof_file
+
+sed -e "s/TEMPLATE_PROF_NAME/$profname/" \
+  -e "s/TEMPLATE_DURATION/$max_duration/" \
+  -e "s/TEMPLATE_AWS_PROF_NAME/$profname/" \
+  -e "s%TEMPLATE_ROLE_ARN%$role_arn%" $template_file >> $prof_file
+
