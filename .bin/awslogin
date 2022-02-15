@@ -11,19 +11,21 @@ default_session_duration=10800
 
 function gen_prof_name()
 {
-    arn=$1
-    acc=$(echo $arn | cut -d: -f5)
-    role=$(echo $arn | cut -d/ -f 2)
-    h=$(echo $acc | head -c3)
-    t=$(echo $acc | tail -c2)
-    echo "${h}*${t}:$role"
+    local arn=$1
+    local acc_alias=$(echo $2 | sed -e 's/freee-//' -e 's/finance-lab/ffl/')
+    local acc=$(echo $arn | cut -d: -f5)
+    local role=$(echo $arn | cut -d/ -f 2 | sed -e 's/freee-//' -e 's/sso-//')
+    local h=$(echo $acc | head -c3)
+    local t=$(echo $acc | tail -c2)
+    echo "${h}*${t}:${acc_alias}:$role"
 }
 
 function create_new_prof()
 {
     if saml2aws login --skip-prompt --profile=tmp-prof --session-duration=$default_session_duration; then
-        arn=$(aws sts get-caller-identity --profile tmp-prof | jq -r .Arn)
-        prof=$(gen_prof_name $arn)
+        local arn=$(aws sts get-caller-identity --profile tmp-prof | jq -r .Arn)
+        local acc_alias=$(aws iam list-account-aliases --profile tmp-prof | jq -r '.AccountAliases[]' | head -1)
+        local prof=$(gen_prof_name $arn $acc_alias)
         ${curdir}/awsprof-utils/clean-prof $prof # rm old prof if exists
         gsed -i "s/tmp-prof/$prof/" $cred_file
         update_prof_file $prof_file $prof
@@ -43,8 +45,8 @@ function update_prof()
 {
     local prof=$1
     local opt="--profile=$prof"
-    if grep $prof ~/.saml2aws; then
-        if saml2aws login --skip-prompt "-a $prof"; then
+    if grep -F $prof ~/.saml2aws; then
+        if saml2aws login --skip-prompt -a "$prof"; then
             arn=$(aws sts get-caller-identity --profile $prof | jq -r .Arn)
             update_prof_file $prof_file $prof
         else
@@ -95,7 +97,7 @@ else
     if [[ $expired_at != "expired" ]]; then
         switch_prof $prof_name
     else
-        ${curdir}/awsprof-utils/clean-prof $prof_name
+        # ${curdir}/awsprof-utils/clean-prof $prof_name
         update_prof $prof_name
     fi
 fi
