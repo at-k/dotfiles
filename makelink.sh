@@ -19,13 +19,13 @@
 function mkdir_and_ln_recursively()
 {
 	local dir_stack=$1
-	for f in $dir_stack/* $dir_stack/.??*; do
-		if [ -e $f ]; then
-			if [ -d $f ]; then
-				mkdir_and_ln_recursively $f
+	for f in "$dir_stack"/* "$dir_stack"/.??*; do
+		if [[ -e "$f" ]]; then
+			if [[ -d "$f" ]]; then
+				mkdir_and_ln_recursively "$f"
 			else
-				mkdir -p ~/$dir_stack
-				ln -snf $(pwd)/${f} ~/${f}
+				mkdir -p ~/"$dir_stack"
+				ln -snf "$(pwd)"/"${f}" ~/"${f}"
 			fi
 		fi
 	done
@@ -36,10 +36,10 @@ do
 	[[ "$f" == ".git" ]] && continue
 	[[ "$f" == ".DS_Store" ]] && continue
 
-	if [ -d $f ]; then
-		mkdir_and_ln_recursively $f
+	if [[ -d "$f" ]]; then
+		mkdir_and_ln_recursively "$f"
 	else
-		ln -snf $(pwd)/"$f" ~/"$f"
+		ln -snf "$(pwd)"/"$f" ~/"$f"
 	fi
 done
 
