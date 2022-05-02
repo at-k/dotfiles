@@ -39,6 +39,7 @@
     # default-bn = "!git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@'"
     default-bn = "!git remote show origin 2> /dev/null | grep 'HEAD branch' | awk '{print $NF}'"
     default-rm = "!f() { if git remote | grep upstream > /dev/null; then echo upstream;else echo origin;fi;}; f"
+    bd = !git branch | grep -Ev '\\*|master|main' | peco | xargs git branch -D
 
 [difftool.latex]
 	cmd = latexdiff -e ISO-2022-JP "$LOCAL" "$REMOTE"
