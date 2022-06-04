@@ -1,0 +1,28 @@
+#!/bin/sh
+
+aws iam list-roles > roles.json
+
+cat roles.json | jq -r '.Roles[] | select(.AssumeRolePolicyDocument.Statement[0].Principal.Federated == "arn:aws:iam::057575985710:saml-provider/OneLogin") | .RoleName' > sso-roles-name.txt
+
+role_name=a11y-developer
+
+aws iam list-role-policies --role-name ${role_name} > tmp1.json
+cat tmp1.json | jq -r '.PolicyNames[]' > policy_list.txt
+
+echo > policy.json
+
+for p in `cat policy_list.txt`; do
+  aws iam get-role-policy --role-name ${role_name} --policy-name ${p} > policy_tmp.json
+  jq -s '.[0] * .[1]' policy.json policy_tmp.json > policy.json
+done
+
+
+aws iam list-attached-role-policies --role-name ${role_name} > tmp2.json
+cat tmp2.json | jq -r '.AttachedPolicies[] |.PolicyArn' > policy_list.txt
+
+for p in `cat policy_list.txt`; do
+  policy_arn=$p
+  default_id=$(aws iam get-policy --policy-arn ${policy_arn} | jq -r '.Policy.DefaultVersionId')
+  aws iam get-policy-version --policy-arn ${policy_arn}  --version-id ${default_id} > policy_tmp.json
+  jq -s '.[0] * .[1]' policy.json policy_tmp.json > policy.json
+done
