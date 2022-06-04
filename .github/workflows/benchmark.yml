@@ -35,7 +35,7 @@ jobs:
 
     - name: Run benchmark
       run: |
-        echo testtest
+        time ( zsh -i -c exit )
 
    #- name: Run benchmark
    #  run: ./scripts/benchmark.sh > result.json
