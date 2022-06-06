@@ -91,12 +91,12 @@ case ${OSTYPE} in
 esac
 # }}
 
-# {{ -- Mouse setting w/ tmux
-if [ -f ~/.bin/mouse.zsh ]; then
-    source ~/.bin/mouse.zsh
-    zle-toggle-mouse
-fi
-# }}
+## {{ -- Mouse setting w/ tmux
+#if [ -f ~/.bin/mouse.zsh ]; then
+#    source ~/.bin/mouse.zsh
+#    zle-toggle-mouse
+#fi
+## }}
 
 # {{ -- key bind
 bindkey -v  # -e for Emacs style or -v for vim style
