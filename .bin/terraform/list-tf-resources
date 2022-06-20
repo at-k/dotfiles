@@ -1,0 +1,14 @@
+#!/bin/bash
+
+file=$1
+
+if [[ ! -f $file ]]; then
+  echo "invaid file name"
+  exit 1
+fi
+
+# resources
+grep '^resource' "$file" | sed 's/\"//g' | awk '{print $2"."$3}'
+
+# modules
+grep '^module' "$file" | sed 's/\"//g' | awk '{print $1"."$2}'
