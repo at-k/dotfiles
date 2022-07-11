@@ -3,22 +3,22 @@
 set -eu
 
 srcPjDir=$1
-tgtPjDir=$2
+dstPjDir=$2
 
 if [[ ! -d "$srcPjDir" ]]; then
-  echo "error: invalid tgt file"
+  echo "error: invalid src pj dir"
   exit 1
 fi
 
-if [[ ! -d "$tgtPjDir" ]]; then
-  echo "error: invalid tgt pj dir"
+if [[ ! -d "$dstPjDir" ]]; then
+  echo "error: invalid dst pj dir"
   exit 1
 fi
 
 srcPjDir=$(echo "$srcPjDir" | sed 's/\/$//')
-tgtPjDir=$(echo "$tgtPjDir" | sed 's/\/$//')
+dstPjDir=$(echo "$dstPjDir" | sed 's/\/$//')
 
-pushd "$tgtPjDir" || exit
+pushd "$dstPjDir" || exit
 terraform init
 terraform state pull > tfstate
 popd || exit
@@ -33,7 +33,8 @@ tgtFiles=$(find -- *.tf | peco --prompt "select target files")
 popd || exit
 
 for tgt in $tgtFiles; do
-  for rsc in $(list-tf-resources "${tgtPjDir}/$tgt"); do
-    terraform state mv -state="${srcPjDir}"/tfstate -state-out="${tgtPjDir}"/tfstate "$rsc" "$rsc"
+  for rsc in $(list-tf-resources "${srcPjDir}/$tgt"); do
+    echo terraform state mv -state="${srcPjDir}"/tfstate -state-out="${dstPjDir}"/tfstate "$rsc" "$rsc"
+    terraform state mv -state="${srcPjDir}"/tfstate -state-out="${dstPjDir}"/tfstate "$rsc" "$rsc"
   done
 done
