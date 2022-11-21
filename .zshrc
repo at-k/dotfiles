@@ -251,6 +251,9 @@ alias a='aws'
 
 alias tplan="terraform plan | landscape"
 alias tf='terraform'
+
+alias myip='curl httpbin.org/ip'
+
 # }}
 
 # {{ -- misc

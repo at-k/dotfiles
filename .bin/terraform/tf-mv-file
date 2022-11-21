@@ -4,6 +4,7 @@ set -eu
 
 srcPjDir=$1
 dstPjDir=$2
+tgtFiles=$3
 
 if [[ ! -d "$srcPjDir" ]]; then
   echo "error: invalid src pj dir"
@@ -28,9 +29,11 @@ terraform init
 terraform state pull > tfstate
 popd || exit
 
-pushd "$srcPjDir" || exit
-tgtFiles=$(find -- *.tf | peco --prompt "select target files")
-popd || exit
+if [[ "$tgtFiles" == "" ]]; then
+  pushd "$srcPjDir" || exit
+  tgtFiles=$(find -- *.tf | peco --prompt "select target files")
+  popd || exit
+fi
 
 for tgt in $tgtFiles; do
   for rsc in $(list-tf-resources "${srcPjDir}/$tgt"); do

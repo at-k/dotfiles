@@ -201,7 +201,7 @@ set smarttab
 " incremental search
 set incsearch
 
-" hilight search word
+" highlight search word
 set hlsearch
 
 " ignore capitalization
@@ -365,6 +365,7 @@ nmap     <Space>u	[unite]
 nmap     <Space>w [winr]
 "nmap	 <Space>m	[mark]
 nmap	 <Space>t	[templ]
+nmap   <Space>c [coc]
 
 "--- plugin
 " invoke NERDTree
@@ -387,8 +388,11 @@ map sr <Plug>(operator-surround-replace)
 nnoremap [templ]l <ESC>i<C-R>=PrintCtime("%Y-%m-%d %a")<CR>
 nnoremap [templ]s <ESC>i<C-R>=strftime("%y%m%d")<CR>
 
+nmap <silent> [coc]d <Plug>(coc-definition)
+nmap <silent> [coc]a <Plug>(coc-codeaction-line)
+
 "-------------------------------------------------
-" Original commmand
+" Original command
 "-------------------------------------------------
 command! -nargs=1 -complete=command DictionaryTranslate call vimrc#DictionaryTranslate(<f-args>)
 
