@@ -24,7 +24,7 @@ export EDITOR='nvim'
 export AWS_PAGER=''
 export LV="-c -Sh1;36 -Su1;4;32 -Ss7;37;1;33"
 export LESS='-i -M -R'
-typeset -U path PATH; export PATH="$HOME/.bin:$HOME/.mybin:$PATH:$HOME/.mybin/terraform"
+typeset -U path PATH; export PATH="$HOME/.bin:$HOME/.mybin:$PATH:$HOME/.mybin/terraform:$HOME/.mybin/github"
 case ${TERM} in
 	xterm*)
 		export TERM=xterm-256color;;
@@ -243,12 +243,6 @@ alias zbench='time ( zsh -i -c exit)'
 alias ecr-login='aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin 057575985710.dkr.ecr.ap-northeast-1.amazonaws.com'
 alias tf-search='gh repo list C-FO -l hcl --limit 1000 | fzf | cut -f1 | xargs -I{} gh repo view {}'
 
-alias k='kubectl'
-alias kc='kubectx'
-alias kn='kubens'
-
-alias a='aws'
-
 alias tplan="terraform plan | landscape"
 alias tf='terraform'
 
@@ -275,6 +269,10 @@ zstyle ':zle:*' word-style unspecified
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 
 [[ -f ~/.fzf.zsh ]] && zsh-defer source ~/.fzf.zsh
+
+# alias for specific commands
+[[ -f ~/.config/zsh/kubectl.zsh ]] && source ~/.config/zsh/kubectl.zsh
+[[ -f ~/.config/zsh/aws.zsh ]] && source ~/.config/zsh/aws.zsh
 
 [[ -f ~/.config/zsh/completion.zsh ]] && zsh-defer -t 1 source ~/.config/zsh/completion.zsh
 
