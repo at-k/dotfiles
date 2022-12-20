@@ -4,7 +4,27 @@ export PATH="$HOME/go/bin:$PATH"
 
 if [ -d ~/.anyenv ]; then
     export PATH="$HOME/.anyenv/bin:$PATH"
-    eval "$(anyenv init - --no-rehash)"
+
+    cache=${HOME}/.cache/anyenv/anyenv.sh
+    CACHE_EXPIRED_SEC=600
+
+    # cache anyenv init file
+    if [[ -f ${cache} ]]; then
+        eval $(stat -s ${cache} )
+        mtime=${st_mtime}
+        ctime=$(date +%s)
+        laps=$(echo "$ctime - $mtime" | bc)
+
+        if [[ $laps -gt $CACHE_EXPIRED_SEC ]]; then
+            mkdir -p $(dirname ${cache})
+            anyenv init - --no-rehash > ${cache}
+	    fi
+    else
+        mkdir -p $(dirname ${cache})
+        anyenv init - --no-rehash > ${cache}
+    fi
+    source ${cache}
+    # eval "$(anyenv init - --no-rehash)"
 else
 	# for python
 	if [ -d ~/.pyenv ]; then
