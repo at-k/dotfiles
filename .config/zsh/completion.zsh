@@ -13,9 +13,8 @@ if [ $commands[kubectl] ]; then
     kubectl() {
         unfunction "$0"
         source <(kubectl completion zsh)
-        compdef k=kubectl
-        compdef kc=kubectx
-        compdef kn=kubens
+        # alias k=kubectl
+        # compdef __start_kubectl k
         $0 "$@"
     }
 fi

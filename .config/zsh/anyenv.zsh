@@ -1,5 +1,7 @@
 #!/usr/bin/env zsh
 
+alias reload-anyenv='eval "$(anyenv init -)"'
+
 export PATH="$HOME/go/bin:$PATH"
 
 if [ -d ~/.anyenv ]; then
