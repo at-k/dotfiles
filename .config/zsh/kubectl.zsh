@@ -6,6 +6,9 @@ alias k='kubectl'
 alias kc='kubectx'
 alias kn='kubens'
 
+alias kg='kubectl get'
+alias kd='kubectl describe'
+
 alias kuconfig='aws eks update-kubeconfig --name $(basename $(pwd))'
 
 alias kapi='kubectl api-resources'
