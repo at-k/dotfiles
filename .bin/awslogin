@@ -7,7 +7,8 @@
 
 cred_file=~/.aws/credentials
 prof_file=~/.zshrc.aws.local
-default_session_duration=10800
+# default_session_duration=10800
+default_session_duration=3600
 
 function gen_prof_name()
 {
