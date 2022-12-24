@@ -54,6 +54,10 @@ depends = ['vim-markdown']
 repo = 'kannokanno/previm'
 on_cmd = ['PrevimOpen']
 depends = ['open-browser.vim']
+
+[[plugins]]
+repo = 'img-paste-devs/img-paste.vim'
+on_ft = ['markdown']
 # }}
 
 [[plugins]]
