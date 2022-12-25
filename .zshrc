@@ -142,6 +142,7 @@ bindkey "^N" history-beginning-search-forward-end
 # {{ -- glob
 setopt extendedglob # enable extended file pattern mattching
 setopt nomatch      # stop to make `not-found` warning on judging a character as file name
+setopt no_nomatch
 # }}
 
 # {{ -- cd behavior
@@ -243,8 +244,6 @@ alias zbench='time ( zsh -i -c exit)'
 alias ecr-login='aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin 057575985710.dkr.ecr.ap-northeast-1.amazonaws.com'
 alias tf-search='gh repo list C-FO -l hcl --limit 1000 | fzf | cut -f1 | xargs -I{} gh repo view {}'
 
-alias tplan="terraform plan | landscape"
-alias tf='terraform'
 
 alias myip='curl httpbin.org/ip'
 
@@ -273,6 +272,7 @@ zstyle ':zle:*' word-style unspecified
 # alias for specific commands
 [[ -f ~/.config/zsh/kubectl.zsh ]] && source ~/.config/zsh/kubectl.zsh
 [[ -f ~/.config/zsh/aws.zsh ]] && source ~/.config/zsh/aws.zsh
+[[ -f ~/.config/zsh/terraform.zsh ]] && source ~/.config/zsh/terraform.zsh
 
 [[ -f ~/.config/zsh/completion.zsh ]] && zsh-defer -t 1 source ~/.config/zsh/completion.zsh
 
