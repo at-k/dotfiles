@@ -24,7 +24,7 @@ export EDITOR='nvim'
 export AWS_PAGER=''
 export LV="-c -Sh1;36 -Su1;4;32 -Ss7;37;1;33"
 export LESS='-i -M -R'
-typeset -U path PATH; export PATH="$HOME/.bin:$HOME/.mybin:$PATH:$HOME/.mybin/terraform:$HOME/.mybin/github"
+typeset -U path PATH; export PATH="$HOME/.bin:$HOME/.mybin:$PATH:$HOME/.mybin/terraform:$HOME/.mybin/github:$HOME/.mybin/aws"
 case ${TERM} in
 	xterm*)
 		export TERM=xterm-256color;;

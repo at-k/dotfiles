@@ -1,0 +1,6 @@
+#!/bin/zsh
+#
+
+cache=${HOME}/.cache/aws/ec2_price.json
+
+curl "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonEC2/current/index.json" > $cache

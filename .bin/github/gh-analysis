@@ -1,0 +1,16 @@
+#!/bin/bash
+#
+#
+
+for d in */; do
+  dname=$(basename "$d")
+  pushd "$d" > /dev/null || exit
+  body="$dname"
+  for m in $(seq -w 01 12); do
+    d="2022/$m/01"
+    c=$(git log --before "$d" . | grep -c commit)
+    body="$body,$c"
+  done
+  echo "$body"
+  popd > /dev/null || exit
+done
