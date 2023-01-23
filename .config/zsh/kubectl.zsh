@@ -29,15 +29,5 @@ alias kgp-s='(){kubectl get po --selector=$1}'
 alias kgn-l='(){kubectl get no -L=$1}'
 alias kgp-l='(){kubectl get po -L=$1}'
 
+alias kgpc="(){kubectl get po \$1 -o jsonpath='{.spec.containers[*].name}'}"
 
-function kpod () {
-  if [ $# -ge 1 -a "$1" = "-A" ]; then
-    kubectl get po $@ | peco | awk '{print $2}' | tr -d '\n' | pbcopy
-  else
-    kubectl get po $@ | peco | awk '{print $1}' | tr -d '\n' | pbcopy
-  fi
-}
-
-function knode () {
-  kubectl get no $@ | peco | awk '{print $1}' | tr -d '\n' | pbcopy
-}

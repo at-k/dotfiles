@@ -6,3 +6,5 @@
 alias tplan="terraform plan | landscape"
 alias tf='terraform'
 
+alias tfp='terraform plan'
+alias tfi='terraform init'
