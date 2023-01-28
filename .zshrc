@@ -53,6 +53,8 @@ zinit light romkatv/zsh-defer
 
 zinit light greymd/tmux-xpanes
 
+zinit light asdf-vm/asdf
+
 DIRCOLORS_SOLARIZED_ZSH_THEME="ansi-light"
 zinit ice wait lucid
 zinit light pinelibg/dircolors-solarized-zsh
@@ -231,7 +233,7 @@ alias iro='for i in {0..255} ; do; printf "\x1b[38;5;${i}m%03d " ${i}; done'
 alias iro-e='for i in {0..255} ; do; echo -e "\e[${i}m ${i}"; done'
 
 alias g='git'
-alias cdroot='cd $(git root)'
+alias gcdr='cd $(git root)'
 
 alias vim='nvim'
 alias v='nvim'
@@ -276,7 +278,7 @@ zstyle ':zle:*' word-style unspecified
 
 [[ -f ~/.config/zsh/completion.zsh ]] && zsh-defer -t 1 source ~/.config/zsh/completion.zsh
 
-[[ -f ~/.config/zsh/anyenv.zsh ]] && zsh-defer -t 1 source ~/.config/zsh/anyenv.zsh # too slow
+# [[ -f ~/.config/zsh/anyenv.zsh ]] && zsh-defer -t 1 source ~/.config/zsh/anyenv.zsh # too slow
 
 [[ -f ~/.config/zsh/utils.zsh ]] && zsh-defer -t 1 source ~/.config/zsh/utils.zsh
 
