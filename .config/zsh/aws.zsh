@@ -5,6 +5,6 @@
 alias a='aws'
 
 alias aad='aws autoscaling describe-auto-scaling-groups'
-alias aad-fn='(){aws autoscaling describe-auto-scaling-groups --filters="Name=tag:Name,Values=$1"}'
+alias aad-fn='(){aws autoscaling describe-auto-scaling-groups --filters="Name=tag:Name,Values=$1" | jid}'
 
 alias aeu='(){aws eks update-kubeconfig --name $1}'
