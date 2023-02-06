@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/zsh
 #
 # lsaws: wrapper for original lshost
 #
@@ -7,7 +7,7 @@
 
 CACHE_EXPIRED_SEC=600
 
-function usage()
+usage()
 {
 	echo "usage: $1 [options]"
 	echo "	-h         print this usage and exit"
@@ -16,19 +16,20 @@ function usage()
 }
 
 update=0
-bname=`basename $0`
+bname=$(basename "$0")
 lshost="lsa ec2 list"
 
 while getopts :uh OPT;
 do
 	case $OPT in
 		"u") update=1;;
-		"h") usage ${bname}; exit;;
+		"h") usage "${bname}"; exit;;
+    *) exit;;
 	esac
 done
 
 hosts_base=~/.cache/awshosts
-opt=$(echo $@ | sed 's/-u//')
+opt=$(echo "$@" | sed 's/-u//')
 
 source ~/.zshrc.local
 
@@ -42,15 +43,16 @@ sum=$(md5 -r -s "${AWS_DEFAULT_PROFILE}${AWS_DEFAULT_REGION}${opt}" | cut -d" " 
 
 hosts=${hosts_base}_${sum}
 
-if [ ! -f ${hosts} -o ! -s ${hosts} ]; then
+if [ ! -f "${hosts}" ] || [ ! -s "${hosts}" ]; then
 	update=1
 else
-	eval $(stat -s $hosts )
+	eval $(stat -s "${hosts}" )
 	mtime=${st_mtime}
 	ctime=$(date +%s)
 	laps=$(echo "$ctime - $mtime" | bc)
 
-	if [ $laps -gt $CACHE_EXPIRED_SEC ]; then
+	if [ "$laps" -gt $CACHE_EXPIRED_SEC ]; then
+    rm "${hosts}"
 		update=1
 	fi
 fi
@@ -59,7 +61,8 @@ fi
 
 if [ ${update} = 1 ]; then
 	echo "** [${bname}] reload hosts file - opt:${opt}"
-	${lshost} ${opt} > ${hosts}
+    lsa ec2 list ${opt} > ${hosts}
+	# ${lshost} ${opt} > ${hosts}
 fi
 
 cat ${hosts}
