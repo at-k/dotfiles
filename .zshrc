@@ -245,7 +245,8 @@ alias vim='nvim'
 alias v='nvim'
 
 alias diff='diff -Bw'
-alias vimdiff='vimdiff -c "set diffopt+=iwhite"'
+# alias vimdiff='vimdiff -c "set diffopt+=iwhite"'
+alias vimdiff='nvim -d '
 
 alias zbench='time ( zsh -i -c exit)'
 
