@@ -4,7 +4,7 @@
 
 [[ $commands[vboxmanage] ]] && compdef vboxmanage=VBoxManage
 [[ $commands[sshrc] ]] && compdef sshrc=ssh
-[[ $commands[aws_completer] ]] && complete -C '/usr/local/bin/aws_completer' aws
+[[ $commands[aws_completer] ]] && complete -C '/opt/homebrew/bin/aws_completer' aws
 [[ $commands[git] ]] && compdef g=git
 [[ $commands[nvim] ]] && compdef v=nvim
 [[ $commands[aws] ]] && compdef a=aws
