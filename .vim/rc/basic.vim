@@ -95,7 +95,7 @@ if has('unix') && !has('win32unix') && !has('mac')
 	" add yank data to "+ register
 	set clipboard^=unnamedplus
 elseif has('win32') || has('win64') || has('win32unix')
-	" share clipbpard and "* register
+	" share clipboard and "* register
 	set clipboard+=unnamed
 elseif has('mac')
 	set clipboard+=unnamed
