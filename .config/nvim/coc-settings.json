@@ -1,16 +1,4 @@
 {
-  "diagnostic-languageserver.filetypes": {
-    "vim": "vint",
-    "email": "languagetool",
-    "markdown": [ "write-good", "markdownlint" ],
-    "sh": "shellcheck",
-    "elixir": ["mix_credo", "mix_credo_compile"],
-    "eelixir": ["mix_credo", "mix_credo_compile"],
-    "php": ["phpstan", "psalm"],
-    "yaml": [ "yamllint" ],
-    "cmake": [ "cmake-lint", "cmakelint" ],
-    "systemd": "systemd-analyze"
-  },
   "languageserver": {
 		"terraform": {
 			"command": "terraform-ls",
@@ -30,15 +18,24 @@
     },
     "golang": {
       "command": "gopls",
-      "rootPatterns": ["go.mod"],
-      "disableWorkspaceFolders": true,
+      "rootPatterns": ["go.mod", ".vim/", ".git/", ".hg/"],
       "filetypes": ["go"]
-    },
-    "jedi": {
-      "enable": true,
-      "startupMessage": false,
-      "executable.command": "~/.anyenv/envs/pyenv/versions/neovim3/bin/jedi-language-server",
-      "filetypes": ["py"]
     }
-  }
+  },
+  "cSpell.language": "en,ca",
+  "cSpellExt.enableDictionaries": ["catalan"],
+  "cSpell.dictionaryDefinitions": [
+      { "name": "persons", "path": "/Users/akawamura/.local/config/cspell/persons.txt", "addWords": true },
+      { "name": "tech", "path": "/Users/akawamura/.local/config/cspell/tech.txt", "addWords": true },
+      { "name": "company", "path": "/Users/akawamura/.local/config/cspell/company.txt", "addWords": true },
+      { "name": "freee", "path": "/Users/akawamura/.local/config/cspell/freee.txt", "addWords": true }
+  ],
+  "cSpell.dictionaries": [
+    "persons",
+    "tech",
+    "company",
+    "freee"
+  ],
+  "cSpell.userWords": [
+  ]
 }
