@@ -354,18 +354,17 @@ nnoremap s			<Nop>
 
 " prefix
 nnoremap [plugin]   <Nop>
-nnoremap [orgfunc]	<Nop>
 nnoremap [unite]    <Nop>
 nnoremap [winr]     <Nop>
 "nnoremap [mark]		<Nop>
 nnoremap [templ]	<Nop>
 nmap     <Space>p	[plugin]
-nmap     <Space>o	[orgfunc]
 nmap     <Space>u	[unite]
 nmap     <Space>w [winr]
 "nmap	 <Space>m	[mark]
 nmap	 <Space>t	[templ]
 nmap   <Space>c [coc]
+" nmap   <Space>s [surround]
 
 "--- plugin
 " invoke NERDTree
@@ -379,9 +378,9 @@ nnoremap <silent> [unite]m	 :Unite mark<CR>
 nnoremap <silent> [unite]i	 :Unite colorscheme -auto-preview<CR>
 nnoremap <silent> [winr]     :WinResizerStartResize<CR>
 
-map sa <Plug>(operator-surround-append)
-map sd <Plug>(operator-surround-delete)
-map sr <Plug>(operator-surround-replace)
+" map <silent> [surround]a <Plug>(operator-surround-append)
+" map <silent> [surround]d <Plug>(operator-surround-delete)
+" map <silent> [surround]r <Plug>(operator-surround-replace)
 
 " <F6>  inserting date
 " nnoremap ,tl <ESC>i<C-R>=strftime("%Y/%m/%d (%a) %H:%M")<CR>

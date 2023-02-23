@@ -104,9 +104,9 @@ hook_add = '''
     \   fzf#vim#with_preview({'options': '--exact --reverse'}, 'right:50%:wrap'))
 '''
 
-[[plugins]]
-repo = 'kana/vim-operator-user'
-
+# [[plugins]]
+# repo = 'kana/vim-operator-user'
+#
 # [[plugins]]
 # repo = 'rhysd/vim-operator-surround'
 
