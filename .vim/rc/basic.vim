@@ -295,7 +295,7 @@ cnoremap <C-f> <Right>
 
 " disable yank on deleting
 nnoremap x "_x
-""nnoremap d "_d
+nnoremap d "_d
 nnoremap D "_D
 
 " escape
@@ -348,9 +348,13 @@ nnoremap C-] :vsp<CR> :exe("tjump ".expand('<cword>'))<CR>
 
 "--- prefix settings
 " reserve prefix
-nnoremap <Space>	<Nop>
-nnoremap ,			<Nop>
-nnoremap s			<Nop>
+" nnoremap <Space>	<Nop>
+" nnoremap ,			<Nop>
+" nnoremap s			<Nop>
+
+" which
+nnoremap <silent> <leader>      :<c-u>WhichKey '<Space>'<CR>
+nnoremap <silent> <localleader> :<c-u>WhichKey  ','<CR>
 
 " prefix
 nnoremap [plugin]   <Nop>
@@ -358,12 +362,12 @@ nnoremap [unite]    <Nop>
 nnoremap [winr]     <Nop>
 "nnoremap [mark]		<Nop>
 nnoremap [templ]	<Nop>
-nmap     <Space>p	[plugin]
-nmap     <Space>u	[unite]
-nmap     <Space>w [winr]
+nmap     <Leader>p	[plugin]
+nmap     <Leader>u	[unite]
+nmap     <Leader>w [winr]
 "nmap	 <Space>m	[mark]
-nmap	 <Space>t	[templ]
-nmap   <Space>c [coc]
+nmap	 <Leader>t	[templ]
+nmap   <Leader>c [coc]
 " nmap   <Space>s [surround]
 
 "--- plugin
@@ -396,6 +400,7 @@ nmap <silent> [coc]a <Plug>(coc-codeaction-line)
 command! -nargs=1 -complete=command DictionaryTranslate call vimrc#DictionaryTranslate(<f-args>)
 
 " Change Dir
-command! -nargs=? -complete=dir -bang CD  call vimrc#ChangeCurrentDir('<args>', '<bang>')
-nnoremap <silent> <Space>cd :<C-u>CD<CR>
-
+" command! -nargs=? -complete=dir -bang CD  call vimrc#ChangeCurrentDir('<args>', '<bang>')
+" nnoremap <silent> <Space>cd :<C-u>CD<CR>
+cnoremap cd. lcd %:p:h
+nnoremap <LocalLeader>cd :cd %:p:h<CR>:pwd<CR>
