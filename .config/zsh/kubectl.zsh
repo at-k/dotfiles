@@ -31,3 +31,22 @@ alias kgp-l='(){kubectl get po -L=$1}'
 
 alias kgpc="(){kubectl get po \$1 -o jsonpath='{.spec.containers[*].name}'}"
 
+alias kaa="(){cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: aws-cli
+  name: aws-cli
+spec:
+  containers:
+  - command:
+    - sleep
+    - infinity
+    image: amazon/aws-cli
+    name: aws-cli
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+EOF
+}"
