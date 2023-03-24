@@ -27,7 +27,7 @@ call coc_plug#begin()
   CocPlug 'coc-python'
   CocPlug 'coc-sh'
   CocPlug 'coc-yaml'
-  CocPlug 'coc-rls'
+  CocPlug 'coc-rust-analyzer'
   CocPlug 'coc-docker'
   CocPlug 'coc-vimlsp'
 call coc_plug#end()
