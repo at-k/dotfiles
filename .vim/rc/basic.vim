@@ -295,7 +295,7 @@ cnoremap <C-f> <Right>
 
 " disable yank on deleting
 nnoremap x "_x
-nnoremap d "_d
+" nnoremap d "_d
 nnoremap D "_D
 
 " escape

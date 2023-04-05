@@ -28,12 +28,14 @@
       { "name": "persons", "path": "/Users/akawamura/.local/config/cspell/persons.txt", "addWords": true },
       { "name": "tech", "path": "/Users/akawamura/.local/config/cspell/tech.txt", "addWords": true },
       { "name": "company", "path": "/Users/akawamura/.local/config/cspell/company.txt", "addWords": true },
+      { "name": "misc", "path": "/Users/akawamura/.local/config/cspell/misc.txt", "addWords": true },
       { "name": "freee", "path": "/Users/akawamura/.local/config/cspell/freee.txt", "addWords": true }
   ],
   "cSpell.dictionaries": [
     "persons",
     "tech",
     "company",
+    "misc",
     "freee"
   ],
   "cSpell.userWords": [
