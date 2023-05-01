@@ -61,6 +61,10 @@ depends = ['open-browser.vim']
 [[plugins]]
 repo = 'img-paste-devs/img-paste.vim'
 on_ft = ['markdown']
+
+[[plugins]]
+repo = 'phelipetls/vim-hugo'
+on_ft = ['markdown']
 # }}
 
 [[plugins]]
