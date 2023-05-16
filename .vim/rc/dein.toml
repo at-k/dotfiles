@@ -211,3 +211,6 @@ hook_add = '''
 		endif
 	endfunction
 '''
+
+[[plugins]]
+repo = 'github/copilot.vim'
