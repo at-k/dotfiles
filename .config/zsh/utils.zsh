@@ -122,3 +122,27 @@ function alogin() {
     source ~/.zshrc.local
 }
 
+# function sso() {
+#     aws sso login --sso-session default-sso
+#     gsed -i -e 's/^\(export AWS_PROFILE=\).*/\1aws-sso/' ~/.zshrc.aws.local
+#     gsed -i -e 's/^\(export AWS_DEFAULT_PROFILE=\).*/\1aws-sso/' ~/.zshrc.aws.local
+#     gsed -i -e 's/^\(export AWS_PROFILE_ALIAS=\).*/\1aws-sso/' ~/.zshrc.aws.local
+#     source ~/.zshrc.local
+# }
+function sso() {
+    gsed -i -e 's/^\(export AWS_PROFILE=\).*/\1aws-sso/' ~/.zshrc.aws.local
+    gsed -i -e 's/^\(export AWS_DEFAULT_PROFILE=\).*/\1aws-sso/' ~/.zshrc.aws.local
+    gsed -i -e 's/^\(export AWS_PROFILE_ALIAS=\).*/\1aws-sso/' ~/.zshrc.aws.local
+    source ~/.zshrc.local
+    aws sso login
+}
+
+function sro() {
+    prof=$(cat ~/.aws/config | gsed -n '/\[profile/p' | gsed -e 's/\[profile \(.*\)\]/\1/g' | peco)
+    if [[ -n ${prof} ]]; then
+        gsed -i -e "s/^\(export AWS_PROFILE=\).*/\1${prof}/" ~/.zshrc.aws.local
+        gsed -i -e "s/^\(export AWS_DEFAULT_PROFILE=\).*/\1${prof}/" ~/.zshrc.aws.local
+        gsed -i -e "s/^\(export AWS_PROFILE_ALIAS=\).*/\1${prof}/" ~/.zshrc.aws.local
+        source ~/.zshrc.local
+    fi
+}

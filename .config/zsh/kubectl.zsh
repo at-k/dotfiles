@@ -4,7 +4,7 @@
 
 alias k='kubectl'
 alias kc='kubectx'
-alias kn='kubens'
+alias kn='kubectl ns'
 
 alias kg='kubectl get'
 alias kd='kubectl describe'
