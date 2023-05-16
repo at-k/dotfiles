@@ -18,14 +18,29 @@
     l = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
     lga = log --graph --all --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
     dt = difftool
+
     pr = "!sh -c 'remote=$(git default-rm);git fetch ${remote} refs/pull/$1/head:pr/$1/head && git checkout pr/$1/head' -"
     cr = !git branch -r | peco --prompt 'BRANCH>' | cut -d'/' -f2- | xargs git checkout
     co-upstream = "!sh -c 'git checkout -b $1 upstream/$1' -"
     co-origin = "!sh -c 'git checkout -b $1 origin/$1' -"
 
-    sync-remote = "!f() { remote=${1:-$(git default-rm)}; branch=$(git default-bn); git fetch $remote; git checkout $branch; git merge $remote/$branch;}; f $1"
+    sync-remote = "!f() {\
+        remote=${1:-$(git default-rm)};\
+        branch=$(git default-bn);\
+        git fetch $remote;\
+        git checkout $branch;\
+        git merge $remote/$branch;\
+    }; f $1"
     sync-remoteu = "!git sync-remote upstream"
     sync-remoteo = "!git sync-remote origin"
+
+    co-others ="!f() {\
+        remote=$(echo $1 | cut -d: -f1); \
+        branch=$(echo $1 | cut -d: -f2); \
+        repos=$(git remote get-url origin | cut -d/ -f2); \
+        git remote add $remote git@github.com:${remote}/${repos}; \
+        git co -b $branch $remote/$branch; \
+    }; f $1"
 
     ls-unmerged = branch --list --no-merged
     ls-merged = branch --merged
