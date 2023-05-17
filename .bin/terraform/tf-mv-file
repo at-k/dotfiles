@@ -36,7 +36,7 @@ if [[ "$tgtFiles" == "" ]]; then
 fi
 
 for tgt in $tgtFiles; do
-  for rsc in $(list-tf-resources "${srcPjDir}/$tgt"); do
+  for rsc in $(tf-list-rsc "${srcPjDir}/$tgt"); do
     echo terraform state mv -state="${srcPjDir}"/tfstate -state-out="${dstPjDir}"/tfstate "$rsc" "$rsc"
     terraform state mv -state="${srcPjDir}"/tfstate -state-out="${dstPjDir}"/tfstate "$rsc" "$rsc"
   done

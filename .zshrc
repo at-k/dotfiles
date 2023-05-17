@@ -30,7 +30,12 @@ case ${OSTYPE} in
 		eval $(/opt/homebrew/bin/brew shellenv);;
 esac
 
-typeset -U path PATH; export PATH="$HOME/.bin:$HOME/.mybin:$PATH:$HOME/.mybin/terraform:$HOME/.mybin/github:$HOME/.mybin/aws"
+typeset -U path PATH;
+for d in `find $HOME/.bin/ -type d`; do
+    PATH=$PATH:$d
+done
+export PATH
+
 case ${TERM} in
 	xterm*)
 		export TERM=xterm-256color;;
