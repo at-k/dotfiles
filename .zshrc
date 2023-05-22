@@ -132,8 +132,9 @@ bindkey -M viins '^Y'  yank
 # }}
 
 # {{ -- history setting
-HISTSIZE=100000
-SAVEHIST=1000000
+export HISTSIZE=1000000000
+export SAVEHIST=$HISTSIZE
+setopt EXTENDED_HISTORY
 HISTFILE=~/.zsh_history
 
 setopt histignorealldups    # ignore duplicated command
