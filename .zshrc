@@ -34,7 +34,9 @@ typeset -U path PATH;
 for d in `find $HOME/.bin/ -type d`; do
     PATH=$PATH:$d
 done
-export PATH
+
+export GOPATH=$(go env GOPATH)
+export PATH=$PATH:$GOPATH/bin
 
 case ${TERM} in
 	xterm*)
