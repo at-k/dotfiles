@@ -1,0 +1,43 @@
+#!/bin/bash
+#
+
+function moved_template {
+  echo "moved {"
+  echo "from = ${1}"
+  echo "to = ${2}"
+  echo "}"
+}
+
+function resource_template {
+  rsc_type=$1
+  rsc_name=$2
+  block=""
+  if [[ $rsc_type == "module" ]]; then
+    block="$rsc_type"."$rsc_name"
+  else
+    block=resource."$rsc_type"."$rsc_name"
+  fi
+  stage=$(echo $3 | sed 's/\"//g')
+  cat $all_hcl | hcledit block get $block | sed -e 's/^'$rsc_type' \"/'$rsc_type' \"'$stage'-/g' -e 's/ each.value / \"'$stage'\" /g' -e 's/\${each\.value}/'$stage'/g'  -e 's/\[each.value\]/\[\"'$stage'\"\]/g' -e '/for_each/d' -e 's/\${each\.key}/'$stage'/g' -e 's/each.key/\"'$stage'\"/g'
+}
+
+rsc_list=_foreach-resource.txt
+all_hcl=_all.tf
+moved=_moved.tf
+rsc_hcl=_rsc-hcl.tf
+
+# terraform state list | cut -d. -f1-2 | grep -e "\[\"production\"\]" -e "\[\"staging\"\]" -e "\[\"integration\"\]" | sort | uniq > $rsc_list
+
+cat *.tf > $all_hcl
+echo > $moved
+echo > $rsc_hcl
+
+while read -r rsc; do
+  env=$(echo "$rsc" | sed 's/.*\[\"\(.*\)\"\]/\1/g')
+  rsc_type=$(echo "$rsc" | cut -d. -f1)
+  name=$(echo "$rsc" | cut -d. -f2 | cut -d'[' -f1)
+
+  moved_template "$rsc" "$rsc_type"."$env"-"$name" >> $moved
+  resource_template "$rsc_type" "$name" "$env" >> $rsc_hcl
+done < $rsc_list
+
