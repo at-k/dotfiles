@@ -8,7 +8,12 @@ if [[ ! -f $file ]]; then
 fi
 
 # resources
-grep '^resource' "$file" | sed 's/\"//g' | awk '{print $2"."$3}'
+for r in $(hcledit block list -f "$file" | grep "^resource"); do
+  echo $r
+done
+
 
 # modules
-grep '^module' "$file" | sed 's/\"//g' | awk '{print $1"."$2}'
+for m in $(hcledit block list -f "$file" | grep "^module"); do
+  echo $m
+done
