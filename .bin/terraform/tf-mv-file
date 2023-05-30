@@ -4,7 +4,7 @@ set -eu
 
 srcPjDir=$1
 dstPjDir=$2
-tgtFiles=$3
+tgtFiles=${3:-""}
 
 if [[ ! -d "$srcPjDir" ]]; then
   echo "error: invalid src pj dir"
