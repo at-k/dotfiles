@@ -8,44 +8,66 @@ function moved_template {
   echo "}"
 }
 
-function resource_template {
-  rsc_type=$1
-  rsc_name=$2
+function gen_block_name {
   block=""
-  if [[ $rsc_type == "module" ]]; then
-    block="$rsc_type"."$rsc_name"
+  if [[ $1 == "module" ]]; then
+    block="$1"."$2"
   else
-    block=resource."$rsc_type"."$rsc_name"
+    block=resource."$1"."$2"
   fi
+  echo $block
+}
+
+function resource_template {
+  rsc_block=$1
+  rsc_name=$2
   stage=$(echo $3 | sed 's/\"//g')
-  cat $all_hcl | hcledit block get $block | \
-    sed -e 's/^'$rsc_type' \"/'$rsc_type' \"'$stage'-/g' \
+
+  cat $all_hcl | hcledit block get $rsc_block | \
+    sed -e 's/\"'$rsc_name'\"/\"'$stage'-'$rsc_name'\"/g' \
     -e 's/ each.value / \"'$stage'\" /g' \
     -e 's/\${each.value}/'$stage'/g'  \
     -e 's/\[each.value\]/\[\"'$stage'\"\]/g' \
     -e '/for_each/d' \
-    -e 's/\${each.key}/'$stage'/g' \
     -e 's/ each.key/ \"'$stage'\" /g' \
+    -e 's/\${each.key}/'$stage'/g' \
     -e 's/\[each.key\]/\[\"'$stage'\"\]/g'
 }
 
+state_list=_statelist
 rsc_list=_foreach-resource.txt
-all_hcl=_all.tf
-moved=_moved.tf
-rsc_hcl=_rsc-hcl.tf
+all_hcl=_all_tf
+moved=_moved_tf
+rsc_hcl=_rsc-hcl_tf
 
-terraform state list | cut -d. -f1-2 | grep -e "\[\"production\"\]" -e "\[\"staging\"\]" -e "\[\"integration\"\]" | sort | uniq > $rsc_list
+terraform state list >  $state_list
+cat $state_list | cut -d. -f1-2 | grep -e "\[\"production\"\]" -e "\[\"staging\"\]" -e "\[\"integration\"\]" | sort | uniq > $rsc_list
+# cat $state_list | grep '\data' | grep -e "\[\"production\"\]" -e "\[\"staging\"\]" -e "\[\"integration\"\]" | sort | uniq >> $rsc_list
 
 cat *.tf > $all_hcl
 echo > $moved
 echo > $rsc_hcl
 
+# extract for_each stages resource
 while read -r rsc; do
   env=$(echo "$rsc" | sed 's/.*\[\"\(.*\)\"\]/\1/g')
   rsc_type=$(echo "$rsc" | cut -d. -f1)
   name=$(echo "$rsc" | cut -d. -f2 | cut -d'[' -f1)
+  block=$(gen_block_name $rsc_type $name)
 
   moved_template "$rsc" "$rsc_type"."$env"-"$name" >> $moved
-  resource_template "$rsc_type" "$name" "$env" >> $rsc_hcl
+  resource_template "$block" "$name" "$env" >> $rsc_hcl
 done < $rsc_list
 
+# rm original resource block
+while read -r rsc; do
+  env=$(echo "$rsc" | sed 's/.*\[\"\(.*\)\"\]/\1/g')
+  rsc_type=$(echo "$rsc" | cut -d. -f1)
+  name=$(echo "$rsc" | cut -d. -f2 | cut -d'[' -f1)
+  block=$(gen_block_name $rsc_type $name)
+
+  for f in *.tf; do
+    hcledit block rm $block --update --file $f
+    gsed -i 's/'$rsc_type'.'$name'\[\"'$env'\"\]/'$rsc_type'.'$env'-'$name'/g' $f
+  done
+done < $rsc_list
