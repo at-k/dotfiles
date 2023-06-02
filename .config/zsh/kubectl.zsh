@@ -31,7 +31,9 @@ alias kgp-l='(){kubectl get po -L=$1}'
 
 alias kgpc="(){kubectl get po \$1 -o jsonpath='{.spec.containers[*].name}'}"
 
-alias kaa="(){cat <<EOF | kubectl apply -f -
+alias krbac="(){kubetl get -A rolebindings -o json | jq -r '.items[] | select(.subjects[0].kind=='Group') | [.roleRef.name, .subjects[].name] | @csv'"
+
+alias kaaws="(){cat <<EOF | kubectl apply -f -
 apiVersion: v1
 kind: Pod
 metadata:
