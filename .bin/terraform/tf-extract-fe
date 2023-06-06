@@ -46,7 +46,7 @@ terraform state list >  $state_list
 cat $state_list | cut -d. -f1-2 | grep -e "\[\"production\"\]" -e "\[\"staging\"\]" -e "\[\"integration\"\]" | sort | uniq > $rsc_list
 cat $state_list | grep '^data' | grep -e "\[\"production\"\]" -e "\[\"staging\"\]" -e "\[\"integration\"\]" | sort | uniq >> $rsc_list
 
-cat *.tf | sed 's/^}\(.*\)/}\n\1/g'> $all_hcl
+cat *.tf | sed 's/^}\(.*\)$/}\n\1/g' > $all_hcl
 echo > $moved
 echo > $rsc_hcl
 
@@ -95,7 +95,9 @@ while read -r rsc; do
   fi
 
   for f in *.tf; do
-    hcledit block rm "$block" --update --file "$f"
+    cat "$f" | sed '$ s/^}$/}\n/g' | hcledit block rm "$block" > "$f"_tmp
+    rm "$f"
+    mv "$f"_tmp "$f"
     gsed -i 's/'$rsc_type'.'$name'\[\"'$env'\"\]/'$rsc_type'.'$name_aft'/g' $f
   done
   gsed -i 's/'$rsc_type'.'$name'\[\"'$env'\"\]/'$rsc_type'.'$name_aft'/g' $rsc_hcl
