@@ -43,15 +43,20 @@ block_list=_block_list
 for f in *.tf; do
   echo "Processing $f"
 
-  cat $f | sed '$ s/^}$/}\n/g' | hcledit block list | grep -e '^module' -e '^data' -e '^resource' | sort | uniq > $block_list
+  tmp_file="$f"_tmp
+
+  cat "$f" | sed '$ s/^}$/}\n/g'  > $tmp_file
+  cat "$tmp_file" | hcledit block list | grep -e '^module' -e '^data' -e '^resource' | grep -v 'data.terraform_remote_state'| sort | uniq > $block_list
 
   while read -r rsc; do
     fname=$(classify $rsc)
 
     echo "$fname <- $rsc"
-    cat "$f" | sed '$ s/^}$/}\n/g' | hcledit block get "$rsc" >> "$fname"
-    cat "$f" | sed '$ s/^}$/}\n/g' | hcledit block rm "$rsc" > "$f"_tmp
-    rm "$f"
-    mv "$f"_tmp "$f"
+
+    cat "$tmp_file" | hcledit block get "$rsc" >> "$fname"
+    hcledit block rm "$rsc" --update --file $tmp_file
   done < $block_list
+
+  rm "$f"
+  mv "$tmp_file" "$f"
 done
