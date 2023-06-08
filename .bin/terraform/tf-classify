@@ -39,7 +39,10 @@ function classify {
 }
 
 block_list=_block_list
+locals_file=_locals.tf
+printf "locals {\n"  > $locals_file
 
+# classify
 for f in *.tf; do
   echo "Processing $f"
 
@@ -47,6 +50,9 @@ for f in *.tf; do
 
   cat "$f" | sed '$ s/^}$/}\n/g'  > $tmp_file
   cat "$tmp_file" | hcledit block list | grep -e '^module' -e '^data' -e '^resource' | grep -v 'data.terraform_remote_state'| sort | uniq > $block_list
+
+  cat "$tmp_file" | hcledit block get locals | sed -e '/^locals/d' -e '/^}/d' >> $locals_file
+  hcledit block rm "locals" --update --file $tmp_file
 
   while read -r rsc; do
     fname=$(classify $rsc)
@@ -60,3 +66,9 @@ for f in *.tf; do
   rm "$f"
   mv "$tmp_file" "$f"
 done
+
+printf "\n}\n" >> $locals_file
+
+# cleanup
+# for f in *.tf; do
+# done
