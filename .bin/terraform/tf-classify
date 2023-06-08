@@ -46,6 +46,6 @@ while read -r rsc; do
   fname=$(classify $rsc)
 
   echo "$fname <- $rsc"
-  # echo cat $all_hcl | hcledit block get "$rsc" >> "$fname"
-  # echo hcledit block rm "$rsc" --update --file $all_hcl
+  cat $all_hcl | hcledit block get "$rsc" >> "$fname"
+  hcledit block rm "$rsc" --update --file $all_hcl
 done < $block_list

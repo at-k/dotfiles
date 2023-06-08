@@ -214,3 +214,16 @@ hook_add = '''
 
 [[plugins]]
 repo = 'github/copilot.vim'
+
+# for go debugging
+[[plugins]]
+repo = 'mfussenegger/nvim-dap'
+hook_add = '''
+  source ~/.config/nvim/plugins/nvim-dap.lua
+'''
+
+[[plugins]]
+repo = 'rcarriga/nvim-dap-ui'
+
+[[plugins]]
+repo = 'leoluz/nvim-dap-go'

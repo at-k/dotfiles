@@ -38,6 +38,32 @@
     "misc",
     "freee"
   ],
+  "cSpell.ignorePaths": [
+    "*.go"
+  ],
   "cSpell.userWords": [
+    "CNAME",
+    "ISUCON",
+    "NMAP",
+    "SCIM",
+    "TSDB",
+    "Verilog",
+    "Yokoo",
+    "accountingz",
+    "akka",
+    "containerd",
+    "finalizer",
+    "forkwell",
+    "imgproc",
+    "myshoes",
+    "nakagawa",
+    "phusion",
+    "pthread",
+    "qiita",
+    "twillio",
+    "unencrypted",
+    "varchar",
+    "wakiyama",
+    "youtube"
   ]
 }
