@@ -1,0 +1,51 @@
+#!/bin/bash
+#
+
+function get_rsc_type {
+  rsc_name=$1
+  rsc_type="misc"
+
+  case $rsc_name in
+    *security_group* ) rsc_type="sg" ;;
+    *route53* ) rsc_type="route53" ;;
+    *waf* ) rsc_type="waf" ;;
+    *kms* ) rsc_type="kms" ;;
+    *secretmanager* ) rsc_type="secretmanager" ;;
+    *aws_lb* ) rsc_type="loadbalancer" ;;
+    *-alb* ) rsc_type="loadbalancer" ;;
+    *aws_iam* ) rsc_type="iam" ;;
+    *aws_db* ) rsc_type="db" ;;
+    *aws_ecr* ) rsc_type="ecr" ;;
+    *cluster* ) rsc_type="cluster" ;;
+    * ) ;;
+  esac
+
+  echo $rsc_type
+}
+
+function classify {
+  rsc_name=$1
+
+  stage=$(echo $rsc_name | gsed -e 's/.*\(staging\|production\|development\|integration\|st-\).*/\1/gp;d')
+  rsc_type=$(get_rsc_type $rsc_name)
+
+  if [[ -n $stage ]]; then
+    echo "$stage"-"$rsc_type".tf | sed 's/--/-/g'
+  else
+    echo "$rsc_type".tf
+  fi
+}
+
+block_list=_block_list
+all_hcl=_all_tf
+
+cat *.tf | sed 's/^}\(.*\)$/}\n\1/g' > $all_hcl
+cat $all_hcl | hcledit block list | grep -e '^module' -e '^data' -e '^resource' | sort | uniq > $block_list
+
+while read -r rsc; do
+  fname=$(classify $rsc)
+
+  echo "$fname <- $rsc"
+  # echo cat $all_hcl | hcledit block get "$rsc" >> "$fname"
+  # echo hcledit block rm "$rsc" --update --file $all_hcl
+done < $block_list

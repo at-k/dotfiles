@@ -102,3 +102,11 @@ while read -r rsc; do
   done
   gsed -i 's/'$rsc_type'.'$name'\[\"'$env'\"\]/'$rsc_type'.'$name_aft'/g' $rsc_hcl
 done < $rsc_list
+
+# cleanup
+rm $state_list
+rm $rsc_list
+rm $all_hcl
+
+mv $moved _moved.tf
+mv $rsc_hcl _rsc.tf
