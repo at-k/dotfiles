@@ -51,6 +51,7 @@ for f in *.tf; do
   cat "$f" | sed '$ s/^}$/}\n/g'  > $tmp_file
   cat "$tmp_file" | hcledit block list | grep -e '^module' -e '^data' -e '^resource' | grep -v 'data.terraform_remote_state'| sort | uniq > $block_list
 
+  # aggregate locals definitions
   cat "$tmp_file" | hcledit block get locals | sed -e '/^locals/d' -e '/^}/d' >> $locals_file
   hcledit block rm "locals" --update --file $tmp_file
 
@@ -70,5 +71,8 @@ done
 printf "\n}\n" >> $locals_file
 
 # cleanup
-# for f in *.tf; do
-# done
+for f in *.tf; do
+  if [[ $(hcledit block list < "$f" | wc -l) -eq 0 ]]; then
+    rm "$f"
+  fi
+done
