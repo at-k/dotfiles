@@ -96,3 +96,5 @@ for f in *.tf; do
     mv "$f" "${f:1}"
   fi
 done
+
+tf fmt -recursive
