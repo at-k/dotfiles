@@ -32,17 +32,21 @@ function get_rsc_type {
 
 function classify {
   rsc_name=$1
+  file_name=$2
 
   prefix="_"
 
   stage=$(echo $rsc_name | gsed -e 's/.*\(staging\|production\|development\|integration\|st-\|intg\).*/\1/gp;d')
+  if [[ -z $stage ]]; then
+    stage=$(hcledit attribute get "$rsc_name.tags" < "$tmp_file" | gsed -e 's/.*\(staging\|production\|development\|integration\|st-\|intg\).*/\1/gp;d' | head -1)
+  fi
+  if [[ -z $stage ]]; then
+    stage="common"
+  fi
+
   rsc_type=$(get_rsc_type $rsc_name)
 
-  if [[ -n $stage ]]; then
-    echo "$prefix""$stage"-"$rsc_type".tf | sed -e 's/st-/staging/g' -e  's/intg/integration/g'
-  else
-    echo "$prefix""$rsc_type".tf
-  fi
+  echo "$prefix""$stage"-"$rsc_type".tf | sed -e 's/st-/staging/g' -e  's/intg/integration/g'
 }
 
 block_list=_block_list
@@ -63,7 +67,7 @@ for f in *.tf; do
   hcledit block rm "locals" --update --file $tmp_file
 
   while read -r rsc; do
-    fname=$(classify $rsc)
+    fname=$(classify $rsc $tmp_file)
 
     echo "$fname <- $rsc"
 
