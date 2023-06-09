@@ -1,10 +1,25 @@
-#!/bin/bash
+#!/bin/zsh
+#
 
 set -eu
 
-srcPjDir=$1
-dstPjDir=$2
-tgtFiles=${3:-""}
+dryRun="true"
+
+srcPjDir=
+dstPjDir=
+tgtFiles=
+
+while getopts ys:d:f: flag
+do
+    case "${flag}" in
+        y) dryRun="false";;
+        s) srcPjDir=${OPTARG};;
+        d) dstPjDir=${OPTARG};;
+        f) tgtFiles=${OPTARG};;
+    esac
+done
+
+echo "dry run: $dryRun"
 
 if [[ ! -d "$srcPjDir" ]]; then
   echo "error: invalid src pj dir"
@@ -22,11 +37,13 @@ dstPjDir=$(echo "$dstPjDir" | sed 's/\/$//')
 pushd "$dstPjDir" || exit
 terraform init
 terraform state pull > tfstate
+terraform state list > tfstate_list
 popd || exit
 
 pushd "$srcPjDir" || exit
 terraform init
 terraform state pull > tfstate
+terraform state list > tfstate_list
 popd || exit
 
 if [[ "$tgtFiles" == "" ]]; then
@@ -36,8 +53,25 @@ if [[ "$tgtFiles" == "" ]]; then
 fi
 
 for tgt in $tgtFiles; do
-  for rsc in $(tf-list-rsc "${srcPjDir}/$tgt"); do
-    echo terraform state mv -state="${srcPjDir}"/tfstate -state-out="${dstPjDir}"/tfstate "$rsc" "$rsc"
-    terraform state mv -state="${srcPjDir}"/tfstate -state-out="${dstPjDir}"/tfstate "$rsc" "$rsc"
+  for rsc in $(hcledit block list < "${srcPjDir}/$tgt" | grep -e "^resource" -e "^module" | sort); do
+    if [[ $(hcledit attribute get "${rsc}.for_each" < "${srcPjDir}/$tgt" | wc -l) -eq 0 ]]; then
+      # no for_each resource
+      rsc=${rsc//#resource./}
+
+      echo terraform state mv -state="${srcPjDir}"/tfstate -state-out="${dstPjDir}"/tfstate "$rsc" "$rsc"
+      if [[ $dryRun == "false" ]]; then
+        terraform state mv -state="${srcPjDir}"/tfstate -state-out="${dstPjDir}"/tfstate "$rsc" "$rsc"
+      fi
+    else
+      # for_each resource
+      rsc=${rsc//#resource./}
+
+      while read -r each_rsc; do
+        echo terraform state mv -state="${srcPjDir}"/tfstate -state-out="${dstPjDir}"/tfstate \'"$each_rsc"\' \'"$each_rsc"\'
+        if [[ $dryRun == "false" ]]; then
+          terraform state mv -state="${srcPjDir}"/tfstate -state-out="${dstPjDir}"/tfstate \'"$each_rsc"\' \'"$each_rsc"\'
+        fi
+      done < <(grep "$rsc" "${srcPjDir}"/tfstate_list)
+    fi
   done
 done

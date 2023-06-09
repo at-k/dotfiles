@@ -7,13 +7,5 @@ if [[ ! -f $file ]]; then
   exit 1
 fi
 
-# resources
-for r in $(hcledit block list -f "$file" | grep "^resource"); do
-  echo $r
-done
-
-
-# modules
-for m in $(hcledit block list -f "$file" | grep "^module"); do
-  echo $m
-done
+# resource and module
+hcledit block list -f "$file" | grep -e "^resource" -e "^module" | sort
