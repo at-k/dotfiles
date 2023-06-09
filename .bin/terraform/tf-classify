@@ -39,7 +39,7 @@ function classify {
   rsc_type=$(get_rsc_type $rsc_name)
 
   if [[ -n $stage ]]; then
-    echo "$prefix""$stage"-"$rsc_type".tf | sed 's/--/-/g'
+    echo "$prefix""$stage"-"$rsc_type".tf | sed -e 's/st-/staging/g' -e  's/intg/integration/g'
   else
     echo "$prefix""$rsc_type".tf
   fi
