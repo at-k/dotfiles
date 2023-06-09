@@ -1,0 +1,54 @@
+#!/bin/zsh
+#
+
+set -eu
+
+function override_backend {
+    cat << EOF > override.tf
+terraform {
+  backend "local" {
+  }
+}
+EOF
+}
+
+function restore_backend_from_override {
+    rm -f override.tf
+}
+
+dryRun="true"
+restore="false"
+
+while getopts yr flag
+do
+    case "${flag}" in
+        y) dryRun="false";;
+        r) restore="true";;
+    esac
+done
+
+
+if [[ $restore == "true" ]]; then
+    echo "### Remove override.tf"
+    restore_backend_from_override
+    exit 0
+fi
+
+if [[ ! -f tfstate ]]; then
+    echo "### tfstate file must be present"
+    echo "### Run the following command to create it"
+    echo
+    echo "terraform state pull > tfstate"
+    echo
+    exit 1
+fi
+
+override_backend
+
+echo
+echo "### Example of commands to run"
+echo
+echo terraform state pull > tfstate
+echo terraform init -reconfigure
+echo terraform plan --state=tfstate
+echo terraform state mv --state=tfstate --state-out=tfstate2 module.vpc.aws_vpc.this module.vpc.aws_vpc.this
