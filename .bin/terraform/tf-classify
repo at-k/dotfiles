@@ -10,11 +10,17 @@ function get_rsc_type {
     *route53* ) rsc_type="route53" ;;
     *waf* ) rsc_type="waf" ;;
     *kms* ) rsc_type="kms" ;;
-    *secretmanager* ) rsc_type="secretmanager" ;;
+    *secretmanager* ) rsc_type="secret" ;;
+    *secret* ) rsc_type="secret" ;;
     *aws_lb* ) rsc_type="loadbalancer" ;;
     *-alb* ) rsc_type="loadbalancer" ;;
+    *-lb* ) rsc_type="loadbalancer" ;;
+    *-tg* ) rsc_type="loadbalancer" ;;
     *aws_iam* ) rsc_type="iam" ;;
-    *aws_db* ) rsc_type="db" ;;
+    *instance-profile* ) rsc_type="iam" ;;
+    *-policy* ) rsc_type="iam" ;;
+    *-developer* ) rsc_type="iam" ;;
+    *aws_db* ) rsc_type="rds" ;;
     *aws_ecr* ) rsc_type="ecr" ;;
     *cluster* ) rsc_type="cluster" ;;
     * ) ;;
@@ -28,7 +34,7 @@ function classify {
 
   prefix="_"
 
-  stage=$(echo $rsc_name | gsed -e 's/.*\(staging\|production\|development\|integration\|st-\).*/\1/gp;d')
+  stage=$(echo $rsc_name | gsed -e 's/.*\(staging\|production\|development\|integration\|st-\|intg\).*/\1/gp;d')
   rsc_type=$(get_rsc_type $rsc_name)
 
   if [[ -n $stage ]]; then
