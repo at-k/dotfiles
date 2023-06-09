@@ -74,5 +74,11 @@ printf "\n}\n" >> $locals_file
 for f in *.tf; do
   if [[ $(hcledit block list < "$f" | wc -l) -eq 0 ]]; then
     rm "$f"
+    continue;
+  fi
+
+  # rename _file
+  if [[ $f == _* ]]; then
+    mv "$f" "${f:1}"
   fi
 done
