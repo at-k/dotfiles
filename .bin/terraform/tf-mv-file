@@ -1,7 +1,33 @@
 #!/bin/zsh
 #
+# Description:
+#  This script is used to move terraform state from one project to another.
+#  If you want to move state in the same project, use `moved block` instead.
+#
 
 set -eu
+
+function usage() {
+    echo "Usage: $1 [-y] -s <src pj dir> -d <dst pj dir> [-f <target files>]"
+    echo "  -y: dry run"
+    echo "  -s: source project directory"
+    echo "  -d: destination project directory"
+    echo "  -f: target files"
+    echo "  -h: show this help"
+}
+
+function override_backend {
+    cat << EOF > override.tf
+terraform {
+  backend "local" {
+  }
+}
+EOF
+}
+
+function restore_backend_from_override {
+    rm -f override.tf
+}
 
 dryRun="true"
 
@@ -16,6 +42,7 @@ do
         s) srcPjDir=${OPTARG};;
         d) dstPjDir=${OPTARG};;
         f) tgtFiles=${OPTARG};;
+        h) usage $0; exit 0;;
     esac
 done
 
@@ -74,4 +101,42 @@ for tgt in $tgtFiles; do
       done < <(grep "$rsc" "${srcPjDir}"/tfstate_list)
     fi
   done
+
+  mv ${srcPjDir}/$tgt ${dstPjDir}/$tgt
+
+  pushd "$srcPjDir" || exit
+  override_backend
+  terraform init --reconfigure
+  if terraform plan --state=tfstate -detailed-exitcode; then
+    echo "[ok] no change on $srcPjDir"
+  else
+    echo "[error] change detected or plan failed on $srcPjDir"
+    restore_backend_from_override
+    exit 1
+  fi
+  restore_backend_from_override
+  popd || exit
+
+  pushd "$dstPjDir" || exit
+  override_backend
+  terraform init --reconfigure
+  if terraform plan --state=tfstate -detailed-exitcode; then
+    echo "[ok] no change on $dstPjDir"
+  else
+    echo "[error] change detected or plan failed on $dstPjDir"
+    restore_backend_from_override
+    exit 1
+  fi
+  restore_backend_from_override
+  popd || exit
 done
+
+echo "state and file move completed"
+echo "please check the result and run following command to apply"
+echo
+echo "cd $srcPjDir"
+echo "terraform state push tfstate"
+echo "terraform plan"
+echo "cd $dstPjDir"
+echo "terraform state push tfstate"
+echo "terraform plan"

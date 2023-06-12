@@ -3,6 +3,25 @@
 
 set -eu
 
+function how_to_use {
+    echo "### Usage: $1 [-r]"
+    echo "### -r: restore backend from override.tf"
+
+    echo
+    echo "### Example of commands to run"
+    echo
+    echo "terraform state pull > tfstate"
+    echo "$1"
+    echo "terraform init -reconfigure"
+    echo "terraform plan --state=tfstate"
+    echo "terraform state mv --state=tfstate --state-out=tfstate2 module.vpc_hoge.aws_vpc.this module.vpc_huga.aws_vpc.this"
+    echo "sed -i 's/vpc_hoge/vpc_huga/g' tgtfile"
+    echo "terraform plan --state=tfstate2"
+    echo "$1 -r"
+    echo "terraform state push tfstate2"
+    echo "terraform plan"
+}
+
 function override_backend {
     cat << EOF > override.tf
 terraform {
@@ -16,14 +35,13 @@ function restore_backend_from_override {
     rm -f override.tf
 }
 
-dryRun="true"
 restore="false"
 
-while getopts yr flag
+while getopts yrh flag
 do
     case "${flag}" in
-        y) dryRun="false";;
         r) restore="true";;
+        h) how_to_use $0;exit 0;;
     esac
 done
 
@@ -45,10 +63,3 @@ fi
 
 override_backend
 
-echo
-echo "### Example of commands to run"
-echo
-echo terraform state pull > tfstate
-echo terraform init -reconfigure
-echo terraform plan --state=tfstate
-echo terraform state mv --state=tfstate --state-out=tfstate2 module.vpc.aws_vpc.this module.vpc.aws_vpc.this
