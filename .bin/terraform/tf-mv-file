@@ -7,6 +7,13 @@
 
 set -eu
 
+OUTPUT_LIST=_output_list
+OUTPUT=_output
+OUTPUT_TO=_output.tf
+OVERRIDE=override.tf
+TFSTATE=tfstate
+TFSTATE_LIST=_tfstate_list
+
 function usage() {
     echo "Usage: $1 [-y] -s <src pj dir> -d <dst pj dir> [-f <target files>]"
     echo "  -y: dry run"
@@ -17,7 +24,7 @@ function usage() {
 }
 
 function override_backend {
-    cat << EOF > override.tf
+    cat << EOF > $OVERRIDE
 terraform {
   backend "local" {
   }
@@ -26,14 +33,91 @@ EOF
 }
 
 function restore_backend_from_override {
-    rm -f override.tf
+    rm -f $OVERRIDE
+}
+
+function _pushd {
+    pushd "$@" > /dev/null
+}
+
+function _popd {
+    popd "$@" > /dev/null
+}
+
+function state_mv {
+    local srcPjDir=$1
+    local dstPjDir=$2
+    local rsc=$3
+    local dryRun=$4
+
+    echo terraform state mv -state="${srcPjDir}"/$TFSTATE -state-out="${dstPjDir}"/$TFSTATE \'"$rsc"\' \'"$rsc"\'
+    if [[ $dryRun == "false" ]]; then
+        terraform state mv -state="${srcPjDir}"/$TFSTATE -state-out="${dstPjDir}"/$TFSTATE \'"$rsc"\' \'"$rsc"\'
+    fi
+}
+
+function output_mv {
+    local srcPjDir=$1
+    local dstPjDir=$2
+    local rsc=$3
+    local stateAlias=$4
+    local dryRun=$5
+
+    if [[ -f $srcPjDir/$OUTPUT_LIST ]]; then
+        while read kv; do
+            local k=$(echo $kv | cut -d, -f1)
+            local v=$(echo $kv | cut -d, -f2)
+
+            echo "terraform output $k { value = $v } >> $dstPjDir/$OUTPUT_TO"
+            echo hcledit attribute set $k.value data.terraform_remote_state.$stateAlias.outputs.$v --update --file $srcPjDir/output.tf
+
+            if [[ $dryRun == "false" ]]; then
+                echo "terraform output \"$k\" { value = $v }" >> "$dstPjDir"/$OUTPUT_TO
+                hcledit attribute set $k.value data.terraform_remote_state.$stateAlias.outputs.$v --update --file $srcPjDir/output.tf
+            fi
+        done < <(grep "$rsc" "$srcPjDir"/$OUTPUT_LIST)
+    fi
+}
+
+function create_remote_state_ref {
+    cat << EOF > $3
+data "terraform_remote_state" "$1" {
+  backend = "local"
+
+  config = {
+    path = \"$2\"
+  }
+}
+EOF
+}
+
+function init_pj {
+    local pjDir=$1
+    _pushd "$pjDir" || exit
+
+    terraform init
+    terraform state pull > $TFSTATE
+    terraform state list > $TFSTATE_LIST
+
+    cat *.tf | hcledit block get output > $OUTPUT
+    echo > $OUTPUT_LIST
+    while read b; do
+      v=$(cat *.tf | hcledit attribute get $b.value)
+      if [[ echo $v | wc -l -neq 1 ]]; then
+        echo "error: fail to create output list, invalid output value $b, $v"
+        exit 1
+      fi
+      echo $b, $v >> $OUTPUT_LIST
+    done < <(hcledit block list < $OUTPUT)
+
+    _popd || exit
 }
 
 dryRun="true"
 
 srcPjDir=
 dstPjDir=
-tgtFiles=
+tgtTfFiles=
 
 while getopts ys:d:f: flag
 do
@@ -41,7 +125,7 @@ do
         y) dryRun="false";;
         s) srcPjDir=${OPTARG};;
         d) dstPjDir=${OPTARG};;
-        f) tgtFiles=${OPTARG};;
+        f) tgtTfFiles=${OPTARG};;
         h) usage $0; exit 0;;
     esac
 done
@@ -61,66 +145,45 @@ fi
 srcPjDir=$(echo "$srcPjDir" | sed 's/\/$//')
 dstPjDir=$(echo "$dstPjDir" | sed 's/\/$//')
 
-pushd "$dstPjDir" || exit
-terraform init
-terraform state pull > tfstate
-terraform state list > tfstate_list
-popd || exit
+echo "initializing dstDir: $dstPjDir ..."
+init_pj "$dstPjDir"
 
-pushd "$srcPjDir" || exit
-terraform init
-terraform state pull > tfstate
-terraform state list > tfstate_list
-popd || exit
+echo "initializing srcDir: $srcPjDir ..."
+init_pj "$srcPjDir"
+relpath=$(grealpath -m --relative-to="$srcPjDir" "$dstPjDir")/$TFSTATE
+stateAlias=$(basename $dstPjDir)_$(cat /dev/urandom | LC_ALL=C tr -dc 'a-zA-Z0-9' | fold -w 5 | head -n 1)
+create_remote_state_ref $stateAlias $relpath
 
-if [[ "$tgtFiles" == "" ]]; then
-  pushd "$srcPjDir" || exit
-  tgtFiles=$(find -- *.tf | peco --prompt "select target files")
-  popd || exit
+if [[ "$tgtTfFiles" == "" ]]; then
+  _pushd "$srcPjDir" || exit
+  tgtTfFiles=$(find -- *.tf | peco --prompt "select target files")
+  _popd || exit
 fi
 
-for tgt in $tgtFiles; do
-  for rsc in $(hcledit block list < "${srcPjDir}/$tgt" | grep -e "^resource" -e "^module" | sort); do
-    if [[ $(hcledit attribute get "${rsc}.for_each" < "${srcPjDir}/$tgt" | wc -l) -eq 0 ]]; then
+for tgtTf in $tgtTfFiles; do
+  for rsc in $(hcledit block list < "${srcPjDir}/$tgtTf" | grep -e "^resource" -e "^module" | sort); do
+    if [[ $(hcledit attribute get "${rsc}.for_each" < "${srcPjDir}/$tgtTf" | wc -l) -eq 0 ]]; then
       # no for_each resource
       rsc=${rsc//#resource./}
-
-      echo terraform state mv -state="${srcPjDir}"/tfstate -state-out="${dstPjDir}"/tfstate "$rsc" "$rsc"
-      if [[ $dryRun == "false" ]]; then
-        terraform state mv -state="${srcPjDir}"/tfstate -state-out="${dstPjDir}"/tfstate "$rsc" "$rsc"
-      fi
+      state_mv "$srcPjDir" "$dstPjDir" "$rsc" "$dryRun"
+      output_mv "$srcPjDir" "$dstPjDir" "$rsc" "$dryRun"
     else
       # for_each resource
       rsc=${rsc//#resource./}
 
       while read -r each_rsc; do
-        echo terraform state mv -state="${srcPjDir}"/tfstate -state-out="${dstPjDir}"/tfstate \'"$each_rsc"\' \'"$each_rsc"\'
-        if [[ $dryRun == "false" ]]; then
-          terraform state mv -state="${srcPjDir}"/tfstate -state-out="${dstPjDir}"/tfstate \'"$each_rsc"\' \'"$each_rsc"\'
-        fi
-      done < <(grep "$rsc" "${srcPjDir}"/tfstate_list)
+        state_mv "$srcPjDir" "$dstPjDir" "$each_rsc" "$dryRun"
+        output_mv "$srcPjDir" "$dstPjDir" "$each_rsc" "$dryRun"
+      done < <(grep "$rsc" "${srcPjDir}"/$TFSTATE_LIST)
     fi
   done
 
-  mv ${srcPjDir}/$tgt ${dstPjDir}/$tgt
+  mv ${srcPjDir}/${tgtTf} ${dstPjDir}/${tgtTf}
 
-  pushd "$srcPjDir" || exit
+  _pushd "$dstPjDir" || exit
   override_backend
   terraform init --reconfigure
-  if terraform plan --state=tfstate -detailed-exitcode; then
-    echo "[ok] no change on $srcPjDir"
-  else
-    echo "[error] change detected or plan failed on $srcPjDir"
-    restore_backend_from_override
-    exit 1
-  fi
-  restore_backend_from_override
-  popd || exit
-
-  pushd "$dstPjDir" || exit
-  override_backend
-  terraform init --reconfigure
-  if terraform plan --state=tfstate -detailed-exitcode; then
+  if terraform plan --state=$TFSTATE -detailed-exitcode; then
     echo "[ok] no change on $dstPjDir"
   else
     echo "[error] change detected or plan failed on $dstPjDir"
@@ -128,15 +191,30 @@ for tgt in $tgtFiles; do
     exit 1
   fi
   restore_backend_from_override
-  popd || exit
+  _popd || exit
+
+  _pushd "$srcPjDir" || exit
+  override_backend
+  terraform init --reconfigure
+  if terraform plan --state=$TFSTATE -detailed-exitcode; then
+    echo "[ok] no change on $srcPjDir"
+  else
+    echo "[error] change detected or plan failed on $srcPjDir"
+    restore_backend_from_override
+    exit 1
+  fi
+  restore_backend_from_override
+  _popd || exit
 done
 
 echo "state and file move completed"
 echo "please check the result and run following command to apply"
 echo
 echo "cd $srcPjDir"
-echo "terraform state push tfstate"
+echo "terraform state push $TFSTATE"
+echo "terraform init --reconfigure"
 echo "terraform plan"
 echo "cd $dstPjDir"
-echo "terraform state push tfstate"
+echo "terraform state push $TFSTATE"
+echo "terraform init --reconfigure"
 echo "terraform plan"
