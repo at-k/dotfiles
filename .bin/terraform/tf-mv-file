@@ -24,6 +24,9 @@ function usage() {
     echo "  -h: show this help"
 }
 
+function error() {
+}
+
 function override_backend {
     cat << EOF > $OVERRIDE
 terraform {
@@ -53,7 +56,7 @@ function state_mv {
 
     echo terraform state mv -state="${srcPjDir}"/$TFSTATE -state-out="${dstPjDir}"/$TFSTATE \'"$rsc"\' \'"$rsc"\'
     if [[ $dryRun == "false" ]]; then
-        terraform state mv -state="${srcPjDir}"/$TFSTATE -state-out="${dstPjDir}"/$TFSTATE \'"$rsc"\' \'"$rsc"\'
+        terraform state mv -state="${srcPjDir}"/$TFSTATE -state-out="${dstPjDir}"/$TFSTATE $rsc $rsc
     fi
 }
 
@@ -86,7 +89,7 @@ data "terraform_remote_state" "$1" {
   backend = "local"
 
   config = {
-    path = \"$2\"
+    path = "$2"
   }
 }
 EOF
@@ -105,7 +108,7 @@ function init_pj {
     echo > $OUTPUT_LIST
     while read b; do
       v=$(hcledit attribute get $b.value < __output)
-      if [[ $(echo $v | wc -l) -neq 1 ]]; then
+      if [[ $(echo $v | wc -l) -ne 1 ]]; then
         echo "error: fail to create output list, invalid output value $b, $v"
         exit 1
       fi
@@ -154,12 +157,12 @@ done
 echo "dry run: $dryRun"
 
 if [[ ! -d "$srcPjDir" ]]; then
-  echo "error: invalid src pj dir"
+  echo "error: invalid src pj directory $srcPjDir"
   exit 1
 fi
 
 if [[ ! -d "$dstPjDir" ]]; then
-  echo "error: invalid dst pj dir"
+  echo "error: invalid dst pj directory $dstPjDir"
   exit 1
 fi
 
@@ -218,8 +221,10 @@ if [[ $dryRun == "false" ]]; then
     echo "terraform state push $TFSTATE"
     echo "terraform init --reconfigure"
     echo "terraform plan"
+    echo "git add $tgtFiles"
     echo "cd $dstPjDir"
     echo "terraform state push $TFSTATE"
     echo "terraform init --reconfigure"
     echo "terraform plan"
+    echo "git add $tgtFiles"
 fi
