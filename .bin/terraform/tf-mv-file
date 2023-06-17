@@ -72,12 +72,14 @@ function output_mv {
             local k=$(echo $kv | cut -d, -f1)
             local v=$(echo $kv | cut -d, -f2)
 
-            echo "terraform output $k { value = $v } >> $dstPjDir/$OUTPUT_TO"
-            echo hcledit attribute set $k.value data.terraform_remote_state.$stateAlias.outputs.$v --update --file $srcPjDir/$OUTPUTS
+            local label=$(echo $k | cut -d. -f2)
+
+            echo "echo \"output \\\"$label\\\" {\\n value = $v \\n}\" >> $dstPjDir/$OUTPUT_TO"
+            echo hcledit attribute set $k.value data.terraform_remote_state.$stateAlias.outputs.$label --update --file $srcPjDir/$OUTPUTS
 
             if [[ $dryRun == "false" ]]; then
-                echo "terraform output \"$k\" { value = $v }" >> "$dstPjDir"/$OUTPUT_TO
-                hcledit attribute set $k.value data.terraform_remote_state.$stateAlias.outputs.$v --update --file $srcPjDir/$OUTPUTS
+                echo "output \"$label\" {\n value = $v \n}" >> "$dstPjDir"/$OUTPUT_TO
+                hcledit attribute set $k.value data.terraform_remote_state.$stateAlias.outputs.$label --update --file $srcPjDir/$OUTPUTS
             fi
         done < <(grep "$rsc" "$srcPjDir"/$OUTPUT_LIST)
     fi
@@ -109,7 +111,7 @@ function init_pj {
     while read b; do
       v=$(hcledit attribute get $b.value < __output)
       if [[ $(echo $v | wc -l) -ne 1 ]]; then
-        echo "error: fail to create output list, invalid output value $b, $v"
+        echo "error: fail to create output list, invalid output value detected\n$b, $v"
         exit 1
       fi
       echo $b, $v >> $OUTPUT_LIST
@@ -184,7 +186,7 @@ if [[ "$tgtTfFiles" == "" ]]; then
   _popd || exit
 fi
 
-for tgtTf in $tgtTfFiles; do
+for tgtTf in $(echo $tgtTfFiles); do
   for rsc in $(hcledit block list < "${srcPjDir}/$tgtTf" | grep -e "^resource" -e "^module" | sort); do
     if [[ $(hcledit attribute get "${rsc}.for_each" < "${srcPjDir}/$tgtTf" | wc -l) -eq 0 ]]; then
       # no for_each resource
