@@ -1,5 +1,13 @@
 #!/bin/bash
 #
+#
+set -eu
+
+function usage {
+  echo "Usage: $1 [-y] [-p <pattern_file>]"
+  echo "  -y: dry run"
+  echo "  -p: pattern file"
+}
 
 function get_rsc_type {
   rsc_name=$1
@@ -31,14 +39,25 @@ function get_rsc_type {
 }
 
 function classify {
-  rsc_name=$1
-  file_name=$2
+  local rsc_name=$1
+  local tf_file=$2
+  local pattern_file=$3
 
   prefix="_"
 
-  stage=$(echo $rsc_name | gsed -e 's/.*\(staging\|production\|development\|integration\|st-\|intg\).*/\1/gp;d')
+  stage=$(echo "$rsc_name" | gsed -e 's/.*\(staging\|production\|development\|integration\|st-\|intg\).*/\1/gp;d')
   if [[ -z $stage ]]; then
-    stage=$(hcledit attribute get "$rsc_name.tags" < "$tmp_file" | gsed -e 's/.*\(staging\|production\|development\|integration\|st-\|intg\).*/\1/gp;d' | head -1)
+    stage=$(hcledit attribute get "$rsc_name.tags" < "$tf_file" | gsed -e 's/.*\(staging\|production\|development\|integration\|st-\|intg\).*/\1/gp;d' | head -1)
+  fi
+  if [[ -z $stage ]]; then
+    if [[ -n $pattern_file && -f $pattern_file ]]; then
+      while read -r p; do
+        k=$(echo "$p" | cut -d',' -f1)
+        s=$(echo "$p" | cut -d',' -f2)
+
+        hcledit block get "$rsc_name" < "$tf_file"  | grep -q "$k" && stage=$s && break
+      done < "$pattern_file"
+    fi
   fi
   if [[ -z $stage ]]; then
     stage="common"
@@ -49,8 +68,19 @@ function classify {
   echo "$prefix""$stage"-"$rsc_type".tf | sed -e 's/st-/staging/g' -e  's/intg/integration/g'
 }
 
+patternFile=""
 block_list=_block_list
-locals_file=_locals.tf
+locals_file=_locals_tf
+
+while getopts yp:h flag
+do
+    case "${flag}" in
+        y) dryRun="false";;
+        p) patternFile=${OPTARG};;
+        h) usage $0; exit 0;;
+    esac
+done
+
 printf "locals {\n"  > $locals_file
 
 # classify
@@ -60,14 +90,15 @@ for f in *.tf; do
   tmp_file="$f"_tmp
 
   cat "$f" | sed '$ s/^}$/}\n/g'  > $tmp_file
-  cat "$tmp_file" | hcledit block list | grep -e '^module' -e '^data' -e '^resource' | grep -v 'data.terraform_remote_state'| sort | uniq > $block_list
+  hcledit block list < "$tmp_file" | grep -e '^module' -e '^data' -e '^resource' | grep -v 'data.terraform_remote_state'| sort | uniq > $block_list
 
   # aggregate locals definitions
-  cat "$tmp_file" | hcledit block get locals | sed -e '/^locals/d' -e '/^}/d' >> $locals_file
+  hcledit block get locals < "$tmp_file"  | sed -e '/^locals/d' -e '/^}/d' >> $locals_file
   hcledit block rm "locals" --update --file $tmp_file
 
   while read -r rsc; do
-    fname=$(classify $rsc $tmp_file)
+    classify $rsc $tmp_file $patternFile
+    fname=$(classify $rsc $tmp_file $patternFile)
 
     echo "$fname <- $rsc"
 
@@ -80,6 +111,8 @@ for f in *.tf; do
 done
 
 printf "\n}\n" >> $locals_file
+
+mv $locals_file _locals.tf
 
 # cleanup
 
@@ -97,4 +130,4 @@ for f in *.tf; do
   fi
 done
 
-tf fmt -recursive
+terraform fmt -recursive
