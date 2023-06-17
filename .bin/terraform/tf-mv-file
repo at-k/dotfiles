@@ -145,7 +145,7 @@ srcPjDir=
 dstPjDir=
 tgtTfFiles=
 
-while getopts ys:d:f: flag
+while getopts ys:d:f:h flag
 do
     case "${flag}" in
         y) dryRun="false";;
