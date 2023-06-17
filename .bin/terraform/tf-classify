@@ -50,6 +50,9 @@ function classify {
     stage=$(hcledit attribute get "$rsc_name.tags" < "$tf_file" | gsed -e 's/.*\(staging\|production\|development\|integration\|st-\|intg\).*/\1/gp;d' | head -1)
   fi
   if [[ -z $stage ]]; then
+    stage=$(hcledit attribute get "$rsc_name.stage" < "$tf_file" | sed 's/\"//g')
+  fi
+  if [[ -z $stage ]]; then
     if [[ -n $pattern_file && -f $pattern_file ]]; then
       while read -r p; do
         k=$(echo "$p" | cut -d',' -f1)
