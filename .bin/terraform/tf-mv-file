@@ -85,8 +85,8 @@ function output_mv {
     fi
 }
 
-function create_remote_state_ref {
-    cat << EOF > $3
+function create_file_remote_state_ref {
+    cat << EOF
 data "terraform_remote_state" "$1" {
   backend = "local"
 
@@ -97,9 +97,33 @@ data "terraform_remote_state" "$1" {
 EOF
 }
 
+function create_s3_remote_state_ref {
+    local tgtProviderFile=$2
+    local bucket=$(hcledit attribute get terraform.backend.s3.bucket < $tgtProviderFile)
+    local key=$(hcledit attribute get terraform.backend.s3.key < $tgtProviderFile)
+    local region=$(hcledit attribute get terraform.backend.s3.region < $tgtProviderFile)
+
+    cat << EOF
+data "terraform_remote_state" "$1" {
+  backend = "s3"
+
+  config = {
+    bucket = $bucket
+    key    = $key
+    region = $region
+  }
+}
+EOF
+}
+
 function init_pj {
     local pjDir=$1
     _pushd "$pjDir" || exit
+
+    if [ ! -f provider.tf ]; then
+        echo "error: provider.tf not found in $pjDir"
+        exit 1
+    fi
 
     terraform init
     terraform state pull > $TFSTATE
@@ -178,7 +202,7 @@ echo "initializing srcDir: $srcPjDir ..."
 init_pj "$srcPjDir"
 relpath=$(grealpath -m --relative-to="$srcPjDir" "$dstPjDir")/$TFSTATE
 stateAlias=$(basename $dstPjDir)_$(cat /dev/urandom | LC_ALL=C tr -dc 'a-zA-Z0-9' | fold -w 5 | head -n 1)
-create_remote_state_ref $stateAlias $relpath "$srcPjDir"/$REMOTE_STATE
+create_file_remote_state_ref $stateAlias $relpath > "$srcPjDir"/$REMOTE_STATE
 
 if [[ "$tgtTfFiles" == "" ]]; then
   _pushd "$srcPjDir" || exit
@@ -216,8 +240,10 @@ done
 
 
 if [[ $dryRun == "false" ]]; then
-    echo "state and file move completed"
-    echo "please check the result and run following command to apply"
+    create_s3_remote_state_ref $stateAlias "$dstPjDir"/provider.tf > "$srcPjDir"/$REMOTE_STATE
+
+    echo "# state and file move completed"
+    echo "# please check the result and run following command to apply"
     echo
     echo "cd $srcPjDir"
     echo "terraform state push $TFSTATE"
