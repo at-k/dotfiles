@@ -240,7 +240,7 @@ done
 
 
 if [[ $dryRun == "false" ]]; then
-    create_s3_remote_state_ref $stateAlias "$dstPjDir"/provider.tf > "$srcPjDir"/$REMOTE_STATE
+    create_s3_remote_state_ref $stateAlias "$dstPjDir"/provider.tf >> "$srcPjDir"/$REMOTE_STATE
 
     echo "# state and file move completed"
     echo "# please check the result and run following command to apply"
@@ -250,9 +250,12 @@ if [[ $dryRun == "false" ]]; then
     echo "terraform init --reconfigure"
     echo "terraform plan"
     echo "git add $tgtFiles"
+    echo "git add $REMOTE_STATE"
+    echo
     echo "cd $dstPjDir"
     echo "terraform state push $TFSTATE"
     echo "terraform init --reconfigure"
     echo "terraform plan"
     echo "git add $tgtFiles"
+    echo "git add $OUTPUT_TO"
 fi
