@@ -45,7 +45,7 @@ function classify {
 
   prefix="_"
 
-  stage=$(echo "$rsc_name" | gsed -e 's/.*\(staging\|production\|development\|integration\|st-\|intg\).*/\1/gp;d')
+  stage=$(echo "$rsc_name" | gsed -e 's/.*\(staging\|production\|development\|prod-\|integration\|st-\|intg\).*/\1/gp;d')
   if [[ -z $stage ]]; then
     stage=$(hcledit attribute get "$rsc_name.tags" < "$tf_file" | gsed -e 's/.*\(staging\|production\|development\|integration\|st-\|intg\).*/\1/gp;d' | head -1)
   fi
@@ -68,7 +68,7 @@ function classify {
 
   rsc_type=$(get_rsc_type $rsc_name)
 
-  echo "$prefix""$stage"-"$rsc_type".tf | sed -e 's/st-/staging/g' -e  's/intg/integration/g'
+  echo "$prefix""$stage"-"$rsc_type".tf | sed -e 's/st-/staging/g' -e  's/intg/integration/g' -e  's/prod-/production/g'
 }
 
 patternFile=""
