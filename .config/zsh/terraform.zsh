@@ -8,3 +8,5 @@ alias tf='terraform'
 
 alias tfp='terraform plan'
 alias tfi='terraform init'
+
+alias tg='terragrunt'
