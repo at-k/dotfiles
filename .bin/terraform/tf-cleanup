@@ -1,0 +1,70 @@
+#!/bin/zsh
+#
+# Description:
+#   This script will remove all unused locals and outputs that are not used from other PJs.
+#
+
+dryRun=true
+
+outputFile=outputs.tf
+localFile=locals.tf
+remoteStateFile=variables.tf
+
+tgtOutput=false
+tgtLocal=false
+tgtRemoteState=false
+
+while getopts yao:l:r:h flag
+do
+    case "${flag}" in
+        y) dryRun=false;;
+        o) tgtOutput=true;outputFile=$OPTARG;;
+        l) tgtLocal=true;localFile=$OPTARG;;
+        r) tgtRemoteState=true;remoteStateFile=$OPTARG;;
+        # a) tgtOutput=true;tgtLocal=true;tgtRemoteState=true;;
+        h) usage $0; exit 0;;
+    esac
+done
+
+if [[ $tgtOutput == true ]]; then
+    rootDir=$(git rev-parse --show-toplevel)
+    outputFile=$(pwd)/$outputFile
+
+    # traverse all PJs of same repos to remove unused outputs
+    pushd  $rootDir > /dev/null || exit
+    while read -r op; do
+        opr=$(echo $op  | sed 's/output/outputs/g')
+        if ! PAGER=cat git grep $opr > /dev/null; then
+            echo hcledit block rm $op --update --file $outputFile
+            if [[ $dryRun == false ]]; then
+                hcledit block rm $op --update --file $outputFile
+            fi
+        fi
+    done < <(hcledit block list < $outputFile)
+    popd > /dev/null || exit
+fi
+
+# cleanup unused locals
+if [[ $tgtLocal == true ]]; then
+    while read -r lo; do
+        lstr=local.$lo
+        if ! PAGER=cat git grep $lstr > /dev/null; then
+            echo hcledit attribute rm locals.$lo --update --file $localFile
+            if [[ $dryRun == false ]]; then
+                hcledit attribute rm locals.$lo --update --file $localFile
+            fi
+        fi
+    done < <(cat $localFile | hcl2json | jq -r '.locals[] | keys |  .[]')
+fi
+
+# cleanup unused remote state
+if [[ $tgtRemoteState == true ]]; then
+    while read -r rs; do
+        if ! PAGER=cat git grep $rs> /dev/null; then
+            echo hcledit block rm $rs --update --file $localFile
+            if [[ $dryRun == false ]]; then
+                hcledit block rm $rs --update --file $localFile
+            fi
+        fi
+    done < <(hcledit block list < $remoteStateFile)
+fi
