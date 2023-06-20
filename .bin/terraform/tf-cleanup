@@ -66,5 +66,5 @@ if [[ $tgtRemoteState == true ]]; then
                 hcledit block rm $rs --update --file $localFile
             fi
         fi
-    done < <(hcledit block list < $remoteStateFile)
+    done < <(hcledit block list < $remoteStateFile | grep terraform_remote_state)
 fi
