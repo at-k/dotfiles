@@ -1,0 +1,33 @@
+#!/bin/zsh
+#
+
+dryRun=true
+
+while getopts yf:h flag
+do
+    case "${flag}" in
+        y) dryRun=false;;
+        f) outputFile=${OPTARG};;
+        h) usage $0; exit 0;;
+    esac
+done
+
+if [[ $outputFile == "" || ! -f $outputFile ]]; then
+    echo "Please specify the output file"
+    exit 1
+fi
+
+rootDir=$(git rev-parse --show-toplevel)
+outputFile=$(pwd)/$outputFile
+
+pushd  $rootDir > /dev/null || exit
+while read -r op; do
+    opr=$(echo $op  | sed 's/output/outputs/g')
+    if ! PAGER=cat git grep $opr > /dev/null; then
+        echo hcledit block rm $op --update --file $outputFile
+        if [[ $dryRun == false ]]; then
+            hcledit block rm $op --update --file $outputFile
+        fi
+    fi
+done < <(cat $outputFile | hcledit block get output | hcledit block list)
+popd > /dev/null || exit

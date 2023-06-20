@@ -1,0 +1,58 @@
+#!/bin/zsh
+#
+# Description:
+#  This script check dependency between resources included target files and other resources in the same project.
+#
+
+set -eu
+
+function usage() {
+}
+
+tgtTfFiles=""
+checkOnly=true
+
+while getopts yh flag
+do
+    case "${flag}" in
+        y) checkOnly=false;;
+        h) usage $0; exit 0;;
+    esac
+done
+
+if [[ "$tgtTfFiles" == "" ]]; then
+  tgtTfFiles=$(find -- *.tf | peco --prompt "select target files")
+fi
+
+# extract comparison target files
+comparisons=""
+for f in *.tf; do
+    detect=false
+    for tgtTf in $(echo $tgtTfFiles); do
+        if [[ $f == $tgtTf ]]; then
+            detect=true
+            break
+        fi
+    done
+    if [[ $detect == false ]]; then
+        comparisons=$comparisons" "$f
+    fi
+done
+
+# stirp spaces from both ends
+comparisons=$(echo $comparisons | sed -e 's/^[ \t]*//g' -e 's/[ \t]*$//g')
+
+# check dependency
+for t in $(echo $tgtTfFiles); do
+    while read -r r; do
+        for c in $(echo $comparisons); do
+            if [[ $checkOnly == true ]]; then
+                if grep -q $r $c; then
+                    echo "$t:$r is used in $c"
+                fi
+            else
+                echo "To Be Implemented"
+            fi
+        done
+    done < <(hcledit block list < $t)
+done
