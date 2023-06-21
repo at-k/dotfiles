@@ -9,6 +9,28 @@ set -eu
 function usage() {
 }
 
+function create_self() {
+    cat << EOF
+data "terraform_remote_state" "self" {
+  backend = "s3"
+
+  config = {
+    bucket = "$1"
+    key    = "$2"
+    region = "$3"
+  }
+}
+EOF
+}
+
+function create_output_self() {
+    cat << EOF
+output "self_$1" {
+    value = $2
+}
+EOF
+}
+
 tgtTfFiles=""
 checkOnly=true
 
@@ -22,6 +44,14 @@ done
 
 if [[ "$tgtTfFiles" == "" ]]; then
   tgtTfFiles=$(find -- *.tf | peco --prompt "select target files")
+fi
+
+if [[ -f self_state.tf && $checkOnly == false ]]; then
+    key=$(cat *.tf | hcledit attribute get terraform.backend.key)
+    bucket=$(cat *.tf | hcledit attribute get terraform.backend.bucket)
+    region=$(cat *.tf | hcledit attribute get terraform.backend.region)
+
+    create_self $key $bucket $region > self_state.tf
 fi
 
 # extract comparison target files
@@ -45,14 +75,25 @@ comparisons=$(echo $comparisons | sed -e 's/^[ \t]*//g' -e 's/[ \t]*$//g')
 # check dependency
 for t in $(echo $tgtTfFiles); do
     while read -r r; do
+        if [[ $(echo $r | cut -d. -f1) == "resource" ]]; then
+            r=$(echo $r | cut -d. -f2-)
+        fi
+        detected=""
+
         for c in $(echo $comparisons); do
-            if [[ $checkOnly == true ]]; then
-                if grep -q $r $c; then
-                    echo "$t:$r is used in $c"
-                fi
-            else
-                echo "To Be Implemented"
+            if grep -q $r $c; then
+                detected=$c
+                break
             fi
         done
+
+        if [[ $detected != "" ]]; then
+            if [[ $checkOnly == true ]]; then
+                echo "$t:$r is used in $detected"
+            else
+                create_output_self $r $r >> self_state.tf
+                gsed -i -e "s/$r/data.terraform_remote_state.self.outputs.self_$r/g" $detected
+            fi
+        fi
     done < <(hcledit block list < $t)
 done
