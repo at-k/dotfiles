@@ -1,0 +1,25 @@
+#!/bin/zsh
+#
+# Description:
+#  This script check dependency between PJs
+#
+
+set -eu
+
+key=$(cat *.tf | hcledit attribute get terraform.backend.key)
+bucket=$(cat *.tf | hcledit attribute get terraform.backend.bucket)
+
+rootDir=$(git rev-parse --show-toplevel)
+
+echo "checking $bucket/$key..."
+echo
+
+# traverse all PJs of same repos
+pushd  $rootDir > /dev/null || exit
+
+while read -r ref; do
+    pj=$(echo $ref | cut -d ':' -f 1)
+    echo "$pj is using remote state"
+done < <(PAGER=cat git grep $key)
+
+popd > /dev/null || exit

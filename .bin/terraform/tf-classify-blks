@@ -1,0 +1,85 @@
+#!/bin/bash
+#
+#
+set -eu
+
+function usage {
+  echo "Usage: $1 [-y]"
+}
+
+function mv_blocks {
+  local from=$1
+  local to=$2
+  local type=$3
+
+  blk=$(hcledit block get "$type" < "$from")
+  if [[ -n $blk ]]; then
+    printf "%s\n\n" "$blk" >> "$to"
+    hcledit block rm "$type" --update --file "$from"
+  fi
+}
+
+locals_file_tmp=_locals_tf
+locals_file=locals.tf
+
+vars_file_tmp=_variables_tf
+vars_file=variables.tf
+
+outputs_file_tmp=_outputs_tf
+outputs_file=outputs.tf
+
+provider_file_tmp=_provider_tf
+provider_file=provider.tf
+
+moved_file_tmp=_moved_tf
+moved_file=moved.tf
+
+echo > $locals_file_tmp
+echo > $vars_file_tmp
+echo > $outputs_file_tmp
+echo > $provider_file_tmp
+echo > $moved_file_tmp
+
+while getopts h flag
+do
+    case "${flag}" in
+        h) usage "$0"; exit 0;;
+        *) usage "$0"; exit 0;;
+    esac
+done
+
+# classify
+for f in *.tf; do
+  echo "Processing $f"
+
+  mv_blocks "$f" "$locals_file_tmp" locals
+
+  while read -r d; do
+    mv_blocks "$f" "$vars_file_tmp" "$d"
+  done < <(hcledit block list < "$f" | grep data.terraform_remote_state)
+
+  mv_blocks "$f" "$vars_file_tmp" variable
+  mv_blocks "$f" "$outputs_file_tmp" output
+  mv_blocks "$f" "$provider_file_tmp" terraform
+  mv_blocks "$f" "$provider_file_tmp" provider
+  mv_blocks "$f" "$moved_file_tmp" moved
+done
+
+# cleanup
+for f in *.tf; do
+  if [[ $(hcledit block list < "$f" | wc -l) -eq 0 ]]; then
+    rm "$f"
+    continue;
+  fi
+done
+
+mv -f $locals_file_tmp $locals_file
+mv -f $vars_file_tmp $vars_file
+mv -f $outputs_file_tmp $outputs_file
+mv -f $provider_file_tmp $provider_file
+mv -f $moved_file_tmp $moved_file
+
+tflint --fix
+terraform fmt
+
+echo "Complete"
