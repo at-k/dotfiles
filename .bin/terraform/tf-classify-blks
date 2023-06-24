@@ -17,7 +17,6 @@ function mv_blocks {
     printf "%s\n\n" "$blk" >> "$to"
     hcledit block rm "$type" --update --file "$from"
   fi
-
 }
 
 locals_file_tmp=_locals_tf
@@ -79,11 +78,11 @@ for f in *.tf; do
   done < <(hcledit block list < "$f")
 done
 
-[[ -f $locals_file_tmp ]] && mv $locals_file_tmp $locals_file && gsed -i '${/$/d;}' $locals_file
-[[ -f $vars_file_tmp ]] && mv $vars_file_tmp $vars_file && gsed -i '${/$/d;}' $vars_file
-[[ -f $outputs_file_tmp ]] && mv $outputs_file_tmp $outputs_file && gsed -i '${/$/d;}' $outputs_file
-[[ -f $provider_file_tmp ]] && mv $provider_file_tmp $provider_file  && gsed -i '${/$/d;}' $provider_file
-[[ -f $moved_file_tmp ]] && mv $moved_file_tmp $moved_file && gsed -i '${/$/d;}' $moved_file
+[[ -f $locals_file_tmp ]] && mv $locals_file_tmp $locals_file && gsed -i '${/^$/d;}' $locals_file
+[[ -f $vars_file_tmp ]] && mv $vars_file_tmp $vars_file && gsed -i '${/^$/d;}' $vars_file
+[[ -f $outputs_file_tmp ]] && mv $outputs_file_tmp $outputs_file && gsed -i '${/^$/d;}' $outputs_file
+[[ -f $provider_file_tmp ]] && mv $provider_file_tmp $provider_file  && gsed -i '${/^$/d;}' $provider_file
+[[ -f $moved_file_tmp ]] && mv $moved_file_tmp $moved_file && gsed -i '${/^$/d;}' $moved_file
 
 # cleanup
 for f in *.tf; do
