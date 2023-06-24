@@ -9,9 +9,39 @@ function usage {
   echo "  -p: pattern file"
 }
 
-function get_rsc_type {
-  rsc_name=$1
-  rsc_type="misc"
+function classify_stg {
+  local rsc_name=$1
+  local tf_file=$2
+  local pattern_file=$3
+
+  local stage="common"
+
+  stage=$(echo "$rsc_name" | gsed -e 's/.*\(staging\|production\|development\|prod-\|integration\|st-\|intg\).*/\1/gp;d')
+  if [[ -z $stage ]]; then
+    stage=$(hcledit attribute get "$rsc_name.tags" < "$tf_file" | gsed -e 's/.*\(staging\|production\|development\|integration\|st-\|intg\).*/\1/gp;d' | head -1)
+  fi
+  if [[ -z $stage ]]; then
+    stage=$(hcledit attribute get "$rsc_name.stage" < "$tf_file" | sed 's/\"//g')
+  fi
+  if [[ -z $stage ]]; then
+    if [[ -f "$pattern_file" ]]; then
+      while read -r p; do
+        k=$(echo "$p" | cut -d',' -f1)
+        s=$(echo "$p" | cut -d',' -f2)
+
+        hcledit block get "$rsc_name" < "$tf_file"  | grep -q "$k" && stage=$s && break
+      done < "$pattern_file"
+    fi
+  fi
+  if [[ -z $stage ]]; then
+    stage="common"
+  fi
+  echo "$stage"
+}
+
+function classify_rsc_by_name {
+  local rsc_name=$1
+  local rsc_type="misc"
 
   case $rsc_name in
     *security_group* ) rsc_type="sg" ;;
@@ -24,14 +54,38 @@ function get_rsc_type {
     *-alb* ) rsc_type="loadbalancer" ;;
     *-lb* ) rsc_type="loadbalancer" ;;
     *-tg* ) rsc_type="loadbalancer" ;;
+    *-listener-rule* ) rsc_type="loadbalancer" ;;
     *aws_iam* ) rsc_type="iam" ;;
     *instance-profile* ) rsc_type="iam" ;;
     *-policy* ) rsc_type="iam" ;;
     *-developer* ) rsc_type="iam" ;;
     *aws_db* ) rsc_type="rds" ;;
+    *aws_rds* ) rsc_type="rds" ;;
+    *elasticache*) rsc_type="elasticache" ;;
+    *sqs*) rsc_type="sqs" ;;
     *aws_ecr* ) rsc_type="ecr" ;;
-    *cluster* ) rsc_type="cluster" ;;
+    *ecr-* ) rsc_type="ecr" ;;
+    *aws_s3* ) rsc_type="s3" ;;
+    *autoscaling* ) rsc_type="ec2" ;;
     data* ) rsc_type="data" ;;
+    * ) ;;
+  esac
+
+  echo $rsc_type
+}
+
+function classify_rsc_by_source {
+  local mod_source=$1
+  local rsc_type="misc"
+
+  case $mod_source in
+    *alb-listener* ) rsc_type="loadbalancer" ;;
+    *dynamodb* ) rsc_type="dynamodb" ;;
+    *aws-ecr* ) rsc_type="ecr" ;;
+    *eks-operator* ) rsc_type="iam" ;;
+    *iam-std-policy* ) rsc_type="iam" ;;
+    *s3-private-bucket* ) rsc_type="s3" ;;
+    *eks* ) rsc_type="cluster" ;;
     * ) ;;
   esac
 
@@ -44,47 +98,27 @@ function classify {
   local pattern_file=${3:-""}
 
   prefix="_"
+  stage=$(classify_stg "$rsc_name" "$tf_file" "$pattern_file")
 
-  stage=$(echo "$rsc_name" | gsed -e 's/.*\(staging\|production\|development\|prod-\|integration\|st-\|intg\).*/\1/gp;d')
-  if [[ -z $stage ]]; then
-    stage=$(hcledit attribute get "$rsc_name.tags" < "$tf_file" | gsed -e 's/.*\(staging\|production\|development\|integration\|st-\|intg\).*/\1/gp;d' | head -1)
-  fi
-  if [[ -z $stage ]]; then
-    stage=$(hcledit attribute get "$rsc_name.stage" < "$tf_file" | sed 's/\"//g')
-  fi
-  if [[ -z $stage ]]; then
-    if [[ -n $pattern_file && -f $pattern_file ]]; then
-      while read -r p; do
-        k=$(echo "$p" | cut -d',' -f1)
-        s=$(echo "$p" | cut -d',' -f2)
-
-        hcledit block get "$rsc_name" < "$tf_file"  | grep -q "$k" && stage=$s && break
-      done < "$pattern_file"
-    fi
-  fi
-  if [[ -z $stage ]]; then
-    stage="common"
+  rsc_type=$(classify_rsc_by_name "$rsc_name")
+  if [[ "$rsc_type" == "misc" ]]; then
+    mod_source=$(hcledit attribute get "$rsc_name.source" < "$tf_file" | sed 's/\"//g')
+    rsc_type=$(classify_rsc_by_source "$mod_source")
   fi
 
-  rsc_type=$(get_rsc_type $rsc_name)
-
-  echo "$prefix""$stage"-"$rsc_type".tf | sed -e 's/st-/staging/g' -e  's/intg/integration/g' -e  's/prod-/production/g'
+  echo "$prefix""$stage"_"$rsc_type".tf | sed -e 's/st-/staging/g' -e  's/intg/integration/g' -e  's/prod-/production/g'
 }
 
 patternFile=""
 block_list=_block_list
-locals_file=_locals_tf
 
-while getopts yp:h flag
+while getopts p:h flag
 do
     case "${flag}" in
-        y) dryRun="false";;
         p) patternFile=${OPTARG};;
         h) usage $0; exit 0;;
     esac
 done
-
-printf "locals {\n"  > $locals_file
 
 # classify
 for f in *.tf; do
@@ -95,27 +129,20 @@ for f in *.tf; do
   cat "$f" | sed '$ s/^}$/}\n/g'  > $tmp_file
   hcledit block list < "$tmp_file" | grep -e '^module' -e '^data' -e '^resource' | grep -v 'data.terraform_remote_state'| sort | uniq > $block_list
 
-  # aggregate locals definitions
-  hcledit block get locals < "$tmp_file"  | sed -e '/^locals/d' -e '/^}/d' >> $locals_file
-  hcledit block rm "locals" --update --file $tmp_file
-
   while read -r rsc; do
-    classify $rsc $tmp_file $patternFile
+    echo classify $rsc $tmp_file $patternFile
     fname=$(classify $rsc $tmp_file $patternFile)
 
     echo "$fname <- $rsc"
 
     cat "$tmp_file" | hcledit block get "$rsc" >> "$fname"
+    echo >> "$fname"
     hcledit block rm "$rsc" --update --file $tmp_file
   done < $block_list
 
   rm "$f"
   mv "$tmp_file" "$f"
 done
-
-printf "\n}\n" >> $locals_file
-
-mv $locals_file _locals.tf
 
 # cleanup
 
@@ -127,10 +154,21 @@ for f in *.tf; do
     continue;
   fi
 
+  # strip empty lines
+  gsed -i '${/^$/d;}' "$f"
+
   # rename _file
   if [[ $f == _* ]]; then
-    mv "$f" "${f:1}"
+    name_to="${f:1}"
+    [[ -f "$name_to" ]] && echo >> "$name_to"
+    cat "$f" >> "$name_to"
+    rm "$f"
   fi
 done
 
-terraform fmt -recursive
+set +eu
+terraform fmt
+tflint --fix
+set -eu
+
+echo "Complete"
