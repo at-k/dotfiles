@@ -9,7 +9,7 @@ set -eu
 function usage() {
 }
 
-function create_self() {
+function create_self_state_ref() {
     cat << EOF
 data "terraform_remote_state" "self" {
   backend = "s3"
@@ -33,17 +33,24 @@ EOF
 
 tgtTfFiles=""
 checkOnly=true
+checkAll=false
+pretty=false
+tmpDeps=$(cat /dev/urandom | LC_ALL=C tr -dc 'a-zA-Z0-9' | fold -w 5 | head -n 1)-deps.csv
 
-while getopts yh flag
+while getopts ayph flag
 do
     case "${flag}" in
         y) checkOnly=false;;
+        a) checkAll=true;;
+        p) pretty=true;;
         h) usage $0; exit 0;;
     esac
 done
 
-if [[ "$tgtTfFiles" == "" ]]; then
-  tgtTfFiles=$(find -- *.tf | peco --prompt "select target files")
+if [[ "$checkAll" == false ]]; then
+    tgtTfFiles=$(find -- *.tf | peco --prompt "select target files")
+else
+    tgtTfFiles=$(find -- *.tf)
 fi
 
 if [[ -f self_state.tf && $checkOnly == false ]]; then
@@ -51,26 +58,8 @@ if [[ -f self_state.tf && $checkOnly == false ]]; then
     bucket=$(cat *.tf | hcledit attribute get terraform.backend.bucket)
     region=$(cat *.tf | hcledit attribute get terraform.backend.region)
 
-    create_self $key $bucket $region > self_state.tf
+    create_self_state_ref $key $bucket $region > self_state.tf
 fi
-
-# extract comparison target files
-comparisons=""
-for f in *.tf; do
-    detect=false
-    for tgtTf in $(echo $tgtTfFiles); do
-        if [[ $f == $tgtTf ]]; then
-            detect=true
-            break
-        fi
-    done
-    if [[ $detect == false ]]; then
-        comparisons=$comparisons" "$f
-    fi
-done
-
-# stirp spaces from both ends
-comparisons=$(echo $comparisons | sed -e 's/^[ \t]*//g' -e 's/[ \t]*$//g')
 
 # check dependency
 for t in $(echo $tgtTfFiles); do
@@ -80,7 +69,9 @@ for t in $(echo $tgtTfFiles); do
         fi
         detected=""
 
-        for c in $(echo $comparisons); do
+        for c in *.tf; do
+            [[ $c == $t ]] && continue
+
             if grep -q $r $c; then
                 detected=$c
                 break
@@ -89,11 +80,38 @@ for t in $(echo $tgtTfFiles); do
 
         if [[ $detected != "" ]]; then
             if [[ $checkOnly == true ]]; then
-                echo "$t:$r is used in $detected"
+                if [[ $pretty == true ]]; then
+                    echo "$t:$r,$detected" >> $tmpDeps
+                else
+                    echo "$t:$r,$detected"
+                fi
             else
                 create_output_self $r $r >> self_state.tf
                 gsed -i -e "s/$r/data.terraform_remote_state.self.outputs.self_$r/g" $detected
             fi
         fi
-    done < <(hcledit block list < $t)
+    done < <(hcledit block list < $t | grep -v "data.terraform_remote_state")
 done
+
+if [[ $pretty == true ]]; then
+    for f in *.tf; do
+        if ! grep -q $f $tmpDeps; then
+            continue
+        fi
+
+        echo "$f is"
+        echo "  depend on"
+        while read -r l; do
+            from=$(echo $l | cut -d: -f1)
+            v=$(echo $l | cut -d: -f2 | cut -d, -f1)
+            echo "      $from, $v"
+        done < <(grep ",$f$" $tmpDeps)
+        # refered from
+        echo "  refered from"
+        while read -r l; do
+            from=$(echo $l | cut -d, -f2)
+            echo "      $from"
+        done < <(grep "^$f:" $tmpDeps)
+    done
+    rm $tmpDeps
+fi
