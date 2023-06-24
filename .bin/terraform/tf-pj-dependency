@@ -6,8 +6,29 @@
 
 set -eu
 
+function usage() {
+}
+
+dryRun=true
+while getopts yh flag
+do
+    case "${flag}" in
+        y) dryRun=false;;
+        h) usage $0; exit 0;;
+    esac
+done
+
 key=$(cat *.tf | hcledit attribute get terraform.backend.key)
 bucket=$(cat *.tf | hcledit attribute get terraform.backend.bucket)
+outputList=$(cat *.tf | hcledit block list | grep output)
+usedOutputList=""
+outputFiles=""
+
+for f in *.tf; do
+    if grep -q "^output" $f; then
+        outputFiles="$outputFiles $f"
+    fi
+done
 
 rootDir=$(git rev-parse --show-toplevel)
 
@@ -18,8 +39,33 @@ echo
 pushd  $rootDir > /dev/null || exit
 
 while read -r ref; do
-    pj=$(echo $ref | cut -d ':' -f 1)
-    echo "$pj is using remote state"
+    file=$(echo $ref | cut -d ':' -f 1)
+    pj=$(dirname $file)
+    echo "$pj is using this remote state"
+    while read -r output; do
+        outputs=$(echo $output | sed 's/output./outputs./')
+        pushd $rootDir/$pj > /dev/null || exit
+        if grep -q $outputs *.tf; then
+            echo "  $output is used"
+            usedOutputList="$usedOutputList $output"
+        fi
+        popd
+    done < <(echo "$outputList")
+    echo
 done < <(PAGER=cat git grep $key)
 
 popd > /dev/null || exit
+
+echo
+while read -r output; do
+    if ! echo $usedOutputList | grep -q $output; then
+        echo "$output is not used"
+
+        if [[ $dryRun == false ]]; then
+            for f in $(echo $outputFiles); do
+                echo "  removing $output from $f"
+                hcledit block rm $output --file $f --update
+            done
+        fi
+    fi
+done < <(echo "$outputList")
