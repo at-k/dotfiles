@@ -17,6 +17,7 @@ function mv_blocks {
     printf "%s\n\n" "$blk" >> "$to"
     hcledit block rm "$type" --update --file "$from"
   fi
+
 }
 
 locals_file_tmp=_locals_tf
@@ -34,11 +35,11 @@ provider_file=provider.tf
 moved_file_tmp=_moved_tf
 moved_file=moved.tf
 
-echo > $locals_file_tmp
-echo > $vars_file_tmp
-echo > $outputs_file_tmp
-echo > $provider_file_tmp
-echo > $moved_file_tmp
+rm -f $locals_file_tmp
+rm -f $vars_file_tmp
+rm -f $outputs_file_tmp
+rm -f $provider_file_tmp
+rm -f $moved_file_tmp
 
 while getopts h flag
 do
@@ -52,18 +53,37 @@ done
 for f in *.tf; do
   echo "Processing $f"
 
-  mv_blocks "$f" "$locals_file_tmp" locals
-
   while read -r d; do
-    mv_blocks "$f" "$vars_file_tmp" "$d"
-  done < <(hcledit block list < "$f" | grep data.terraform_remote_state)
-
-  mv_blocks "$f" "$vars_file_tmp" variable
-  mv_blocks "$f" "$outputs_file_tmp" output
-  mv_blocks "$f" "$provider_file_tmp" terraform
-  mv_blocks "$f" "$provider_file_tmp" provider
-  mv_blocks "$f" "$moved_file_tmp" moved
+    case "${d}" in
+      locals)
+        mv_blocks "$f" "$locals_file_tmp" "$d"
+        ;;
+      data.terraform_remote_state*)
+        mv_blocks "$f" "$vars_file_tmp" "$d"
+        ;;
+      variable*)
+        mv_blocks "$f" "$vars_file_tmp" "$d"
+        ;;
+      output*)
+        mv_blocks "$f" "$outputs_file_tmp" "$d"
+        ;;
+      terraform*|provider*)
+        mv_blocks "$f" "$provider_file_tmp" "$d"
+        ;;
+      moved*)
+        mv_blocks "$f" "$moved_file_tmp" "$d"
+        ;;
+      *)
+        ;;
+    esac
+  done < <(hcledit block list < "$f")
 done
+
+[[ -f $locals_file_tmp ]] && mv $locals_file_tmp $locals_file && gsed -i '${/$/d;}' $locals_file
+[[ -f $vars_file_tmp ]] && mv $vars_file_tmp $vars_file && gsed -i '${/$/d;}' $vars_file
+[[ -f $outputs_file_tmp ]] && mv $outputs_file_tmp $outputs_file && gsed -i '${/$/d;}' $outputs_file
+[[ -f $provider_file_tmp ]] && mv $provider_file_tmp $provider_file  && gsed -i '${/$/d;}' $provider_file
+[[ -f $moved_file_tmp ]] && mv $moved_file_tmp $moved_file && gsed -i '${/$/d;}' $moved_file
 
 # cleanup
 for f in *.tf; do
@@ -73,13 +93,9 @@ for f in *.tf; do
   fi
 done
 
-mv -f $locals_file_tmp $locals_file
-mv -f $vars_file_tmp $vars_file
-mv -f $outputs_file_tmp $outputs_file
-mv -f $provider_file_tmp $provider_file
-mv -f $moved_file_tmp $moved_file
-
-tflint --fix
+set +eu
 terraform fmt
+tflint --fix
+set -eu
 
 echo "Complete"
