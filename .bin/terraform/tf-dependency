@@ -47,10 +47,15 @@ do
     esac
 done
 
-if [[ "$checkAll" == false ]]; then
-    tgtTfFiles=$(find -- *.tf | peco --prompt "select target files")
-else
+shift $((OPTIND - 1))
+tgtTfFiles=$(echo $@ | tr ' ' '\n')
+
+if [[ "$checkAll" == true ]]; then
     tgtTfFiles=$(find -- *.tf)
+else
+    if [[ "$tgtTfFiles" == "" ]]; then
+        tgtTfFiles=$(find -- *.tf | peco --prompt "select target files")
+    fi
 fi
 
 if [[ -f self_state.tf && $checkOnly == false ]]; then
@@ -67,51 +72,80 @@ for t in $(echo $tgtTfFiles); do
         if [[ $(echo $r | cut -d. -f1) == "resource" ]]; then
             r=$(echo $r | cut -d. -f2-)
         fi
-        detected=""
 
         for c in *.tf; do
             [[ $c == $t ]] && continue
 
-            if grep -q $r $c; then
-                detected=$c
-                break
-            fi
-        done
+            detected=""
+            while read -r d; do
+                detected="$detected,$d"
+            done < <(gsed -n "s/.*\($r.*\)/\1/p" < $c | gsed -e 's/,.*//' -e 's/#.*//' -e 's/\"//g')
 
-        if [[ $detected != "" ]]; then
-            if [[ $checkOnly == true ]]; then
-                if [[ $pretty == true ]]; then
+            if [[ $detected != "" ]]; then
+                detected="$c:$(echo $detected | sed -e 's/^,//')"
+
+                if [[ $checkOnly == true ]]; then
                     echo "$t:$r,$detected" >> $tmpDeps
                 else
-                    echo "$t:$r,$detected"
+                    echo TBI
+                    # create_output_self $r $r >> self_state.tf
+                    # gsed -i -e "s/$r/data.terraform_remote_state.self.outputs.self_$r/g" $detected
                 fi
-            else
-                create_output_self $r $r >> self_state.tf
-                gsed -i -e "s/$r/data.terraform_remote_state.self.outputs.self_$r/g" $detected
             fi
-        fi
-    done < <(hcledit block list < $t | grep -v "data.terraform_remote_state")
+        done
+    done < <(hcledit block list < $t | grep -v -e "data.terraform_remote_state" -v -e "^output" -v -e "^moved")
 done
 
-if [[ $pretty == true ]]; then
-    for f in *.tf; do
-        if ! grep -q $f $tmpDeps; then
-            continue
-        fi
+if [[ -f $tmpDeps ]]; then
+    if [[ $pretty == true ]]; then
+        for f in *.tf; do
+            if ! grep -q $f $tmpDeps; then
+                continue
+            fi
 
-        echo "$f is"
-        echo "  depend on"
+            echo "$f is"
+            echo "  depend on"
+            while read -r l; do
+                from=$(echo $l | cut -d: -f1)
+                v=$(echo $l | cut -d: -f2 | cut -d, -f1)
+                echo "      $from, $v"
+            done < <(grep ",$f$" $tmpDeps)
+            # refered from
+            echo "  refered from"
+            while read -r l; do
+                from=$(echo $l | cut -d, -f2)
+                echo "      $from"
+            done < <(grep "^$f:" $tmpDeps)
+        done
+    else
+        echo "["
+        fst=true
         while read -r l; do
-            from=$(echo $l | cut -d: -f1)
-            v=$(echo $l | cut -d: -f2 | cut -d, -f1)
-            echo "      $from, $v"
-        done < <(grep ",$f$" $tmpDeps)
-        # refered from
-        echo "  refered from"
-        while read -r l; do
-            from=$(echo $l | cut -d, -f2)
-            echo "      $from"
-        done < <(grep "^$f:" $tmpDeps)
-    done
+            if [[ $fst == false ]]; then
+                echo ",{"
+            else
+                echo "{"
+                fst=false
+            fi
+            echo "\"file\": \"$(echo $l | cut -d: -f1)\","
+            echo "\"name\": \"$(echo $l | cut -d: -f2 | cut -d, -f1)\","
+            echo "\"ref\": {"
+            echo "\"file\": \"$(echo $l | cut -d, -f2 | cut -d: -f1)\","
+            echo "\"vars\": ["
+            fst2=true
+            while read -r v; do
+                if [[ $fst2 == false ]]; then
+                    echo ",\"$v\""
+                else
+                    echo "\"$v\""
+                    fst2=false
+                fi
+            done < <(echo $l | cut -d, -f2 | cut -d: -f2 | tr ',' '\n')
+            echo "]"
+            echo "}"
+            echo "}"
+        done < $tmpDeps
+        echo "]"
+    fi
     rm $tmpDeps
 fi
