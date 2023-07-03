@@ -32,6 +32,7 @@ EOF
 }
 
 tgtTfFiles=""
+otherTfFiles=""
 checkOnly=true
 checkAll=false
 pretty=false
@@ -58,6 +59,8 @@ else
     fi
 fi
 
+otherTfFiles=$(find -- *.tf | grep -v -e "$tgtTfFiles")
+
 if [[ -f self_state.tf && $checkOnly == false ]]; then
     key=$(cat *.tf | hcledit attribute get terraform.backend.key)
     bucket=$(cat *.tf | hcledit attribute get terraform.backend.bucket)
@@ -73,7 +76,7 @@ for t in $(echo $tgtTfFiles); do
             r=$(echo $r | cut -d. -f2-)
         fi
 
-        for c in *.tf; do
+        for c in $(echo $otherTfFiles); do
             [[ $c == $t ]] && continue
 
             detected=""
@@ -93,7 +96,7 @@ for t in $(echo $tgtTfFiles); do
                 fi
             fi
         done
-    done < <(hcledit block list < $t | grep -v -e "data.terraform_remote_state" -v -e "^output" -v -e "^moved")
+    done < <(hcledit block list < $t | grep -e "^resource" -e "^module")
 done
 
 if [[ -f $tmpDeps ]]; then
