@@ -62,10 +62,10 @@ function state_mv {
     local src_pj_dir=$1
     local dst_pj_dir=$2
     local rsc=$3
-    local dryRun=$4
+    local dry_run=$4
 
     echo terraform state mv -state="${src_pj_dir}"/$TFSTATE -state-out="${dst_pj_dir}"/$TFSTATE \'"$rsc"\' \'"$rsc"\'
-    if [[ $dryRun == "false" ]]; then
+    if [[ $dry_run == "false" ]]; then
         terraform state mv -state="${src_pj_dir}"/$TFSTATE -state-out="${dst_pj_dir}"/$TFSTATE $rsc $rsc
     fi
 }
@@ -75,8 +75,8 @@ function replace_to_indirect_for_src {
     local src_pj_dir=$1
     local dst_pj_dir=$2
     local rsc=$3
-    local stateAlias=$4
-    local dryRun=$5
+    local state_alias=$4
+    local dry_run=$5
 
     # keep value reference between src and dst
     while read -r field; do
@@ -85,12 +85,12 @@ function replace_to_indirect_for_src {
             local label=$(echo $var | gsed -e 's/\./_/g' -e 's/^module.//g')
 
             echo "echo \"output \\\"$label\\\" {\\n value = $var \\n}\" >> $dst_pj_dir/$OUTPUT_TO"
-            echo "gsed -i s/$var/data.terraform_remote_state.$stateAlias.outputs.$label/g $src_pj_dir/$file"
-            if [[ $dryRun == "false" ]]; then
+            echo "gsed -i s/$var/data.terraform_remote_state.$state_alias.outputs.$label/g $src_pj_dir/$file"
+            if [[ $dry_run == "false" ]]; then
                 if ! grep -q "output \"$label\"" "$dst_pj_dir"/$OUTPUT_TO; then
                     echo "output \"$label\" {\n value = $var \n}" >> "$dst_pj_dir"/$OUTPUT_TO
                 fi
-                gsed -i "s/$var/data.terraform_remote_state.$stateAlias.outputs.$label/g" $src_pj_dir/$file
+                gsed -i "s/$var/data.terraform_remote_state.$state_alias.outputs.$label/g" $src_pj_dir/$file
             fi
         done
     done < <(cat $src_pj_dir/$DEPENDENCY_GRAPH_DST_TO_SRC | jq -r ".[] | select(.name == \"$rsc\") | [.ref.file, .ref.vars[]] |@csv" | sed 's/\"//g')
@@ -99,50 +99,50 @@ function replace_to_indirect_for_src {
 function replace_to_indirect_for_dst {
     local src_pj_dir=$1
     local dst_pj_dir=$2
-    local tgtFile=$3
-    local stateAlias=$4
-    local dryRun=$5
+    local tgt_file=$3
+    local state_alias=$4
+    local dry_run=$5
 
     while read -r field; do
         for var in $(echo $field | tr ',' ' '); do
             local label=$(echo $var | gsed -e 's/\./_/g' -e 's/^module.//g')
 
             echo "echo \"output \\\"$label\\\" {\\n value = $var \\n}\" >> $src_pj_dir/$OUTPUT_TO"
-            echo "gsed -i s/$var/data.terraform_remote_state.$stateAlias.outputs.$label/g $dst_pj_dir/$tgtFile"
-            if [[ $dryRun == "false" ]]; then
+            echo "gsed -i s/$var/data.terraform_remote_state.$state_alias.outputs.$label/g $dst_pj_dir/$tgt_file"
+            if [[ $dry_run == "false" ]]; then
                 if ! grep -q "output \"$label\"" "$src_pj_dir"/$OUTPUT_TO; then
                     echo "output \"$label\" {\n value = $var \n}" >> "$src_pj_dir"/$OUTPUT_TO
                 fi
-                gsed -i "s/$var/data.terraform_remote_state.$stateAlias.outputs.$label/g" $dst_pj_dir/$tgtFile
+                gsed -i "s/$var/data.terraform_remote_state.$state_alias.outputs.$label/g" $dst_pj_dir/$tgt_file
             fi
         done
-    done < <(cat $src_pj_dir/$DEPENDENCY_GRAPH_SRC_TO_DST | jq -r ".[] | select(.ref.file == \"$tgtFile\") | [.ref.vars[]] |@csv" | sed 's/\"//g')
+    done < <(cat $src_pj_dir/$DEPENDENCY_GRAPH_SRC_TO_DST | jq -r ".[] | select(.ref.file == \"$tgt_file\") | [.ref.vars[]] |@csv" | sed 's/\"//g')
 }
 
 function create_file_remote_state_ref {
-    local stateAlias=$1
-    local filePath=$2
+    local state_alias=$1
+    local file_path=$2
 
     cat << EOF
-data "terraform_remote_state" "$stateAlias" {
+data "terraform_remote_state" "$state_alias" {
   backend = "local"
 
   config = {
-    path = "$filePath"
+    path = "$file_path"
   }
 }
 EOF
 }
 
 function create_s3_remote_state_ref {
-    local stateAlias=$1
-    local tgtProviderFile=$2
-    local bucket=$(hcledit attribute get terraform.backend.s3.bucket < $tgtProviderFile)
-    local key=$(hcledit attribute get terraform.backend.s3.key < $tgtProviderFile)
-    local region=$(hcledit attribute get terraform.backend.s3.region < $tgtProviderFile)
+    local state_alias=$1
+    local tgt_provider_file=$2
+    local bucket=$(hcledit attribute get terraform.backend.s3.bucket < $tgt_provider_file)
+    local key=$(hcledit attribute get terraform.backend.s3.key < $tgt_provider_file)
+    local region=$(hcledit attribute get terraform.backend.s3.region < $tgt_provider_file)
 
     cat << EOF
-data "terraform_remote_state" "$stateAlias" {
+data "terraform_remote_state" "$state_alias" {
   backend = "s3"
 
   config = {
@@ -189,7 +189,7 @@ function check_nodiff {
     _popd || exit
 }
 
-dryRun="true"
+dry_run="true"
 
 src_pj_dir=
 dst_pj_dir=
@@ -198,7 +198,7 @@ target_files=
 while getopts ys:d:f:h flag
 do
     case "${flag}" in
-        y) dryRun="false";;
+        y) dry_run="false";;
         s) src_pj_dir=${OPTARG};;
         d) dst_pj_dir=${OPTARG};;
         f) target_files=${OPTARG};;
@@ -206,7 +206,7 @@ do
     esac
 done
 
-echo "dry run: $dryRun"
+echo "dry run: $dry_run"
 
 if [[ ! -d "$src_pj_dir" ]]; then
   echo "error: invalid src pj directory $src_pj_dir"
@@ -221,7 +221,7 @@ fi
 src_pj_dir=$(echo "$src_pj_dir" | sed 's/\/$//')
 dst_pj_dir=$(echo "$dst_pj_dir" | sed 's/\/$//')
 
-stateAlias=$(basename $src_pj_dir)_$sId
+state_alias=$(basename $src_pj_dir)_$sId
 
 echo "initializing dstDir: $dst_pj_dir ..."
 init_pj "$dst_pj_dir"
@@ -254,41 +254,41 @@ for tgtTf in $(echo $target_files); do
         if [[ $(hcledit attribute get "${rsc}.for_each" < "${src_pj_dir}/$tgtTf" | wc -l) -eq 0 ]]; then
             # no for_each resource
             rsc=${rsc//#resource./}
-            state_mv "$src_pj_dir" "$dst_pj_dir" "$rsc" "$dryRun"
-            replace_to_indirect_for_src "$src_pj_dir" "$dst_pj_dir" "$rsc" "$stateAlias" "$dryRun"
+            state_mv "$src_pj_dir" "$dst_pj_dir" "$rsc" "$dry_run"
+            replace_to_indirect_for_src "$src_pj_dir" "$dst_pj_dir" "$rsc" "$state_alias" "$dry_run"
         else
             # for_each resource
             rsc=${rsc//#resource./}
 
             while read -r each_rsc; do
-                state_mv "$src_pj_dir" "$dst_pj_dir" "$each_rsc" "$dryRun"
-                replace_to_indirect_for_src "$src_pj_dir" "$dst_pj_dir" "$each_rsc" "$stateAlias" "$dryRun"
+                state_mv "$src_pj_dir" "$dst_pj_dir" "$each_rsc" "$dry_run"
+                replace_to_indirect_for_src "$src_pj_dir" "$dst_pj_dir" "$each_rsc" "$state_alias" "$dry_run"
             done < <(grep "$rsc" "${src_pj_dir}"/$TFSTATE_LIST)
         fi
     done
 
-    if [[ $dryRun == "false" ]]; then
+    if [[ $dry_run == "false" ]]; then
         mv ${src_pj_dir}/${tgtTf} ${dst_pj_dir}/${tgtTf}
     fi
 
-    replace_to_indirect_for_dst "$src_pj_dir" "$dst_pj_dir" "$tgtTf" "$stateAlias" "$dryRun"
+    replace_to_indirect_for_dst "$src_pj_dir" "$dst_pj_dir" "$tgtTf" "$state_alias" "$dry_run"
 done
 
 
-if [[ $dryRun == "false" ]]; then
+if [[ $dry_run == "false" ]]; then
     cat "$src_pj_dir"/*.tf | hcledit block get data   > "$dst_pj_dir"/"$DATA_TF"
     cat "$src_pj_dir"/*.tf | hcledit block get locals > "$dst_pj_dir"/"$LOCALS_TF"
 
-    create_file_remote_state_ref $stateAlias $relpath > "$dst_pj_dir"/$REMOTE_STATE
-    create_file_remote_state_ref $stateAlias $relpath > "$src_pj_dir"/$REMOTE_STATE
+    create_file_remote_state_ref $state_alias $relpath > "$dst_pj_dir"/$REMOTE_STATE
+    create_file_remote_state_ref $state_alias $relpath > "$src_pj_dir"/$REMOTE_STATE
 
     check_nodiff "$dst_pj_dir"
     check_nodiff "$src_pj_dir"
 fi
 
-if [[ $dryRun == "false" ]]; then
-    create_s3_remote_state_ref $stateAlias "$dst_pj_dir"/provider.tf > "$src_pj_dir"/$REMOTE_STATE
-    create_s3_remote_state_ref $stateAlias "$src_pj_dir"/provider.tf > "$dst_pj_dir"/$REMOTE_STATE
+if [[ $dry_run == "false" ]]; then
+    create_s3_remote_state_ref $state_alias "$dst_pj_dir"/provider.tf > "$src_pj_dir"/$REMOTE_STATE
+    create_s3_remote_state_ref $state_alias "$src_pj_dir"/provider.tf > "$dst_pj_dir"/$REMOTE_STATE
 
     echo "# state and file move completed"
     echo "# please check the result and run following command to apply"
