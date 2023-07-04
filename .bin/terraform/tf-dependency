@@ -82,7 +82,7 @@ for t in $(echo $tgtTfFiles); do
             detected=""
             while read -r d; do
                 detected="$detected,$d"
-            done < <(gsed -n "s/.*\($r.*\)/\1/p" < $c | gsed -e 's/,.*//' -e 's/#.*//' -e 's/\"//g')
+            done < <(gsed -n "s/.*\($r.*\)/\1/p" < $c | gsed -e 's/,.*//' -e 's/#.*//' -e 's/\"//g' -e's/\[.*//')
 
             if [[ $detected != "" ]]; then
                 detected="$c:$(echo $detected | sed -e 's/^,//')"
