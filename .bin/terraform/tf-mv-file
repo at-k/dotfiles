@@ -64,8 +64,9 @@ function state_mv {
     local rsc=$3
     local dry_run=$4
 
-    echo terraform state mv -state="${src_pj_dir}"/$TFSTATE -state-out="${dst_pj_dir}"/$TFSTATE \'"$rsc"\' \'"$rsc"\'
-    if [[ $dry_run == "false" ]]; then
+    if [[ $dry_run == "true" ]]; then
+        echo terraform state mv -state="${src_pj_dir}"/$TFSTATE -state-out="${dst_pj_dir}"/$TFSTATE \'"$rsc"\' \'"$rsc"\'
+    else
         terraform state mv -state="${src_pj_dir}"/$TFSTATE -state-out="${dst_pj_dir}"/$TFSTATE $rsc $rsc
     fi
 }
@@ -81,13 +82,17 @@ function replace_to_indirect_for_src {
     # keep value reference between src and dst
     while read -r field; do
         local file=$(echo $field | cut -d, -f1)
+
+        [[ $file == "locals.tf" || $file == "moved.tf" ]] && continue
+
         for var in $(echo $field | cut -d, -f2- | tr ',' ' '); do
             local label=$(echo $var | gsed -e 's/\./_/g' -e 's/^module.//g')
 
-            echo "echo \"output \\\"$label\\\" {\\n value = $var \\n}\" >> $dst_pj_dir/$OUTPUT_TO"
-            echo "gsed -i s/$var/data.terraform_remote_state.$state_alias.outputs.$label/g $src_pj_dir/$file"
-            if [[ $dry_run == "false" ]]; then
-                if ! grep -q "output \"$label\"" "$dst_pj_dir"/$OUTPUT_TO; then
+            if [[ $dry_run == "true" ]] ; then
+                echo "echo \"output \\\"$label\\\" {\\n value = $var \\n}\" >> $dst_pj_dir/$OUTPUT_TO"
+                echo "gsed -i s/$var/data.terraform_remote_state.$state_alias.outputs.$label/g $src_pj_dir/$file"
+            else
+                if ! grep -q "output \"$label\"" "$dst_pj_dir"/$OUTPUT_TO 2> /dev/null; then
                     echo "output \"$label\" {\n value = $var \n}" >> "$dst_pj_dir"/$OUTPUT_TO
                 fi
                 gsed -i "s/$var/data.terraform_remote_state.$state_alias.outputs.$label/g" $src_pj_dir/$file
@@ -107,10 +112,11 @@ function replace_to_indirect_for_dst {
         for var in $(echo $field | tr ',' ' '); do
             local label=$(echo $var | gsed -e 's/\./_/g' -e 's/^module.//g')
 
-            echo "echo \"output \\\"$label\\\" {\\n value = $var \\n}\" >> $src_pj_dir/$OUTPUT_TO"
-            echo "gsed -i s/$var/data.terraform_remote_state.$state_alias.outputs.$label/g $dst_pj_dir/$tgt_file"
-            if [[ $dry_run == "false" ]]; then
-                if ! grep -q "output \"$label\"" "$src_pj_dir"/$OUTPUT_TO; then
+            if [[ $dry_run == "true" ]] ; then
+                echo "echo \"output \\\"$label\\\" {\\n value = $var \\n}\" >> $src_pj_dir/$OUTPUT_TO"
+                echo "gsed -i s/$var/data.terraform_remote_state.$state_alias.outputs.$label/g $dst_pj_dir/$tgt_file"
+            else
+                if ! grep -q "output \"$label\"" "$src_pj_dir"/$OUTPUT_TO 2> /dev/null; then
                     echo "output \"$label\" {\n value = $var \n}" >> "$src_pj_dir"/$OUTPUT_TO
                 fi
                 gsed -i "s/$var/data.terraform_remote_state.$state_alias.outputs.$label/g" $dst_pj_dir/$tgt_file
@@ -225,11 +231,9 @@ state_alias=$(basename $src_pj_dir)_$sId
 
 echo "initializing dstDir: $dst_pj_dir ..."
 init_pj "$dst_pj_dir"
-relpath=$(grealpath -m --relative-to="$dst_pj_dir" "$src_pj_dir")/$TFSTATE
 
 echo "initializing srcDir: $src_pj_dir ..."
 init_pj "$src_pj_dir"
-relpath=$(grealpath -m --relative-to="$src_pj_dir" "$dst_pj_dir")/$TFSTATE
 
 if [[ "$target_files" == "" ]]; then
   _pushd "$src_pj_dir" || exit
@@ -279,7 +283,10 @@ if [[ $dry_run == "false" ]]; then
     cat "$src_pj_dir"/*.tf | hcledit block get data   > "$dst_pj_dir"/"$DATA_TF"
     cat "$src_pj_dir"/*.tf | hcledit block get locals > "$dst_pj_dir"/"$LOCALS_TF"
 
+    relpath=$(grealpath -m --relative-to="$dst_pj_dir" "$src_pj_dir")/$TFSTATE
     create_file_remote_state_ref $state_alias $relpath > "$dst_pj_dir"/$REMOTE_STATE
+
+    relpath=$(grealpath -m --relative-to="$src_pj_dir" "$dst_pj_dir")/$TFSTATE
     create_file_remote_state_ref $state_alias $relpath > "$src_pj_dir"/$REMOTE_STATE
 
     check_nodiff "$dst_pj_dir"
