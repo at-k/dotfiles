@@ -12,9 +12,11 @@
 	wdiff = diff --color-words --ignore-all-space
     ldiff = difftool -y -t latex
     s = status
+    sc = status .
     b = branch
     co = checkout
     cm = commit
+    r = remote -v
     l = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
     lga = log --graph --all --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
     dt = difftool
