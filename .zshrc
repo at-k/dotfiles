@@ -27,7 +27,7 @@ export LESS='-i -M -R'
 
 case ${OSTYPE} in
 	darwin*)
-		eval $(/opt/homebrew/bin/brew shellenv);;
+		eval $($HOMEBREW_PREFIX/bin/brew shellenv);;
 esac
 
 typeset -U path PATH;
@@ -37,6 +37,7 @@ done
 
 export GOPATH=$(go env GOPATH)
 export PATH=$PATH:$GOPATH/bin
+export PATH=$PATH:$HOMEBREW_PREFIX/opt/libpq/bin
 
 case ${TERM} in
 	xterm*)
