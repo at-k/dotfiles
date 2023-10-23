@@ -25,6 +25,8 @@ export AWS_PAGER=''
 export LV="-c -Sh1;36 -Su1;4;32 -Ss7;37;1;33"
 export LESS='-i -M -R'
 
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
 case ${OSTYPE} in
 	darwin*)
 		eval $($HOMEBREW_PREFIX/bin/brew shellenv);;
@@ -319,3 +321,6 @@ zinit light-mode for \
 if (which zprof > /dev/null 2>&1) ;then
   zprof
 fi
+
+# Created by `pipx` on 2023-10-23 04:49:55
+export PATH="$PATH:/Users/akawamura/.local/bin"
