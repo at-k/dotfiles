@@ -19,7 +19,7 @@ function set_aws_profile() {
         sort |
         fzf --prompt "Select PROFILE. If press Ctrl-C, unset PROFILE. > " \
             --height 50% --layout=reverse --border --preview-window 'right:50%' \
-            --preview "grep {} -A5 ~/.aws/config")
+            --preview "grep {} -F -A5 ~/.aws/config")
 
     # If the profile is not selected, unset the environment variable 'AWS_PROFILE', etc.
     if [ -z "$selected_profile" ]; then
@@ -101,5 +101,5 @@ function create_aws_new_profile() {
     echo "sso_role_name = $selected_role_name" >> ~/.aws/config
 
     echo "Created profile '$prof_name' at ~/.aws/config"
-    grep -A3 '$prof_name' ~/.aws/config
+    grep -F -A3 '$prof_name' ~/.aws/config
 }
