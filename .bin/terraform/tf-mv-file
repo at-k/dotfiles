@@ -9,15 +9,19 @@ set -eu
 
 sId=$(cat /dev/urandom | LC_ALL=C tr -dc 'a-zA-Z0-9' | fold -w 5 | head -n 1)
 
-# refered file
-OUTPUTS=outputs.tf
-
 # generating files
 OUTPUT_TO=_"$sId"_outputs.tf
 REMOTE_STATE=_"$sId"_remote_state.tf
 DATA_TF=_"$sId"_data.tf
 LOCALS_TF=_"$sId"_locals.tf
 TFSTATE=_"$sId"_tfstate
+
+EXEC_SCRIPT_GEN_OUTPUT=01_gen_outputs.sh
+EXEC_SCRIPT_STATE_MV=02_do_statemv.sh
+EXEC_SCRIPT_MV_FILE=03_mv_file.sh
+EXEC_SCRIPT_REPLACE_REF=04_replace_refs.sh
+EXEC_SCRIPT_LOCAL_PLAN=05_local_plan.sh
+EXEC_SCRIPT_FINISH=06_finish.sh
 
 # temporary files
 TFSTATE_LIST=_"$sId"_tfstate_list
@@ -37,19 +41,6 @@ function usage() {
 function error() {
 }
 
-function override_backend {
-    cat << EOF > $OVERRIDE
-terraform {
-  backend "local" {
-  }
-}
-EOF
-}
-
-function restore_backend_from_override {
-    rm -f $OVERRIDE
-}
-
 function _pushd {
     pushd "$@" > /dev/null
 }
@@ -62,13 +53,8 @@ function state_mv {
     local src_pj_dir=$1
     local dst_pj_dir=$2
     local rsc=$3
-    local dry_run=$4
 
-    if [[ $dry_run == "true" ]]; then
-        echo terraform state mv -state="${src_pj_dir}"/$TFSTATE -state-out="${dst_pj_dir}"/$TFSTATE \'"$rsc"\' \'"$rsc"\'
-    else
-        terraform state mv -state="${src_pj_dir}"/$TFSTATE -state-out="${dst_pj_dir}"/$TFSTATE $rsc $rsc
-    fi
+    echo terraform state mv -state="${src_pj_dir}"/$TFSTATE -state-out="${dst_pj_dir}"/$TFSTATE \'"$rsc"\' \'"$rsc"\' >> $EXEC_SCRIPT_STATE_MV
 }
 
 # create reference from dst pj to src pj
@@ -77,7 +63,6 @@ function replace_to_indirect_for_src {
     local dst_pj_dir=$2
     local rsc=$3
     local state_alias=$4
-    local dry_run=$5
 
     # keep value reference between src and dst
     while read -r field; do
@@ -88,15 +73,8 @@ function replace_to_indirect_for_src {
         for var in $(echo $field | cut -d, -f2- | tr ',' ' '); do
             local label=$(echo $var | gsed -e 's/\./_/g' -e 's/^module.//g')
 
-            if [[ $dry_run == "true" ]] ; then
-                echo "echo \"output \\\"$label\\\" {\\n value = $var \\n}\" >> $dst_pj_dir/$OUTPUT_TO"
-                echo "gsed -i s/$var/data.terraform_remote_state.$state_alias.outputs.$label/g $src_pj_dir/$file"
-            else
-                if ! grep -q "output \"$label\"" "$dst_pj_dir"/$OUTPUT_TO 2> /dev/null; then
-                    echo "output \"$label\" {\n value = $var \n}" >> "$dst_pj_dir"/$OUTPUT_TO
-                fi
-                gsed -i "s/$var/data.terraform_remote_state.$state_alias.outputs.$label/g" $src_pj_dir/$file
-            fi
+            echo "echo \"output \\\"$label\\\" {\\n value = $var \\n}\" >> $dst_pj_dir/$OUTPUT_TO" >> $EXEC_SCRIPT_GEN_OUTPUT
+            echo "gsed -i \"s/$var/data.terraform_remote_state.$state_alias.outputs.$label/g\" $src_pj_dir/$file" >> $EXEC_SCRIPT_REPLACE_REF
         done
     done < <(cat $src_pj_dir/$DEPENDENCY_GRAPH_DST_TO_SRC | jq -r ".[] | select(.name == \"$rsc\") | [.ref.file, .ref.vars[]] |@csv" | sed 's/\"//g')
 }
@@ -106,38 +84,15 @@ function replace_to_indirect_for_dst {
     local dst_pj_dir=$2
     local tgt_file=$3
     local state_alias=$4
-    local dry_run=$5
 
     while read -r field; do
         for var in $(echo $field | tr ',' ' '); do
             local label=$(echo $var | gsed -e 's/\./_/g' -e 's/^module.//g')
 
-            if [[ $dry_run == "true" ]] ; then
-                echo "echo \"output \\\"$label\\\" {\\n value = $var \\n}\" >> $src_pj_dir/$OUTPUT_TO"
-                echo "gsed -i s/$var/data.terraform_remote_state.$state_alias.outputs.$label/g $dst_pj_dir/$tgt_file"
-            else
-                if ! grep -q "output \"$label\"" "$src_pj_dir"/$OUTPUT_TO 2> /dev/null; then
-                    echo "output \"$label\" {\n value = $var \n}" >> "$src_pj_dir"/$OUTPUT_TO
-                fi
-                gsed -i "s/$var/data.terraform_remote_state.$state_alias.outputs.$label/g" $dst_pj_dir/$tgt_file
-            fi
+            echo "echo \"output \\\"$label\\\" {\\n value = $var \\n}\" >> $src_pj_dir/$OUTPUT_TO" >> $EXEC_SCRIPT_GEN_OUTPUT
+            echo "gsed -i \"s/$var/data.terraform_remote_state.$state_alias.outputs.$label/g\" $dst_pj_dir/$tgt_file" >> $EXEC_SCRIPT_REPLACE_REF
         done
     done < <(cat $src_pj_dir/$DEPENDENCY_GRAPH_SRC_TO_DST | jq -r ".[] | select(.ref.file == \"$tgt_file\") | [.ref.vars[]] |@csv" | sed 's/\"//g')
-}
-
-function create_file_remote_state_ref {
-    local state_alias=$1
-    local file_path=$2
-
-    cat << EOF
-data "terraform_remote_state" "$state_alias" {
-  backend = "local"
-
-  config = {
-    path = "$file_path"
-  }
-}
-EOF
 }
 
 function create_s3_remote_state_ref {
@@ -180,19 +135,21 @@ function init_pj {
 function check_nodiff {
     local pj_dir=$1
 
-    _pushd "$pj_dir" || exit
-    override_backend
-    terraform init --reconfigure > /dev/null
-    terraform refresh --state=$TFSTATE > /dev/null
-    if terraform plan --state=$TFSTATE -detailed-exitcode > /dev/null; then
-        echo "[ok] no change on $pj_dir"
-    else
-        echo "[error] plan failed on $pj_dir"
-        restore_backend_from_override
-        exit 1
-    fi
+    cat << EOF >> $EXEC_SCRIPT_LOCAL_PLAN
+pushd "$pj_dir" || exit
+override_backend
+terraform init --reconfigure > /dev/null
+terraform refresh --state=$TFSTATE > /dev/null
+if terraform plan --state=$TFSTATE -detailed-exitcode > /dev/null; then
+    echo "[ok] no change on $pj_dir"
+else
+    echo "[error] plan failed on $pj_dir"
     restore_backend_from_override
-    _popd || exit
+    exit 1
+fi
+restore_backend_from_override
+popd || exit
+EOF
 }
 
 dry_run="true"
@@ -227,6 +184,13 @@ fi
 src_pj_dir=$(echo "$src_pj_dir" | sed 's/\/$//')
 dst_pj_dir=$(echo "$dst_pj_dir" | sed 's/\/$//')
 
+echo > $EXEC_SCRIPT_GEN_OUTPUT
+echo > $EXEC_SCRIPT_STATE_MV
+echo > $EXEC_SCRIPT_MV_FILE
+echo > $EXEC_SCRIPT_REPLACE_REF
+echo > $EXEC_SCRIPT_LOCAL_PLAN
+echo > $EXEC_SCRIPT_FINISH
+
 state_alias=$(basename $src_pj_dir)_$sId
 
 echo "initializing dstDir: $dst_pj_dir ..."
@@ -258,40 +222,81 @@ for tgtTf in $(echo $target_files); do
         if [[ $(hcledit attribute get "${rsc}.for_each" < "${src_pj_dir}/$tgtTf" | wc -l) -eq 0 ]]; then
             # no for_each resource
             rsc=${rsc//#resource./}
-            state_mv "$src_pj_dir" "$dst_pj_dir" "$rsc" "$dry_run"
-            replace_to_indirect_for_src "$src_pj_dir" "$dst_pj_dir" "$rsc" "$state_alias" "$dry_run"
+            state_mv "$src_pj_dir" "$dst_pj_dir" "$rsc"
+            replace_to_indirect_for_src "$src_pj_dir" "$dst_pj_dir" "$rsc" "$state_alias"
         else
             # for_each resource
             rsc=${rsc//#resource./}
 
             while read -r each_rsc; do
-                state_mv "$src_pj_dir" "$dst_pj_dir" "$each_rsc" "$dry_run"
-                replace_to_indirect_for_src "$src_pj_dir" "$dst_pj_dir" "$each_rsc" "$state_alias" "$dry_run"
+                state_mv "$src_pj_dir" "$dst_pj_dir" "$each_rsc"
+                replace_to_indirect_for_src "$src_pj_dir" "$dst_pj_dir" "$each_rsc" "$state_alias"
             done < <(grep "$rsc" "${src_pj_dir}"/$TFSTATE_LIST)
         fi
     done
 
-    if [[ $dry_run == "false" ]]; then
-        mv ${src_pj_dir}/${tgtTf} ${dst_pj_dir}/${tgtTf}
-    fi
+    echo "mv ${src_pj_dir}/${tgtTf} ${dst_pj_dir}/${tgtTf}" >> $EXEC_SCRIPT_MV_FILE
 
-    replace_to_indirect_for_dst "$src_pj_dir" "$dst_pj_dir" "$tgtTf" "$state_alias" "$dry_run"
+    replace_to_indirect_for_dst "$src_pj_dir" "$dst_pj_dir" "$tgtTf" "$state_alias"
 done
 
+echo "cat $src_pj_dir/*.tf | hcledit block get data   > $dst_pj_dir/$DATA_TF" >> $EXEC_SCRIPT_MV_FILE
+echo "cat $src_pj_dir/*.tf | hcledit block get locals > $dst_pj_dir/$LOCALS_TF" >> $EXEC_SCRIPT_MV_FILE
 
-if [[ $dry_run == "false" ]]; then
-    cat "$src_pj_dir"/*.tf | hcledit block get data   > "$dst_pj_dir"/"$DATA_TF"
-    cat "$src_pj_dir"/*.tf | hcledit block get locals > "$dst_pj_dir"/"$LOCALS_TF"
+cat << EOF >> $EXEC_SCRIPT_GEN_OUTPUT
+pushd $src_pj_dir
+terraform refresh --state=$TFSTATE
+popd
+EOF
 
-    relpath=$(grealpath -m --relative-to="$dst_pj_dir" "$src_pj_dir")/$TFSTATE
-    create_file_remote_state_ref $state_alias $relpath > "$dst_pj_dir"/$REMOTE_STATE
+cat << EOF >> $EXEC_SCRIPT_MV_FILE
+pushd $src_pj_dir
+tflint --fix
+popd
+pushd $dst_pj_dir
+tflint --fix
+popd
+EOF
 
-    relpath=$(grealpath -m --relative-to="$src_pj_dir" "$dst_pj_dir")/$TFSTATE
-    create_file_remote_state_ref $state_alias $relpath > "$src_pj_dir"/$REMOTE_STATE
+cat << EOF > $EXEC_SCRIPT_LOCAL_PLAN
+function create_file_remote_state_ref {
+    local state_alias=\$1
+    local file_path=\$2
 
-    check_nodiff "$dst_pj_dir"
-    check_nodiff "$src_pj_dir"
-fi
+    cat << EOF1
+data "terraform_remote_state" "\$state_alias" {
+  backend = "local"
+
+  config = {
+    path = "\$file_path"
+  }
+}
+EOF1
+}
+
+function override_backend {
+    cat << EOF1 > override.tf
+terraform {
+  backend "local" {
+  }
+}
+EOF1
+}
+
+function restore_backend_from_override {
+    rm -f override.tf
+}
+
+EOF
+
+relpath=$(grealpath -m --relative-to="$dst_pj_dir" "$src_pj_dir")/$TFSTATE
+echo "create_file_remote_state_ref $state_alias $relpath > $dst_pj_dir/$REMOTE_STATE" >> $EXEC_SCRIPT_LOCAL_PLAN
+
+relpath=$(grealpath -m --relative-to="$src_pj_dir" "$dst_pj_dir")/$TFSTATE
+echo "create_file_remote_state_ref $state_alias $relpath > $src_pj_dir/$REMOTE_STATE" >> $EXEC_SCRIPT_LOCAL_PLAN
+
+check_nodiff "$dst_pj_dir"
+check_nodiff "$src_pj_dir"
 
 if [[ $dry_run == "false" ]]; then
     create_s3_remote_state_ref $state_alias "$dst_pj_dir"/provider.tf > "$src_pj_dir"/$REMOTE_STATE

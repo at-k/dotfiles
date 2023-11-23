@@ -1,0 +1,38 @@
+#!/bin/zsh
+#
+
+function generate_provider {
+    local bucket="$1"
+    local key="$2"
+    local region="$3"
+
+    cat << EOF
+terraform {
+  required_version = ">= 1.0"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4"
+    }
+  }
+
+  backend "s3" {
+    bucket = "$bucket"
+    key    = "$key"
+    region = "$region"
+    acl    = "bucket-owner-full-control"
+  }
+}
+
+provider "aws" {
+  region = "ap-northeast-1"
+}
+EOF
+}
+
+bucket=freee-aws-infra
+prefix=terraform-states
+key=$prefix/$(grealpath -m --relative-to=$(git rev-parse --show-toplevel) ./)
+
+generate_provider $bucket $key ap-northeast-1
