@@ -25,6 +25,7 @@ function set_aws_profile() {
     if [ -z "$selected_profile" ]; then
         echo "Unset env 'AWS_PROFILE'!"
         unset AWS_PROFILE
+        unset AWS_DEFAULT_PROFILE
         unset AWS_ACCESS_KEY_ID
         unset AWS_SECRET_ACCESS_KEY
         return
@@ -33,6 +34,7 @@ function set_aws_profile() {
     # If a profile is selected, set the environment variable 'AWS_PROFILE'.
     echo "Set the environment variable 'AWS_PROFILE' to '${selected_profile}'!"
     export AWS_PROFILE="$selected_profile"
+    export AWS_DEFAULT_PROFILE="$selected_profile"
     unset AWS_ACCESS_KEY_ID
     unset AWS_SECRET_ACCESS_KEY
 
