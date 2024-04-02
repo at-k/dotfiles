@@ -264,8 +264,9 @@ alias zbench='time ( zsh -i -c exit)'
 alias ecr-login='aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin 057575985710.dkr.ecr.ap-northeast-1.amazonaws.com'
 alias tf-search='gh repo list C-FO -l hcl --limit 1000 | fzf | cut -f1 | xargs -I{} gh repo view {}'
 
-
 alias myip='curl httpbin.org/ip'
+
+alias check-ssl='(){ openssl s_client -connect ${1}:443 < /dev/null 2> /dev/null | openssl x509 -text | grep "Not"}'
 
 # }}
 
@@ -324,3 +325,9 @@ fi
 
 # Created by `pipx` on 2023-10-23 04:49:55
 export PATH="$PATH:/Users/akawamura/.local/bin"
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/Users/akawamura/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/akawamura/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/Users/akawamura/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/akawamura/google-cloud-sdk/completion.zsh.inc'; fi
