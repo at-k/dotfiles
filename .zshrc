@@ -301,6 +301,8 @@ zstyle ':zle:*' word-style unspecified
 
 [[ -f ~/.config/zsh/utils.zsh ]] && zsh-defer -t 1 source ~/.config/zsh/utils.zsh
 
+[[ -f ~/.config/zsh/gh.zsh ]] && zsh-defer -t 1 source ~/.config/zsh/gh.zsh
+
 [[ -f ~/.iterm2_shell_integration.zsh ]] && source ~/.iterm2_shell_integration.zsh
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
