@@ -61,3 +61,6 @@ if [ $commands[terraform] ]; then
     }
 fi
 
+# if [ $commands[gh] ]; then
+#     eval "$(gh completion -s zsh)"
+# fi

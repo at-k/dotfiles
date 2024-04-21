@@ -11,6 +11,7 @@ alias aeu='(){aws eks update-kubeconfig --name $1}'
 
 alias awsp=set_aws_profile
 alias awsnp=create_aws_new_profile
+alias awsep='(){ vim ~/.aws/config }'
 
 function set_aws_profile() {
     # Select AWS PROFILE
