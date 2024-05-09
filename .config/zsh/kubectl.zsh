@@ -29,9 +29,22 @@ alias kgp-s='(){kubectl get po --selector=$1}'
 alias kgn-l='(){kubectl get no -L=$1}'
 alias kgp-l='(){kubectl get po -L=$1}'
 
-alias kgpc="(){kubectl get po \$1 -o jsonpath='{.spec.containers[*].name}'}"
+alias kgpc="(){kubectl get po | fzf | awk '{print \$1}' | xargs -I{} kubectl get pod {} -o jsonpath='{.spec.containers[*].name}'}"
+alias krbac="(){kubectl get -A rolebindings -o json | jq -r '.items[] | select(.subjects[0].kind==\"Group\") | [.roleRef.name, .subjects[].name] | @csv'}"
 
-alias krbac="(){kubetl get -A rolebindings -o json | jq -r '.items[] | select(.subjects[0].kind=='Group') | [.roleRef.name, .subjects[].name] | @csv'"
+function kinsjson() {
+    local rsc_type=$(echo "po\ndeploy\nds" | fzf)
+    if [ -z ${rsc_type} ]; then
+        return
+    fi
+    local tgt=$(kubectl get ${rsc_type} | fzf | awk '{print $1}')
+    if [ -z ${tgt} ]; then
+        return
+    fi
+
+    tmux splitw -h && tmux send-key "kubectl get ${rsc_type} ${tgt} -o json | fx" C-m
+    kubectl get ${rsc_type} ${tgt} -o json | jid
+}
 
 alias kaaws="(){cat <<EOF | kubectl apply -f -
 apiVersion: v1
