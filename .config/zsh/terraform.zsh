@@ -2,6 +2,7 @@
 # aliases and functions for terraform
 #
 
+export TF_CLI_ARGS_plan="--parallelism=8"
 
 alias tplan="terraform plan | landscape"
 alias tf='terraform'
