@@ -1,0 +1,43 @@
+#!/bin/bash
+
+p=" 移動元のPJを選んでください"
+pj_from=$(ls -F | grep \/$ | peco --prompt $p)
+
+p=" 移動先のPJを選んでください"
+pj_to=$(ls -F | grep \/$ | peco --prompt $p)
+
+if [ ! -d "$pj_from" -o ! -d "$pj_to" ]; then
+  echo "PJが指定されていません"
+  exit
+fi
+
+echo "** $pj_from から $pj_to にリソースを移動させます"
+
+echo "** tfstateを取得しています... "
+pushd $pj_from
+terraform state pull > tfstate
+popd
+pushd $pj_to
+terraform state pull > tfstate
+popd
+
+p=" 移動対象のリソースを選んでください（複数可）"
+tgt_rsc=$(terraform state list -state=${pj_from}tfstate | peco --prompt $p)
+
+echo "** tfstateを移動させます"
+# cd $root
+for rsc in $tgt_rsc; do
+  echo "terraform state mv -state=${pj_from}tfstate -state-out=${pj_to}tfstate $rsc $rsc"
+  terraform state mv -state=${pj_from}tfstate -state-out=${pj_to}tfstate $rsc $rsc
+done
+
+# echo "** local tfstateをチェックしています..." # remote state使っている場合は`-state` option無視されるらしく使えなさそうなので一旦コメントアウト
+# cd $pj_from
+# terraform plan -state=tfstate
+# cd $root
+# cd $pj_to
+# terraform plan -state=tfstate
+# cd $root
+
+echo "** tfstateの移動が完了しました"
+echo "** 次にやること: 1. コードの修正、2. 各PJで terraform state push tfstate、3. planでno diff確認"
