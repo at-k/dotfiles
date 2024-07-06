@@ -1,34 +1,50 @@
 #!/bin/bash
 
-p=" 移動元のPJを選んでください"
-pj_from=$(ls -F | grep \/$ | peco --prompt $p)
+prompt_from="移動元のPJを選んでください"
+pj_from=$(find . -type d -not -path '*/\.*' -not -path '*/node_modules*' | peco --prompt "$prompt_from")
 
-p=" 移動先のPJを選んでください"
-pj_to=$(ls -F | grep \/$ | peco --prompt $p)
+prompt_to="移動先のPJを選んでください"
+pj_to=$(find . -type d -not -path '*/\.*' -not -path '*/node_modules*' | peco --prompt "$prompt_to")
 
-if [ ! -d "$pj_from" -o ! -d "$pj_to" ]; then
-  echo "PJが指定されていません"
-  exit
+if [ ! -d "$pj_from" ]; then
+  echo "移動元のPJが存在しません: $pj_from"
+  exit 1
+elif [ ! -d "$pj_to" ]; then
+  echo "移動先のPJが存在しません: $pj_to"
+  exit 1
 fi
 
 echo "** $pj_from から $pj_to にリソースを移動させます"
 
 echo "** tfstateを取得しています... "
-pushd $pj_from
+pushd $pj_from > /dev/null
+terraform init
+if [ $? -ne 0 ]; then
+  echo "terraform init failed"
+  popd > /dev/null
+  exit 1
+fi
 terraform state pull > tfstate
-popd
-pushd $pj_to
+popd > /dev/null
+
+pushd $pj_to > /dev/null
+terraform init
+if [ $? -ne 0 ]; then
+  echo "terraform init failed"
+  popd > /dev/null
+  exit 1
+fi
 terraform state pull > tfstate
-popd
+popd > /dev/null
 
 p=" 移動対象のリソースを選んでください（複数可）"
-tgt_rsc=$(terraform state list -state=${pj_from}tfstate | peco --prompt $p)
+tgt_rsc=$(terraform state list -state=${pj_from}/tfstate | peco --prompt $p)
 
 echo "** tfstateを移動させます"
 # cd $root
 for rsc in $tgt_rsc; do
-  echo "terraform state mv -state=${pj_from}tfstate -state-out=${pj_to}tfstate $rsc $rsc"
-  terraform state mv -state=${pj_from}tfstate -state-out=${pj_to}tfstate $rsc $rsc
+  echo "terraform state mv -state=${pj_from}/tfstate -state-out=${pj_to}/tfstate $rsc $rsc"
+  terraform state mv -state=${pj_from}/tfstate -state-out=${pj_to}/tfstate $rsc $rsc
 done
 
 # echo "** local tfstateをチェックしています..." # remote state使っている場合は`-state` option無視されるらしく使えなさそうなので一旦コメントアウト
