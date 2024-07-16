@@ -57,7 +57,7 @@ function set_aws_profile() {
 function create_aws_new_profile() {
     local AWS_SSO_SESSION_NAME="aws-sso"
 
-    aws sso login --sso-session $AWS_SSO_SESSION_NAME
+    aws sso login --sso-session $AWS_SSO_SESSION_NAME --no-cli-auto-prompt
 
     local ACCESS_TOKEN=$(cat $(ls -1d ~/.aws/sso/cache/* | grep -v botocore) | jq -r "{accessToken} | .[]" | grep -v null | head -1)
 
@@ -66,7 +66,7 @@ function create_aws_new_profile() {
         return
     fi
 
-    local selected_account=$(aws sso list-accounts --access-token $ACCESS_TOKEN |
+    local selected_account=$(aws sso list-accounts --access-token $ACCESS_TOKEN --no-cli-auto-prompt |
         jq -r ".accountList[] | [.accountId, .accountName] | @csv" |
         sed 's/\"//g' |
         fzf --prompt "Select AWS Account > " \
@@ -80,7 +80,7 @@ function create_aws_new_profile() {
     local selected_account_id=$(echo $selected_account | cut -d ',' -f 1)
     local selected_account_name=$(echo $selected_account | cut -d ',' -f 2)
 
-    local selected_role_name=$(aws sso list-account-roles --access-token $ACCESS_TOKEN --account-id $selected_account_id |
+    local selected_role_name=$(aws sso list-account-roles --access-token $ACCESS_TOKEN --account-id $selected_account_id --no-cli-auto-prompt |
         jq -r ".roleList[] | .roleName" |
         fzf --prompt "Select AWS Role > " \
         --height 50% --layout=reverse --border --preview-window 'right:50%')
