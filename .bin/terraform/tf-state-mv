@@ -1,4 +1,15 @@
 #!/bin/zsh
+#
+
+use_local_tf="false"
+
+while getopts lh flag
+do
+    case "${flag}" in
+        l) use_local_tf="true";;
+        h) how_to_use $0;exit 0;;
+    esac
+done
 
 prompt_from="移動元のPJを選んでください"
 pj_from=$(find . -type d -not -path '*/\.*' -not -path '*/node_modules*' | peco --prompt "$prompt_from")
@@ -16,26 +27,37 @@ fi
 
 echo "** $pj_from から $pj_to にリソースを移動させます"
 
-echo "** tfstateを取得しています... "
-pushd $pj_from > /dev/null
-terraform init
-if [ $? -ne 0 ]; then
-  echo "terraform init failed"
-  popd > /dev/null
-  exit 1
-fi
-terraform state pull > tfstate
-popd > /dev/null
+if [ $use_local_tf = "false" ]; then
+    echo "** tfstateを取得しています... "
+    pushd $pj_from > /dev/null
+    terraform init
+    if [ $? -ne 0 ]; then
+      echo "terraform init failed"
+      popd > /dev/null
+      exit 1
+    fi
+    terraform state pull > tfstate
+    popd > /dev/null
 
-pushd $pj_to > /dev/null
-terraform init
-if [ $? -ne 0 ]; then
-  echo "terraform init failed"
-  popd > /dev/null
-  exit 1
+    pushd $pj_to > /dev/null
+    terraform init
+    if [ $? -ne 0 ]; then
+      echo "terraform init failed"
+      popd > /dev/null
+      exit 1
+    fi
+    terraform state pull > tfstate
+    popd > /dev/null
+else
+    if [ ! -f $pj_from/tfstate ]; then
+        echo "tfstate fileが$pj_fromにありません"
+        exit 1
+    fi
+    if [ ! -f $pj_to/tfstate ]; then
+        echo "tfstate fileが$pj_toにありません"
+        exit 1
+    fi
 fi
-terraform state pull > tfstate
-popd > /dev/null
 
 p=" 移動対象のリソースを選んでください（複数可）"
 tgt_rsc=$(terraform state list -state=${pj_from}/tfstate)
