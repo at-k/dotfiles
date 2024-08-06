@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 
 prompt_from="移動元のPJを選んでください"
 pj_from=$(find . -type d -not -path '*/\.*' -not -path '*/node_modules*' | peco --prompt "$prompt_from")
@@ -38,7 +38,10 @@ terraform state pull > tfstate
 popd > /dev/null
 
 p=" 移動対象のリソースを選んでください（複数可）"
-tgt_rsc=$(terraform state list -state=${pj_from}/tfstate | peco --prompt $p)
+tgt_rsc=$(terraform state list -state=${pj_from}/tfstate)
+mod=$(echo $tgt_rsc | grep '^module' | cut -d. -f1-2 | uniq)
+others=$(echo $tgt_rsc | grep -v '^module')
+tgt_rsc=$(echo $mod $others | peco --prompt $p)
 
 echo "** tfstateを移動させます"
 # cd $root
