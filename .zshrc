@@ -253,6 +253,7 @@ alias g='git'
 alias gcdr='cd $(git root)'
 
 alias vim='nvim'
+alias vi='nvim'
 alias v='nvim'
 
 alias diff='diff -Bw'

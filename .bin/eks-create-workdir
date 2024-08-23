@@ -1,0 +1,27 @@
+#!/bin/zsh
+
+set +uex
+
+template_dir=$(dirname $(readlink -f "$0"))/template/eks_cluster_work_dir
+
+clusters=$(aws eks list-clusters | jq -r '.clusters[]')
+cur_dirs=$(ls -d */ | grep -v template | sed 's;/;;')
+
+
+# create working dir
+for c in `echo $clusters`; do
+  exist=$(echo $cur_dirs | grep $c)
+  if [ -z "$exist" ]; then
+    echo cp -r $template_dir $c
+    cp -r $template_dir $c
+  fi
+done
+
+# rm obsolted working dir
+for c in `echo $cur_dirs`; do
+  exist=$(echo $clusters | grep $c)
+  if [ -z "$exist" ]; then
+    echo rm -r $c
+    rm -r $c
+  fi
+done
