@@ -32,6 +32,8 @@ alias kgp-l='(){kubectl get po -L=$1}'
 alias kgpc="(){kubectl get po | fzf | awk '{print \$1}' | xargs -I{} kubectl get pod {} -o jsonpath='{.spec.containers[*].name}'}"
 alias krbac="(){kubectl get -A rolebindings -o json | jq -r '.items[] | select(.subjects[0].kind==\"Group\") | [.roleRef.name, .subjects[].name] | @csv'}"
 
+alias kexi="kubectl exec -it"
+
 function kinsjson() {
     local rsc_type=$(echo "po\ndeploy\nds" | fzf)
     if [ -z ${rsc_type} ]; then

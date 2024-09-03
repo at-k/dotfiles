@@ -63,11 +63,10 @@ p=" 移動対象のリソースを選んでください（複数可）"
 tgt_rsc=$(terraform state list -state=${pj_from}/tfstate)
 mod=$(echo $tgt_rsc | grep '^module' | cut -d. -f1-2 | uniq)
 others=$(echo $tgt_rsc | grep -v '^module')
-tgt_rsc=$(echo $mod $others | peco --prompt $p)
-
+tgt_rsc=$(echo $mod\\n$others | peco --prompt $p)
 echo "** tfstateを移動させます"
 # cd $root
-for rsc in $tgt_rsc; do
+for rsc in $(echo $tgt_rsc); do
   echo "terraform state mv -state=${pj_from}/tfstate -state-out=${pj_to}/tfstate $rsc $rsc"
   terraform state mv -state=${pj_from}/tfstate -state-out=${pj_to}/tfstate $rsc $rsc
 done
